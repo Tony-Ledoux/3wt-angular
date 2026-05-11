@@ -1,6 +1,14 @@
+using backend.DbContexts;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddDbContext<KitchenDbContext>(DbContextOptions =>
+{
+    DbContextOptions.UseNpgsql(builder.Configuration.GetConnectionString("Default"));
+});
+
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
