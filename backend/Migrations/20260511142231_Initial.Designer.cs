@@ -12,7 +12,7 @@ using backend.DbContexts;
 namespace backend.Migrations
 {
     [DbContext(typeof(KitchenDbContext))]
-    [Migration("20260511130140_Initial")]
+    [Migration("20260511142231_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -29,7 +29,8 @@ namespace backend.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
@@ -50,16 +51,18 @@ namespace backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_device_types");
 
-                    b.ToTable("DeviceTypes");
+                    b.ToTable("device_types", (string)null);
                 });
 
             modelBuilder.Entity("backend.Entities.Household", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
@@ -92,16 +95,18 @@ namespace backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_households");
 
-                    b.ToTable("Households");
+                    b.ToTable("households", (string)null);
                 });
 
             modelBuilder.Entity("backend.Entities.HouseholdUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
@@ -134,18 +139,21 @@ namespace backend.Migrations
                         .HasColumnType("text")
                         .HasColumnName("user_id");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_household_users");
 
-                    b.HasIndex("HouseholdId");
+                    b.HasIndex("HouseholdId")
+                        .HasDatabaseName("ix_household_users_household_id");
 
-                    b.ToTable("HouseholdUsers");
+                    b.ToTable("household_users", (string)null);
                 });
 
             modelBuilder.Entity("backend.Entities.Inventory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
@@ -193,20 +201,27 @@ namespace backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_inventories");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("ix_inventories_product_id");
 
-                    b.HasIndex("RecipeId");
+                    b.HasIndex("RecipeId")
+                        .HasDatabaseName("ix_inventories_recipe_id");
 
-                    b.ToTable("Inventories");
+                    b.HasIndex("StorageLocationId")
+                        .HasDatabaseName("ix_inventories_storage_location_id");
+
+                    b.ToTable("inventories", (string)null);
                 });
 
             modelBuilder.Entity("backend.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
@@ -222,16 +237,13 @@ namespace backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<int?>("HousholdId")
+                    b.Property<int?>("HouseholdId")
                         .HasColumnType("integer")
                         .HasColumnName("household_id");
 
                     b.Property<bool>("IsGlobal")
                         .HasColumnType("boolean")
                         .HasColumnName("is_global");
-
-                    b.Property<int?>("ProductCategoryMappingId")
-                        .HasColumnType("integer");
 
                     b.Property<string>("ProductName")
                         .IsRequired()
@@ -250,20 +262,21 @@ namespace backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_products");
 
-                    b.HasIndex("HousholdId");
+                    b.HasIndex("HouseholdId")
+                        .HasDatabaseName("ix_products_household_id");
 
-                    b.HasIndex("ProductCategoryMappingId");
-
-                    b.ToTable("Products");
+                    b.ToTable("products", (string)null);
                 });
 
             modelBuilder.Entity("backend.Entities.ProductCategory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
@@ -280,30 +293,36 @@ namespace backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<int?>("ProductCategoryMappingId")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_product_categories");
 
                     b.HasIndex("Category")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("ix_product_categories_category");
 
-                    b.HasIndex("ProductCategoryMappingId");
-
-                    b.ToTable("ProductCategories");
+                    b.ToTable("product_categories", (string)null);
                 });
 
             modelBuilder.Entity("backend.Entities.ProductCategoryMapping", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
 
                     b.Property<int>("ProductCategoryId")
                         .HasColumnType("integer")
@@ -313,20 +332,28 @@ namespace backend.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("product_id");
 
-                    b.HasKey("Id");
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
 
-                    b.HasIndex("ProductCategoryId");
+                    b.HasKey("Id")
+                        .HasName("pk_product_category_mappings");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("ProductCategoryId")
+                        .HasDatabaseName("ix_product_category_mappings_product_category_id");
 
-                    b.ToTable("ProductCategoryMappings");
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("ix_product_category_mappings_product_id");
+
+                    b.ToTable("product_category_mappings", (string)null);
                 });
 
             modelBuilder.Entity("backend.Entities.Recipe", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
@@ -340,7 +367,7 @@ namespace backend.Migrations
 
                     b.Property<int?>("HouseHoldId")
                         .HasColumnType("integer")
-                        .HasColumnName("household_id");
+                        .HasColumnName("house_hold_id");
 
                     b.Property<string>("Instructions")
                         .IsRequired()
@@ -364,16 +391,18 @@ namespace backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_recipes");
 
-                    b.ToTable("Recipes");
+                    b.ToTable("recipes", (string)null);
                 });
 
             modelBuilder.Entity("backend.Entities.RecipeCategory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
@@ -394,18 +423,28 @@ namespace backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_categories");
 
-                    b.ToTable("Categories");
+                    b.ToTable("categories", (string)null);
                 });
 
             modelBuilder.Entity("backend.Entities.RecipeCategoryMapping", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
 
                     b.Property<int>("RecipeCategoryId")
                         .HasColumnType("integer")
@@ -415,20 +454,28 @@ namespace backend.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("recipe_id");
 
-                    b.HasKey("Id");
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
 
-                    b.HasIndex("RecipeCategoryId");
+                    b.HasKey("Id")
+                        .HasName("pk_recipe_category_mappings");
 
-                    b.HasIndex("RecipeId");
+                    b.HasIndex("RecipeCategoryId")
+                        .HasDatabaseName("ix_recipe_category_mappings_recipe_category_id");
 
-                    b.ToTable("RecipeCategoryMappings");
+                    b.HasIndex("RecipeId")
+                        .HasDatabaseName("ix_recipe_category_mappings_recipe_id");
+
+                    b.ToTable("recipe_category_mappings", (string)null);
                 });
 
             modelBuilder.Entity("backend.Entities.RecipeIngredient", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
@@ -460,20 +507,24 @@ namespace backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_recipe_ingredients");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("ix_recipe_ingredients_product_id");
 
-                    b.HasIndex("RecipeId");
+                    b.HasIndex("RecipeId")
+                        .HasDatabaseName("ix_recipe_ingredients_recipe_id");
 
-                    b.ToTable("RecipeIngredients");
+                    b.ToTable("recipe_ingredients", (string)null);
                 });
 
             modelBuilder.Entity("backend.Entities.Shoppinglist", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
@@ -513,22 +564,27 @@ namespace backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_shoppinglists");
 
-                    b.HasIndex("AddedByUserId");
+                    b.HasIndex("AddedByUserId")
+                        .HasDatabaseName("ix_shoppinglists_added_by_user_id");
 
-                    b.HasIndex("HouseholdId");
+                    b.HasIndex("HouseholdId")
+                        .HasDatabaseName("ix_shoppinglists_household_id");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("ix_shoppinglists_product_id");
 
-                    b.ToTable("Shoppinglists");
+                    b.ToTable("shoppinglists", (string)null);
                 });
 
             modelBuilder.Entity("backend.Entities.StorageLocation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
@@ -557,20 +613,24 @@ namespace backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_storage_locations");
 
-                    b.HasIndex("DeviceTypeId");
+                    b.HasIndex("DeviceTypeId")
+                        .HasDatabaseName("ix_storage_locations_device_type_id");
 
-                    b.HasIndex("HouseholdId");
+                    b.HasIndex("HouseholdId")
+                        .HasDatabaseName("ix_storage_locations_household_id");
 
-                    b.ToTable("StorageLocations");
+                    b.ToTable("storage_locations", (string)null);
                 });
 
             modelBuilder.Entity("backend.Entities.StorageRule", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
@@ -598,20 +658,24 @@ namespace backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_storage_rules");
 
-                    b.HasIndex("DeviceTypeId");
+                    b.HasIndex("DeviceTypeId")
+                        .HasDatabaseName("ix_storage_rules_device_type_id");
 
-                    b.HasIndex("ProductCategoryId");
+                    b.HasIndex("ProductCategoryId")
+                        .HasDatabaseName("ix_storage_rules_product_category_id");
 
-                    b.ToTable("StorageRules");
+                    b.ToTable("storage_rules", (string)null);
                 });
 
             modelBuilder.Entity("backend.Entities.Weekmenu", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
@@ -639,16 +703,20 @@ namespace backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_weekmenus");
 
-                    b.HasIndex("HouseholdId");
+                    b.HasIndex("HouseholdId")
+                        .HasDatabaseName("ix_weekmenus_household_id");
 
-                    b.HasIndex("RecipeId");
+                    b.HasIndex("RecipeId")
+                        .HasDatabaseName("ix_weekmenus_recipe_id");
 
                     b.HasIndex("ServingDate", "HouseholdId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("ix_weekmenus_serving_date_household_id");
 
-                    b.ToTable("Weekmenus");
+                    b.ToTable("weekmenus", (string)null);
                 });
 
             modelBuilder.Entity("backend.Entities.HouseholdUser", b =>
@@ -657,7 +725,8 @@ namespace backend.Migrations
                         .WithMany("HouseholdUsers")
                         .HasForeignKey("HouseholdId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_household_users_households_household_id");
 
                     b.Navigation("Household");
                 });
@@ -666,50 +735,57 @@ namespace backend.Migrations
                 {
                     b.HasOne("backend.Entities.Product", "Product")
                         .WithMany("Inventories")
-                        .HasForeignKey("ProductId");
+                        .HasForeignKey("ProductId")
+                        .HasConstraintName("fk_inventories_products_product_id");
 
                     b.HasOne("backend.Entities.Recipe", "Recipe")
                         .WithMany("Inventories")
-                        .HasForeignKey("RecipeId");
+                        .HasForeignKey("RecipeId")
+                        .HasConstraintName("fk_inventories_recipes_recipe_id");
+
+                    b.HasOne("backend.Entities.StorageLocation", "StorageLocation")
+                        .WithMany()
+                        .HasForeignKey("StorageLocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_inventories_storage_locations_storage_location_id");
 
                     b.Navigation("Product");
 
                     b.Navigation("Recipe");
+
+                    b.Navigation("StorageLocation");
                 });
 
             modelBuilder.Entity("backend.Entities.Product", b =>
                 {
                     b.HasOne("backend.Entities.Household", "Household")
                         .WithMany()
-                        .HasForeignKey("HousholdId");
-
-                    b.HasOne("backend.Entities.ProductCategoryMapping", null)
-                        .WithMany("Products")
-                        .HasForeignKey("ProductCategoryMappingId");
+                        .HasForeignKey("HouseholdId")
+                        .HasConstraintName("fk_products_households_household_id");
 
                     b.Navigation("Household");
                 });
 
-            modelBuilder.Entity("backend.Entities.ProductCategory", b =>
-                {
-                    b.HasOne("backend.Entities.ProductCategoryMapping", null)
-                        .WithMany("ProductCategories")
-                        .HasForeignKey("ProductCategoryMappingId");
-                });
-
             modelBuilder.Entity("backend.Entities.ProductCategoryMapping", b =>
                 {
-                    b.HasOne("backend.Entities.ProductCategory", null)
+                    b.HasOne("backend.Entities.ProductCategory", "ProductCategorie")
                         .WithMany()
                         .HasForeignKey("ProductCategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_product_category_mappings_product_categories_product_catego");
 
-                    b.HasOne("backend.Entities.Product", null)
+                    b.HasOne("backend.Entities.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_product_category_mappings_products_product_id");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ProductCategorie");
                 });
 
             modelBuilder.Entity("backend.Entities.RecipeCategoryMapping", b =>
@@ -718,13 +794,15 @@ namespace backend.Migrations
                         .WithMany()
                         .HasForeignKey("RecipeCategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_recipe_category_mappings_categories_recipe_category_id");
 
                     b.HasOne("backend.Entities.Recipe", "Recipe")
                         .WithMany()
                         .HasForeignKey("RecipeId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_recipe_category_mappings_recipes_recipe_id");
 
                     b.Navigation("Recipe");
 
@@ -737,13 +815,15 @@ namespace backend.Migrations
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_recipe_ingredients_products_product_id");
 
                     b.HasOne("backend.Entities.Recipe", "Recipe")
                         .WithMany("RecipeIngredients")
                         .HasForeignKey("RecipeId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_recipe_ingredients_recipes_recipe_id");
 
                     b.Navigation("Product");
 
@@ -754,19 +834,22 @@ namespace backend.Migrations
                 {
                     b.HasOne("backend.Entities.HouseholdUser", "User")
                         .WithMany()
-                        .HasForeignKey("AddedByUserId");
+                        .HasForeignKey("AddedByUserId")
+                        .HasConstraintName("fk_shoppinglists_household_users_added_by_user_id");
 
                     b.HasOne("backend.Entities.Household", "Household")
                         .WithMany()
                         .HasForeignKey("HouseholdId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_shoppinglists_households_household_id");
 
                     b.HasOne("backend.Entities.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_shoppinglists_products_product_id");
 
                     b.Navigation("Household");
 
@@ -781,13 +864,15 @@ namespace backend.Migrations
                         .WithMany("StorageLocations")
                         .HasForeignKey("DeviceTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_storage_locations_device_types_device_type_id");
 
                     b.HasOne("backend.Entities.Household", "Household")
                         .WithMany("StorageLocations")
                         .HasForeignKey("HouseholdId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_storage_locations_households_household_id");
 
                     b.Navigation("DeviceType");
 
@@ -800,13 +885,15 @@ namespace backend.Migrations
                         .WithMany("StorageRules")
                         .HasForeignKey("DeviceTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_storage_rules_device_types_device_type_id");
 
                     b.HasOne("backend.Entities.ProductCategory", "ProductCategory")
                         .WithMany("StorageRules")
                         .HasForeignKey("ProductCategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_storage_rules_product_categories_product_category_id");
 
                     b.Navigation("DeviceType");
 
@@ -819,13 +906,15 @@ namespace backend.Migrations
                         .WithMany()
                         .HasForeignKey("HouseholdId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_weekmenus_households_household_id");
 
                     b.HasOne("backend.Entities.Recipe", "Recipe")
                         .WithMany()
                         .HasForeignKey("RecipeId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_weekmenus_recipes_recipe_id");
 
                     b.Navigation("Household");
 
@@ -854,13 +943,6 @@ namespace backend.Migrations
             modelBuilder.Entity("backend.Entities.ProductCategory", b =>
                 {
                     b.Navigation("StorageRules");
-                });
-
-            modelBuilder.Entity("backend.Entities.ProductCategoryMapping", b =>
-                {
-                    b.Navigation("ProductCategories");
-
-                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("backend.Entities.Recipe", b =>

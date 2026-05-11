@@ -6,18 +6,19 @@ namespace backend.Entities;
 public class Household : BaseEntity
 {
 
-    [Column("name")]
     public string Name {get;set;}
-    [Column("adress")]
-    public string? Adress {get;set;}
-    [Column("invite_code")]
+    
+    public string? Address {get;set;}
+    
     public string? InviteCode {get;set;}
-    [Column("is_open_for_invite")]
+   
     public bool IsOpenForInvite {get;set;}
 
     // navigation properties
     public ICollection<HouseholdUser> HouseholdUsers {get;set;} = [];
     public ICollection<StorageLocation> StorageLocations {get;set;}= [];
+    public ICollection<Recipe> Recipes {get;set;}= [];
+    public ICollection<Product> Products {get;set;}=[];
 
 
 

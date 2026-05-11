@@ -7,7 +7,7 @@ namespace backend.Entities;
 
 public class DeviceType : BaseEntity
 {
-    [Column("type")]
+
     public string Type {get;set;}
     //navigational Properties
     public ICollection<StorageLocation> StorageLocations {get;set;}= [];

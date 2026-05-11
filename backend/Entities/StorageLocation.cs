@@ -5,11 +5,11 @@ namespace backend.Entities;
 
 public class StorageLocation : BaseEntity
 {
-    [Column("name")]
+
     public string Name {get;set;}
-    [Column("device_type_id")]
+   
     public int DeviceTypeId {get;set;}
-    [Column("household_id")]
+  
     public int HouseholdId {get;set;}
 
     //navigation properties

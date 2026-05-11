@@ -4,16 +4,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend.Entities;
 
-public class ProductCategoryMapping
+public class ProductCategoryMapping:BaseEntity
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id {get;set;}
-    [Column("product_category_id")]
+    
+    
     public int ProductCategoryId {get;set;}
-    [Column("product_id")]
+    
     public int ProductId {get;set;}
 
-    public ICollection<ProductCategory> ProductCategories {get;set;}=[];
-    public ICollection<Product> Products {get;set;}=[];
+    [ForeignKey(nameof(ProductCategoryId))]
+    public ProductCategory ProductCategorie {get;set;}
+    [ForeignKey(nameof(ProductId))]
+    public Product Product {get;set;}
 }

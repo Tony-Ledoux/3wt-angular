@@ -13,12 +13,10 @@ public class KitchenDbContext(DbContextOptions<KitchenDbContext> options) : DbCo
     public DbSet<StorageLocation> StorageLocations {get;set;}
     public DbSet<StorageRule> StorageRules {get;set;}
     public DbSet<ProductCategory> ProductCategories {get;set;}
-    public DbSet<ProductCategoryMapping> ProductCategoryMappings {get;set;}
     public DbSet<Product> Products {get;set;}
     public DbSet<Inventory> Inventories {get;set;}
     public DbSet<RecipeIngredient> RecipeIngredients {get;set;}
     public DbSet<Recipe> Recipes {get;set;}
-    public DbSet<RecipeCategoryMapping> RecipeCategoryMappings {get;set;}
     public DbSet<RecipeCategory> Categories {get;set;}
     public DbSet<Weekmenu> Weekmenus {get;set;}
     public DbSet<Shoppinglist> Shoppinglists {get;set;}

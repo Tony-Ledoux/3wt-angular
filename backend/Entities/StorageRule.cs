@@ -5,11 +5,11 @@ namespace backend.Entities;
 
 public class StorageRule: BaseEntity
 {
-    [Column("device_type_id")]
+   
     public int DeviceTypeId {get;set;}
-    [Column("product_category_id")]
+  
     public int ProductCategoryId {get;set;}
-    [Column("multiplier")]
+  
     public double Multiplier {get;set;}
 
 

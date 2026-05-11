@@ -7,7 +7,7 @@ namespace backend.Entities;
 [Index(nameof(Category), IsUnique = true)]
 public class ProductCategory : BaseEntity
 {
-    [Column("category")]
+  
     public string Category {get;set;}
 
     // navigatonal Properties
