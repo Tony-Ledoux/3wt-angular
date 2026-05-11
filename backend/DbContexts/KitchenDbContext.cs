@@ -9,7 +9,21 @@ public class KitchenDbContext(DbContextOptions<KitchenDbContext> options) : DbCo
 {
     public DbSet<Household> Households { get; set; }
     public DbSet<HouseholdUser> HouseholdUsers {get;set;}
-
+    public DbSet<DeviceType> DeviceTypes {get;set;}
+    public DbSet<StorageLocation> StorageLocations {get;set;}
+    public DbSet<StorageRule> StorageRules {get;set;}
+    public DbSet<ProductCategory> ProductCategories {get;set;}
+    public DbSet<ProductCategoryMapping> ProductCategoryMappings {get;set;}
+    public DbSet<Product> Products {get;set;}
+    public DbSet<Inventory> Inventories {get;set;}
+    public DbSet<RecipeIngredient> RecipeIngredients {get;set;}
+    public DbSet<Recipe> Recipes {get;set;}
+    public DbSet<RecipeCategoryMapping> RecipeCategoryMappings {get;set;}
+    public DbSet<RecipeCategory> Categories {get;set;}
+    public DbSet<Weekmenu> Weekmenus {get;set;}
+    public DbSet<Shoppinglist> Shoppinglists {get;set;}
+    
+    // Automatic states for softDelete
     public override int SaveChanges()
     {
         var entries = ChangeTracker
@@ -33,10 +47,11 @@ public class KitchenDbContext(DbContextOptions<KitchenDbContext> options) : DbCo
         }
         return base.SaveChanges();
     }
-
+    // Model
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        // Null Query Filter
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
@@ -46,8 +61,11 @@ public class KitchenDbContext(DbContextOptions<KitchenDbContext> options) : DbCo
                 );
             }
         }
+        modelBuilder.Entity<ProductCategory>().HasMany(pc=>pc.Products).WithMany(p=>p.ProductCategories).UsingEntity<ProductCategoryMapping>();
+        modelBuilder.Entity<Recipe>().HasMany(r=>r.Categories).WithMany(c=>c.Recipes).UsingEntity<RecipeCategoryMapping>();
     }
 
+    // Helper function for the Query Filter
     private static LambdaExpression GenerateIsNotNullFilter(Type type)
     {
         var parameter = Expression.Parameter(type, "e");

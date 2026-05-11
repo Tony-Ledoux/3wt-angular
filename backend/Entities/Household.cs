@@ -15,7 +15,9 @@ public class Household : BaseEntity
     [Column("is_open_for_invite")]
     public bool IsOpenForInvite {get;set;}
 
-    public ICollection<HouseholdUser> HouseholdUsers {get;set;}
+    // navigation properties
+    public ICollection<HouseholdUser> HouseholdUsers {get;set;} = [];
+    public ICollection<StorageLocation> StorageLocations {get;set;}= [];
 
 
 
