@@ -4,6 +4,25 @@ import { Onboarding } from './features/Onboarding/pages/onboarding/onboarding';
 import { AuthGuard } from '@auth0/auth0-angular';
 
 export const routes: Routes = [
-    {path:'', component: Home },
-    {path:'onboarding', component:Onboarding , canActivate: [AuthGuard]}
+    {
+        path:'',
+        //component: null, // Empty shell
+        children: [
+            {path:'', component: Home}
+        ]
+    },
+    {
+        path:'',
+        //component:null, //main shell
+        canActivate: [AuthGuard],
+        children:[
+            {path:'onboarding', component:Onboarding}
+        ]
+    },
+    {
+        path:'',
+        //component: Home },
+        canActivate: [],
+        children:[]
+    }
 ];
