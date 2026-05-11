@@ -1,17 +1,23 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
-import { inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
+import { NotifyService } from '../services/notify/notify-service';
+import { inject } from '@angular/core';
+
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
-  const router = inject(Router);
+  const toaster = inject(NotifyService);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      // Controleer of de fout een 500 (Internal Server Error) is
-      // De API is bereikbaar (want we krijgen een response), maar de server faalt intern (databank)
-      if (error.status === 500) {
-        router.navigate(['/db-error']);
+      if (error.status === 0) {
+        // Dit is waar "Connection Refused" terechtkomt
+        toaster.error('Kan geen verbinding maken met de server. Controleer of de backend draait.',5000,false,'fa fa-cog')
+      } else if (error.status === 401) {
+
+        toaster.error('Sessie verlopen, log opnieuw in.',5000,false)
+      } else {
+        toaster.error(`Er is een fout opgetreden: ${error.message}`,5000,false)
+
       }
       
       return throwError(() => error);
