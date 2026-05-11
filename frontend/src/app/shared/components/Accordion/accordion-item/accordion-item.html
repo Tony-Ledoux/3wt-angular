@@ -1,0 +1,36 @@
+<div class="border rounded-lg overflow-hidden shadow-sm w-full max-w-2xl mx-auto" [class]="statusStyles().border">
+
+    <!-- Header -->
+    <header
+        class="cursor-pointer flex justify-between items-center transition-colors px-4 py-3 border-b border-transparent select-none"
+        [class]="statusStyles().header + ' ' + (!isOpen() ? statusStyles().border : '')" [class.border-b-0]="isOpen()"
+        (click)="toggle()">
+        <div class="font-medium flex gap-2 justify-between w-full pe-1">
+            <div class="grow">
+                {{title()}}
+            </div>
+
+            @if(hasBadge()){
+            <!-- Gestylede Badge -->
+            <span class="px-2 py-0.5 rounded-full text-xs font-bold transition-colors" [class]="statusStyles().badge">
+                {{badge()}}
+            </span>
+            }
+        </div>
+
+        <!-- Icon -->
+        <div class="text-current opacity-60 select-none">
+            <span class="transition-transform duration-300 inline-block" [class.rotate-180]="isOpen()">
+                {{icon()}}
+            </span>
+        </div>
+    </header>
+
+    <!-- Content -->
+    @if(isOpen()){
+    <div class="bg-white p-4 text-slate-600 border-t animate-in fade-in slide-in-from-top-1 duration-200"
+        [class]="statusStyles().border">
+        <ng-content></ng-content>
+    </div>
+    }
+</div>

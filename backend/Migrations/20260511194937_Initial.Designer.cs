@@ -12,7 +12,7 @@ using backend.DbContexts;
 namespace backend.Migrations
 {
     [DbContext(typeof(KitchenDbContext))]
-    [Migration("20260511142231_Initial")]
+    [Migration("20260511194937_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -66,9 +66,9 @@ namespace backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Adress")
+                    b.Property<string>("Address")
                         .HasColumnType("text")
-                        .HasColumnName("adress");
+                        .HasColumnName("address");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -324,6 +324,10 @@ namespace backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
+                    b.Property<int>("ProductCategoriesId")
+                        .HasColumnType("integer")
+                        .HasColumnName("product_categories_id");
+
                     b.Property<int>("ProductCategoryId")
                         .HasColumnType("integer")
                         .HasColumnName("product_category_id");
@@ -337,15 +341,18 @@ namespace backend.Migrations
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id")
-                        .HasName("pk_product_category_mappings");
+                        .HasName("pk_product_category_mapping");
+
+                    b.HasIndex("ProductCategoriesId")
+                        .HasDatabaseName("ix_product_category_mapping_product_categories_id");
 
                     b.HasIndex("ProductCategoryId")
-                        .HasDatabaseName("ix_product_category_mappings_product_category_id");
+                        .HasDatabaseName("ix_product_category_mapping_product_category_id");
 
                     b.HasIndex("ProductId")
-                        .HasDatabaseName("ix_product_category_mappings_product_id");
+                        .HasDatabaseName("ix_product_category_mapping_product_id");
 
-                    b.ToTable("product_category_mappings", (string)null);
+                    b.ToTable("product_category_mapping", (string)null);
                 });
 
             modelBuilder.Entity("backend.Entities.Recipe", b =>
@@ -365,9 +372,9 @@ namespace backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<int?>("HouseHoldId")
+                    b.Property<int?>("HouseholdId")
                         .HasColumnType("integer")
-                        .HasColumnName("house_hold_id");
+                        .HasColumnName("household_id");
 
                     b.Property<string>("Instructions")
                         .IsRequired()
@@ -393,6 +400,9 @@ namespace backend.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_recipes");
+
+                    b.HasIndex("HouseholdId")
+                        .HasDatabaseName("ix_recipes_household_id");
 
                     b.ToTable("recipes", (string)null);
                 });
@@ -454,20 +464,27 @@ namespace backend.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("recipe_id");
 
+                    b.Property<int>("RecipesId")
+                        .HasColumnType("integer")
+                        .HasColumnName("recipes_id");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id")
-                        .HasName("pk_recipe_category_mappings");
+                        .HasName("pk_recipe_category_mapping");
 
                     b.HasIndex("RecipeCategoryId")
-                        .HasDatabaseName("ix_recipe_category_mappings_recipe_category_id");
+                        .HasDatabaseName("ix_recipe_category_mapping_recipe_category_id");
 
                     b.HasIndex("RecipeId")
-                        .HasDatabaseName("ix_recipe_category_mappings_recipe_id");
+                        .HasDatabaseName("ix_recipe_category_mapping_recipe_id");
 
-                    b.ToTable("recipe_category_mappings", (string)null);
+                    b.HasIndex("RecipesId")
+                        .HasDatabaseName("ix_recipe_category_mapping_recipes_id");
+
+                    b.ToTable("recipe_category_mapping", (string)null);
                 });
 
             modelBuilder.Entity("backend.Entities.RecipeIngredient", b =>
@@ -760,7 +777,7 @@ namespace backend.Migrations
             modelBuilder.Entity("backend.Entities.Product", b =>
                 {
                     b.HasOne("backend.Entities.Household", "Household")
-                        .WithMany()
+                        .WithMany("Products")
                         .HasForeignKey("HouseholdId")
                         .HasConstraintName("fk_products_households_household_id");
 
@@ -769,23 +786,40 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Entities.ProductCategoryMapping", b =>
                 {
+                    b.HasOne("backend.Entities.ProductCategory", null)
+                        .WithMany()
+                        .HasForeignKey("ProductCategoriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_product_category_mapping_product_categories_product_categor");
+
                     b.HasOne("backend.Entities.ProductCategory", "ProductCategorie")
                         .WithMany()
                         .HasForeignKey("ProductCategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_product_category_mappings_product_categories_product_catego");
+                        .HasConstraintName("fk_product_category_mapping_product_categories_product_categor1");
 
                     b.HasOne("backend.Entities.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_product_category_mappings_products_product_id");
+                        .HasConstraintName("fk_product_category_mapping_products_product_id");
 
                     b.Navigation("Product");
 
                     b.Navigation("ProductCategorie");
+                });
+
+            modelBuilder.Entity("backend.Entities.Recipe", b =>
+                {
+                    b.HasOne("backend.Entities.Household", "Household")
+                        .WithMany("Recipes")
+                        .HasForeignKey("HouseholdId")
+                        .HasConstraintName("fk_recipes_households_household_id");
+
+                    b.Navigation("Household");
                 });
 
             modelBuilder.Entity("backend.Entities.RecipeCategoryMapping", b =>
@@ -795,14 +829,21 @@ namespace backend.Migrations
                         .HasForeignKey("RecipeCategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_recipe_category_mappings_categories_recipe_category_id");
+                        .HasConstraintName("fk_recipe_category_mapping_categories_recipe_category_id");
 
                     b.HasOne("backend.Entities.Recipe", "Recipe")
                         .WithMany()
                         .HasForeignKey("RecipeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_recipe_category_mappings_recipes_recipe_id");
+                        .HasConstraintName("fk_recipe_category_mapping_recipes_recipe_id");
+
+                    b.HasOne("backend.Entities.Recipe", null)
+                        .WithMany()
+                        .HasForeignKey("RecipesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_recipe_category_mapping_recipes_recipes_id");
 
                     b.Navigation("Recipe");
 
@@ -931,6 +972,10 @@ namespace backend.Migrations
             modelBuilder.Entity("backend.Entities.Household", b =>
                 {
                     b.Navigation("HouseholdUsers");
+
+                    b.Navigation("Products");
+
+                    b.Navigation("Recipes");
 
                     b.Navigation("StorageLocations");
                 });

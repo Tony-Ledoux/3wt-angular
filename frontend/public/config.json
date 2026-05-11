@@ -1,0 +1,15 @@
+{
+    "app": {
+        "name": "KitchenManager",
+        "version": "V0.0.1"
+    },
+    "api": {
+        "url": "http://localhost:5197/api"
+    },
+    "auth0":{
+        "domain":"tony-ledoux-auth.eu.auth0.com",
+        "client_id":"v2AEVGKwUUXE3zOrLJqU4XTvfMZ5Ob6g",
+        "audience":"http://localhost:5213",
+        "roleClaims": "http://localhost:5213/roles"
+    }
+}

@@ -1,0 +1,23 @@
+@if (type() === 'card') {
+  <!-- Layout 1: De Card met Pulse Dot -->
+  <div class="flex flex-col items-center justify-center p-2 rounded-xl border transition-all"
+       [class]="cardStyles.container">
+    <div class="flex items-center gap-1.5 mb-1">
+      <span class="w-1.5 h-1.5 rounded-full animate-pulse" [class]="cardStyles.dot"></span>
+      <span class="text-[10px] font-bold uppercase tracking-tight">{{ label() }}</span>
+    </div>
+    <span class="text-lg font-bold leading-none">{{ value() }}</span>
+  </div>
+} @else {
+  <!-- Layout 2: De Pill (Totaal stijl) -->
+  <div class="flex flex-col items-end me-4 pe-4">
+    <span class="text-[10px] font-bold uppercase tracking-widest mb-1" 
+          [class]="pillStyles.label">
+      {{ label() }}
+    </span>
+    <span class="px-3 py-1 text-xs font-bold rounded-lg shadow-sm" 
+          [class]="pillStyles.value">
+      {{ value() }}
+    </span>
+  </div>
+}
