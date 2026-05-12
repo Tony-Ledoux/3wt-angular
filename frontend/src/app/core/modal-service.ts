@@ -38,6 +38,7 @@ export class ModalService {
     this.confirmCallback = options.onConfirm || null;
   }
 
+
   confirm(){
     if(this.confirmCallback){
       this.confirmCallback();

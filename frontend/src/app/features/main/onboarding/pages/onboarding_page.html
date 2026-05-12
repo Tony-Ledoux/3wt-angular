@@ -1,0 +1,28 @@
+@if(user.numHouseholdUsers() == 0){
+<div class="flex flex-col gap-4 mt-2 p-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl text-center">
+    <p class="text-slate-500">Je hebt nog geen huishouden.</p>
+
+    <div class="flex gap-3 justify-center">
+        <button (click)="openCreateModal()"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-sm">
+            + Nieuw Huishouden
+        </button>
+
+        <button (click)="openInviteModal()"
+            class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-all">
+            Uitnodiging accepteren
+        </button>
+    </div>
+</div>
+} @else {
+<div class="p-4">
+    <label class="block text-sm font-medium mb-2">Selecteer Huishouden</label>
+    <!--
+        <select class="w-full p-2 border rounded-lg bg-white">
+            @for (hh of user.households(); track hh.id) {
+                <option [value]="hh.id">{{ hh.name }}</option>
+            }
+        </select>
+        -->
+</div>
+}

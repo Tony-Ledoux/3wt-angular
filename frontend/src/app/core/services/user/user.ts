@@ -31,8 +31,20 @@ export class UserService {
     this.auth.logout();
   }
 
+  register() {
+  this.auth.loginWithRedirect({
+    appState: {
+      target: '/onboarding'
+    },
+    authorizationParams: {
+      screen_hint: 'signup', // Let op: Auth0 gebruikt vaak 'signup' in plaats van 'register'
+    }
+  });
+}
+
   async loadHouseholdUsers(){
     try{
+      this.householdusers.set(null);
       const data = await firstValueFrom(this.api.get<any[]>('/users/me'));
       this.householdusers.set(data);
     } catch (error){

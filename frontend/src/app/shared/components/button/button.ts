@@ -1,6 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'danger-action' | 'success-action'| 'icon';
+export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'danger_action' | 'success_action'| 'icon';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 export type ButtonType = 'button' | 'submit' | 'reset';
 
@@ -25,9 +25,9 @@ export class ButtonComponent {
       danger: 'bg-red-600 text-white hover:bg-red-700 shadow-sm justify-center',
       ghost: 'bg-transparent text-slate-600 hover:bg-slate-100 justify-center',
       // Toegevoegd: font-normal en hover:font-bold
-      'danger-action': 'bg-transparent text-red-600 hover:bg-red-50 justify-start text-left font-normal hover:font-bold transition-all',
-      'success-action': 'bg-transparent text-green-500 hover:bg-green-50 justify-start text-left font-normal hover:font-bold transition-all',
-      'icon': 'bg-transparent text-slate-400 hover:text-slate-600 hover:bg-slate-100 justify-center transition-colors'
+      danger_action: 'bg-transparent text-red-600 hover:bg-red-50 justify-start text-left font-normal hover:font-bold transition-all',
+      success_action: 'bg-transparent text-green-500 hover:bg-green-50 justify-start text-left font-normal hover:font-bold transition-all',
+      icon: 'bg-transparent text-slate-400 hover:text-slate-600 hover:bg-slate-100 justify-center transition-colors'
     };
 
     const sizes = {
@@ -42,7 +42,7 @@ export class ButtonComponent {
     
     // Dynamische rounding
     let roundedClass = 'rounded-lg';
-    if (currentVariant === 'danger-action' || currentVariant === 'success-action') {
+    if (currentVariant === 'danger_action' || currentVariant === 'success_action') {
       roundedClass = 'rounded-md';
     } else if (currentVariant === 'icon') {
       roundedClass = 'rounded-full';

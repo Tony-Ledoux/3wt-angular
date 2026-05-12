@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject, input } from '@angular/core';
 
-import { ButtonComponent } from '../../shared/components/button/button';
+import { ButtonComponent } from '@app/shared/components/button/button';
 import { CommonModule } from '@angular/common';
 import { ModalIcon, ModalService } from '@app/core/modal-service';
 

@@ -14,11 +14,11 @@
         <!-- Dynamisch Icoon Sectie -->
         <span class="text-2xl" [class]="theme().accent">
           @if (isComponentIcon(theme().icon)) {
-            <ng-container [ngComponentOutlet]="iconComponent()" />
+          <ng-container [ngComponentOutlet]="iconComponent()" />
           } @else if (isClassIcon(theme().icon)) {
-            <i [class]="theme().icon"></i>
+          <i [class]="theme().icon"></i>
           } @else {
-            {{ theme().icon }}
+          {{ theme().icon }}
           }
         </span>
         <h3 class="text-xl font-bold tracking-tight" [class]="theme().header">
@@ -41,31 +41,26 @@
         </ng-container>
       </div>
       } @else {
-      <p class="text-lg">{{ modalService.content() }}</p>
+      <div class="text-lg whitespace-pre-wrap" [innerHTML]="modalService.content()"></div>
       }
     </div>
 
     <!-- Footer: Cleanere look, buttons meer focus -->
-<div class="px-6 py-5 bg-slate-50/80 border-t border-slate-100 flex flex-col gap-3">
-  @if(showActionButton()){
-    <app-button 
-      [variant]="theme().buttonVariant" 
-      size="lg" 
-      [fullWidth]="true" 
-      (click)="confirmAction()">
-      Bevestig
-    </app-button>
-  }
-  @if(showCancelButton()){
-    <app-button 
-      variant="ghost" 
-      size="lg" 
-      [fullWidth]="true" 
-      (click)="modalService.close()">
-      Annuleren
-    </app-button>
-  }
-</div>
+    @if(showActionButton()||showCancelButton()){
+
+    <div class="px-6 py-5 bg-slate-50/80 border-t border-slate-100 flex flex-col gap-3">
+      @if(showActionButton()){
+      <app-button [variant]="theme().buttonVariant" size="lg" [fullWidth]="true" (click)="confirmAction()">
+        Bevestig
+      </app-button>
+      }
+      @if(showCancelButton()){
+      <app-button variant="ghost" size="lg" [fullWidth]="true" (click)="modalService.close()">
+        Annuleren
+      </app-button>
+      }
+    </div>
+    }
   </div>
 </div>
 }
