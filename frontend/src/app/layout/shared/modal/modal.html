@@ -51,7 +51,7 @@
     <div class="px-6 py-5 bg-slate-50/80 border-t border-slate-100 flex flex-col gap-3">
       @if(showActionButton()){
       <app-button [variant]="theme().buttonVariant" size="lg" [fullWidth]="true" (click)="confirmAction()">
-        Bevestig
+        {{modalService.confirmText()}}
       </app-button>
       }
       @if(showCancelButton()){

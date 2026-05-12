@@ -6,6 +6,7 @@ import { HttpInterceptorFn, provideHttpClient, withInterceptors } from '@angular
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { provideAuth0, authHttpInterceptorFn } from '@auth0/auth0-angular';
 import { RUNTIME_CONFIG } from './core/config.token';
+import { authInterceptor } from './core/interceptors/unauthorized-test-interceptor';
 
 
 
@@ -24,7 +25,7 @@ export function appConfig(runtimeConfig: any) {
       //provideRouter(routes),
       provideRouter(routes, withEnabledBlockingInitialNavigation()),
       provideHttpClient(
-        withInterceptors([authHttpInterceptorFn, errorInterceptor])
+        withInterceptors([authInterceptor,authHttpInterceptorFn, errorInterceptor])
         //withInterceptors([authHttpInterceptorFn, errorInterceptor,debugInterceptor]) //activeer deze om te debuggen
 
       ),

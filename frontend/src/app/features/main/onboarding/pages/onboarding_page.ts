@@ -4,6 +4,7 @@ import { ModalService } from '@app/core/modal-service';
 import { FullscreenSpinnerService } from '@app/core/services/spinner/fullscreen-spinner-service';
 import { ButtonComponent } from "@app/shared/components/button/button";
 import { CreateHousehold } from '../components/create-household/create-household';
+import { HttpErrorResponse } from '@angular/common/http';
 
 
 @Component({
@@ -29,13 +30,24 @@ export class OnboardingPage {
       try {
         await this.user.loadHouseholdUsers()
         console.log('Gebruikersdata succesvol geladen via effect!');
-      } catch (e) {
-        console.error('Effect faalde bij laden data', e);
-        this.modal.open('Error', `<span class="text-lg text-red-500">Er gebeurde een fout <br />probeer opniew </span>`, {
-          showCancelButton: false, onConfirm: async () => {
-            await this.LoadData();
+      }
+      catch (e) {
+        let confirmAction = () => void
+          console.error('Effect faalde bij laden data', e);
+        // get the type of error
+        if (e instanceof HttpErrorResponse) {
+          if (e.status == 401) {
+            confirmAction = () => {
+              this.user.logoff();
+              console.log("User logged out due to session expiry");
+            }
+          } else {
+            confirmAction = () => { this.LoadData() };
           }
-        });
+          this.modal.open('Error', `<span class="text-lg text-red-500">Er gebeurde een fout <br />probeer opniew </span>`, {
+            showCancelButton: false, onConfirm: confirmAction, confirmText: e.status === 401 ? 'Opnieuw inloggen' : 'Opnieuw proberen', icon:'fa fa-bomb', type:'danger'
+          });
+        }
       } finally {
         this.spinner.hide()
       }
@@ -48,7 +60,7 @@ export class OnboardingPage {
 
   openCreateModal() {
     // Als je modal service componenten ondersteunt:
-    this.modal.open("Huishouden aanmaken", CreateHousehold,{showActionButton:false, showCancelButton:false, closeOnBackdropClick:false, icon:'fa fa-users'});
+    this.modal.open("Huishouden aanmaken", CreateHousehold, { showActionButton: false, showCancelButton: false, closeOnBackdropClick: false, icon: 'fa fa-users' });
     // OF als je modal alleen tekst ondersteunt, navigeer dan naar een route:
     // this.router.navigate(['/create-household']);
   }

@@ -1,6 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'danger_action' | 'success_action'| 'icon';
+export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'danger_action' | 'success_action'| 'icon'|'success';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 export type ButtonType = 'button' | 'submit' | 'reset';
 
@@ -24,6 +24,7 @@ export class ButtonComponent {
       secondary: 'bg-slate-200 text-slate-700 hover:bg-slate-300 shadow-sm justify-center',
       danger: 'bg-red-600 text-white hover:bg-red-700 shadow-sm justify-center',
       ghost: 'bg-transparent text-slate-600 hover:bg-slate-100 justify-center',
+      success: `bg-green-500 text-white hover:bg-green-700 shadow-sm justify-center`,
       // Toegevoegd: font-normal en hover:font-bold
       danger_action: 'bg-transparent text-red-600 hover:bg-red-50 justify-start text-left font-normal hover:font-bold transition-all',
       success_action: 'bg-transparent text-green-500 hover:bg-green-50 justify-start text-left font-normal hover:font-bold transition-all',

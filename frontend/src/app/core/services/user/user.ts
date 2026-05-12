@@ -28,6 +28,7 @@ export class UserService {
     });
   }
   logoff() {
+    console.log('logoff called in user')
     this.auth.logout();
   }
 

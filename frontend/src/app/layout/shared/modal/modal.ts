@@ -47,7 +47,7 @@ export class Modal {
         header: 'text-green-700',
         bgLight: 'bg-green-50', // Subtiele groene tint
         accent: 'text-green-600',
-        buttonVariant: 'secondary' as const,
+        buttonVariant: 'success' as const,
         icon: this.modalService.icon()
       }
     };

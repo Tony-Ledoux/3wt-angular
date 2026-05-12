@@ -8,7 +8,8 @@ export interface ModalOptions {
   showCancelButton?:boolean,
   onConfirm?:()=>void,
   type?:ModalType,
-  icon?:ModalIcon
+  icon?:ModalIcon,
+  confirmText?:string
 }
 
 @Injectable({
@@ -23,6 +24,7 @@ export class ModalService {
   title = signal('');
   content = signal<string|Type<any>>('');
   icon = signal<ModalIcon>('');
+  confirmText = signal("Bevestigen")
 
   private confirmCallback: (()=>void)|null = null;
 
@@ -36,6 +38,11 @@ export class ModalService {
     this.showActionButton.set(options.showActionButton ?? true);
     this.showCancelButton.set(options.showCancelButton ?? true);
     this.confirmCallback = options.onConfirm || null;
+    this.confirmText.set(options.confirmText ?? 'Bevestigen');
+  }
+
+  setCallback(cb:(()=>void)|null):void{
+    this.confirmCallback = cb;
   }
 
 
