@@ -1,0 +1,53 @@
+<div 
+    (click)="onCardClick()"
+    [class]="'group relative cursor-pointer p-5 rounded-2xl border-2 transition-all duration-300 flex flex-col gap-3 shadow-sm hover:shadow-md ' + 
+             (isSelected() ? 'border-blue-600 bg-blue-50/50 ring-1 ring-blue-600' : 'border-white bg-white hover:border-slate-200 hover:-translate-y-1')"
+>
+    <!-- Top Row: Icon & Owner Badge -->
+    <div class="flex items-start justify-between">
+        <div class="flex items-center gap-3">
+            <!-- Household Icon Container -->
+            <div [class]="'w-12 h-12 rounded-xl flex items-center justify-center transition-colors duration-300 ' + 
+                         (isSelected() ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200')">
+                <app-icon-component image="house" />
+            </div>
+            
+            <div class="flex flex-col">
+                <span [class]="'font-bold text-lg leading-tight transition-colors ' + (isSelected() ? 'text-blue-700' : 'text-slate-800')">
+                    {{ household().householdName }}
+                </span>
+                <!-- Address Section -->
+                @if(household().address){
+                    <div class="flex items-center gap-1 text-slate-500 text-sm">
+                        <i class="fa fa-location-dot" ></i>
+                          
+                        <span class="truncate max-w-37.5">{{ household().address }}</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Owner Badge -->
+        @if(household().isowner){
+            <div class="flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold uppercase tracking-wider border border-amber-200 shadow-sm">
+                <i class="fa fa-crown"> </i>
+                Admin
+            </div>
+        }
+    </div>
+
+    <!-- Bottom Row: Selection Indicator -->
+    <div class="flex items-center justify-end mt-2 pt-3 border-t border-slate-100">
+        @if(isSelected()){
+            <div class="flex items-center gap-1 text-blue-600 font-semibold text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                </svg>
+                Geselecteerd
+            </div>
+        } @else {
+            <div class="text-slate-300 text-sm italic">Klik om te kiezen</div>
+        }
+    </div>
+</div>
+

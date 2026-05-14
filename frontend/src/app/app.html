@@ -1,4 +1,8 @@
-<router-outlet />
-<internal-app-modal />
-<internal-app-toaster-component />
-<app-full-screen-load-spinner />
+@if(auth.isInitializing()){
+    loading ...
+}@else {
+    <router-outlet />
+    <internal-app-modal />
+    <internal-app-toaster-component />
+    <app-full-screen-load-spinner />
+}

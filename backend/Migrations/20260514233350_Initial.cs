@@ -80,6 +80,24 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "system_settings",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    key = table.Column<string>(type: "text", nullable: false),
+                    value = table.Column<string>(type: "text", nullable: false),
+                    description = table.Column<string>(type: "text", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_system_settings", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "household_users",
                 columns: table => new
                 {
@@ -88,7 +106,6 @@ namespace backend.Migrations
                     user_id = table.Column<string>(type: "text", nullable: false),
                     household_id = table.Column<int>(type: "integer", nullable: false),
                     household_owner = table.Column<bool>(type: "boolean", nullable: false),
-                    email = table.Column<string>(type: "text", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -425,6 +442,11 @@ namespace backend.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "system_settings",
+                columns: new[] { "id", "created_at", "deleted_at", "description", "key", "updated_at", "value" },
+                values: new object[] { 1, new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc), null, "The maximum number of households a user can be part of.", "MaxHouseholdsPerUser", null, "5" });
+
             migrationBuilder.CreateIndex(
                 name: "ix_household_users_household_id",
                 table: "household_users",
@@ -573,6 +595,9 @@ namespace backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "storage_rules");
+
+            migrationBuilder.DropTable(
+                name: "system_settings");
 
             migrationBuilder.DropTable(
                 name: "weekmenus");

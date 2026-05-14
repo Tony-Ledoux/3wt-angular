@@ -11,8 +11,6 @@ public class HouseholdUser: BaseEntity
 
     public bool HouseholdOwner {get;set;}
 
-    public string? Email{get;set;}
-
     
     [ForeignKey(nameof(HouseholdId))]
     public Household Household {get;set;}

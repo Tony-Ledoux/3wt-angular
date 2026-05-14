@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-export type IconImange = 'meatballs'|'trash'| 'device-generic' | 'device-freezer';
+export type IconImange = 'meatballs'|'trash'| 'device-generic' | 'device-freezer'| 'house';
 @Component({
   selector: 'app-icon-component',
   imports: [],

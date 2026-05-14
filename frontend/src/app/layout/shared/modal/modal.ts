@@ -15,13 +15,13 @@ export class Modal {
   protected modalService = inject(ModalService);
 
   protected componentContent = computed(() => {
-    const content = this.modalService.content();
+    const content = this.modalService.state().content;
     return typeof content !== 'string' ? content : null;
   });
-  showActionButton = computed(() => this.modalService.showActionButton());
-  showCancelButton = computed(() => this.modalService.showCancelButton());
+  showActionButton = computed(() => this.modalService.state().showActionButton);
+  showCancelButton = computed(() => this.modalService.state().showCancelButton);
   protected iconComponent = computed(() => {
-    const icon = this.modalService.icon();
+    const icon = this.modalService.state().icon;
     // In TypeScript is een Component-klasse een functie
     return typeof icon === 'function' ? icon : null;
   });
@@ -34,24 +34,24 @@ export class Modal {
         bgLight: 'bg-blue-50', // Subtiele blauwe tint
         accent: 'text-blue-600',
         buttonVariant: 'primary' as const,
-        icon: this.modalService.icon()
+        icon: this.modalService.state().icon
       },
       danger: {
         header: 'text-red-700',
         bgLight: 'bg-red-50', // Subtiele rode tint
         accent: 'text-red-600',
         buttonVariant: 'danger' as const,
-        icon: this.modalService.icon()
+        icon: this.modalService.state().icon
       },
       success: {
         header: 'text-green-700',
         bgLight: 'bg-green-50', // Subtiele groene tint
         accent: 'text-green-600',
         buttonVariant: 'success' as const,
-        icon: this.modalService.icon()
+        icon: this.modalService.state().icon
       }
     };
-    return themes[this.modalService.type()];
+    return themes[this.modalService.state().type];
   });
 
   isComponentIcon(icon: ModalIcon): boolean {
@@ -66,7 +66,7 @@ export class Modal {
 
   constructor() {
     effect(() => {
-      if (this.modalService.isOpen()) {
+      if (this.modalService.state().isOpen) {
         // Zet scrollen uit op de body
         document.body.style.overflow = 'hidden';
       } else {
@@ -77,7 +77,7 @@ export class Modal {
   }
 
   handleBackdropClick() {
-    if (this.modalService.closeOnBackdropClick()) {
+    if (this.modalService.state().closeOnBackdropClick) {
       this.modalService.close();
     }
   }

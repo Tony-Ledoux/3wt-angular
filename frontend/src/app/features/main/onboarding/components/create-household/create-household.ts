@@ -1,34 +1,31 @@
 import { Component, inject, signal } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import { ModalService } from '@app/core/modal-service';
-import { FullscreenSpinnerService } from '@app/core/services/spinner/fullscreen-spinner-service';
+
+import { HouseholdService } from '@app/features/main/services/household-service';
+import { LabeledInput } from '@app/shared/components/form/labeled-input/labeled-input';
+import { ButtonComponent } from "@app/shared/components/button/button";
+
 
 @Component({
   selector: 'app-create-household',
-  imports: [FormsModule],
+  imports: [FormsModule, LabeledInput, ButtonComponent],
   templateUrl: './create-household.html',
   styleUrl: './create-household.css',
 })
 export class CreateHousehold {
-  private spinner = inject(FullscreenSpinnerService);
   private modal = inject(ModalService);
-  householdName = signal('');
-
-  async create() {
-    const name = this.householdName();
-    if (!name) return;
-
-    this.spinner.show();
-    try {
-      //await this.householdService.createHousehold(name);
-      console.log(this.householdName());
-      this.modal.open('Succes!', 'Je huishouden is succesvol aangemaakt.');
-      this.modal.close(); // Sluit de huidige create-modal
-    } catch (error) {
-      this.modal.open('Error', 'Er ging iets mis bij het aanmaken.');
-    } finally {
-      this.spinner.hide();
+  private service = inject(HouseholdService)
+  form= signal({name:null, address:null })
+  errors = signal<any[]>([]);
+ 
+  onSubmit(){
+    const name = this.form().name;
+    const address = this.form().address;
+    if(name && address){
+      this.service.createHoushold(name,address);
     }
+    this.cancel();
   }
 
   cancel() {

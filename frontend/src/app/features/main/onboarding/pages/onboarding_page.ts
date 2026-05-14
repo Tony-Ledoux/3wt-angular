@@ -1,72 +1,48 @@
-import { Component, effect, inject, signal } from '@angular/core';
-import { UserService } from '@app/core/services/user/user';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { ModalService } from '@app/core/modal-service';
-import { FullscreenSpinnerService } from '@app/core/services/spinner/fullscreen-spinner-service';
-import { ButtonComponent } from "@app/shared/components/button/button";
 import { CreateHousehold } from '../components/create-household/create-household';
-import { HttpErrorResponse } from '@angular/common/http';
 
+import { HouseholdService } from '../../services/household-service';
+import { Spinner } from '@app/shared/components/spinner/spinner';
+import { Router } from '@angular/router';
+import { HouseholdCard } from "../components/household-card/household-card";
+import { ButtonComponent } from "@app/shared/components/button/button";
+
+//this page is behind the authGuard and noAdmin Guard!
 
 @Component({
   selector: 'app-onboarding',
-  imports: [ButtonComponent],
+  imports: [Spinner, HouseholdCard, ButtonComponent],
   templateUrl: './onboarding_page.html',
   styleUrl: './onboarding_page.css',
 })
 export class OnboardingPage {
+  h_srv = inject(HouseholdService);
+  router = inject(Router);
+  modal = inject(ModalService);
 
-  user = inject(UserService);
-  modal = inject(ModalService)
-  spinner = inject(FullscreenSpinnerService);
-  loadingError = signal<boolean>(false);
+  // We gebruiken een signal om de selectie bij te houden
+  selectedHouseholdIndex = signal<number | null>(null);
 
-  async LoadData() {
-    this.spinner.show()
-    // 1. Dit effect 'luistert' naar het isAuth signal
-    const authenticated = this.user.isAuth();
-    console.log(`Authenticatie status veranderd naar: ${authenticated}`);
-    // 2. Zodra isAuth true wordt, roepen we automatisch loadData aan
-    if (authenticated) {
-      try {
-        await this.user.loadHouseholdUsers()
-        console.log('Gebruikersdata succesvol geladen via effect!');
-      }
-      catch (e) {
-        let confirmAction = () => void
-          console.error('Effect faalde bij laden data', e);
-        // get the type of error
-        if (e instanceof HttpErrorResponse) {
-          if (e.status == 401) {
-            confirmAction = () => {
-              this.user.logoff();
-              console.log("User logged out due to session expiry");
-            }
-          } else {
-            confirmAction = () => { this.LoadData() };
-          }
-          this.modal.open('Error', `<span class="text-lg text-red-500">Er gebeurde een fout <br />probeer opniew </span>`, {
-            showCancelButton: false, onConfirm: confirmAction, confirmText: e.status === 401 ? 'Opnieuw inloggen' : 'Opnieuw proberen', icon:'fa fa-bomb', type:'danger'
-          });
-        }
-      } finally {
-        this.spinner.hide()
-      }
-    };
+  selectCard(index: number) {
+    this.selectedHouseholdIndex.set(index);
   }
 
-  openInviteModal() {
-    throw new Error('Method not implemented.');
+  goToDashboard() {
+    const index = this.selectedHouseholdIndex();
+    if (index !== null) {
+      this.h_srv.selectHousehold(index);
+      this.router.navigate(['/dashboard']);
+    }
   }
 
-  openCreateModal() {
-    // Als je modal service componenten ondersteunt:
-    this.modal.open("Huishouden aanmaken", CreateHousehold, { showActionButton: false, showCancelButton: false, closeOnBackdropClick: false, icon: 'fa fa-users' });
-    // OF als je modal alleen tekst ondersteunt, navigeer dan naar een route:
-    // this.router.navigate(['/create-household']);
+  handleCreateNewHousehold(){
+    this.modal.open('Aanmaken',CreateHousehold)
+      .setCloseBackdropClick(false)
+      .setCancelActionButton(false)
+      .setShowActionButton(false)
+      .setIcon('fa fa-users')
+      .show()
   }
-  constructor() {
-    effect(async () => {
-      await this.LoadData();
-    });
-  }
+
 }

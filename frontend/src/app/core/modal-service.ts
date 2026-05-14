@@ -3,60 +3,122 @@ export type ModalType = 'default' | 'danger' | 'success';
 export type ModalIcon = string | Type<any>
 
 export interface ModalOptions {
-  closeOnBackdropClick?:boolean,
-  showActionButton?:boolean,
-  showCancelButton?:boolean,
-  onConfirm?:()=>void,
-  type?:ModalType,
-  icon?:ModalIcon,
-  confirmText?:string
+  closeOnBackdropClick?: boolean,
+  showActionButton?: boolean,
+  showCancelButton?: boolean,
+  onConfirm?: () => void,
+  type?: ModalType,
+  icon?: ModalIcon,
+  confirmText?: string
+}
+
+export interface ModalState {
+  isOpen: boolean;
+  title: string;
+  content: string | Type<any>;
+  type: ModalType;
+  icon: ModalIcon;
+  confirmText: string;
+  closeOnBackdropClick: boolean;
+  showActionButton: boolean;
+  showCancelButton: boolean;
+  onConfirm?: () => void;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class ModalService {
-  isOpen = signal(false);
-  type = signal<ModalType>('default')
-  closeOnBackdropClick = signal(true);
-  showActionButton = signal(true);
-  showCancelButton = signal(true);
-  title = signal('');
-  content = signal<string|Type<any>>('');
-  icon = signal<ModalIcon>('');
-  confirmText = signal("Bevestigen")
+  state = signal<ModalState>({
+    isOpen: false,
+    title: '',
+    content: '',
+    type: 'default',
+    icon: '',
+    confirmText: 'Bevestigen',
+    closeOnBackdropClick: true,
+    showActionButton: true,
+    showCancelButton: true,
+  });
 
-  private confirmCallback: (()=>void)|null = null;
+  private config: Partial<ModalOptions> = {}
 
-  open(title: string, content: string|any, options: ModalOptions= {}) {
-    this.type.set(options.type ?? 'default');
-    this.title.set(title);
-    this.content.set(content);
-    this.isOpen.set(true);
-    this.icon.set(options.icon ?? '');
-    this.closeOnBackdropClick.set(options.closeOnBackdropClick ?? true);
-    this.showActionButton.set(options.showActionButton ?? true);
-    this.showCancelButton.set(options.showCancelButton ?? true);
-    this.confirmCallback = options.onConfirm || null;
-    this.confirmText.set(options.confirmText ?? 'Bevestigen');
+  open(title: string, content: string | Type<any>, options: ModalOptions = {}) {
+    this.config = { ...options };
+    this.state.update(s => ({
+      ...s,
+      title,
+      content
+    }))
+    return this;
   }
 
-  setCallback(cb:(()=>void)|null):void{
-    this.confirmCallback = cb;
+  // chain
+  setTitle(title: string) {
+    this.state.update((s) => ({ ...s, title }))
+    return this;
   }
 
-
-  confirm(){
-    if(this.confirmCallback){
-      this.confirmCallback();
-    }
-    this.close();
+  setContent(content:string|Type<any>){
+    this.state.update((s) => ({ ...s, content }))
+    return this;
   }
+
+  setType(type: ModalType) {
+    this.config.type = type;
+    return this
+  }
+
+  setIcon(icon:string){
+    this.config.icon=icon;
+    return this;
+  }
+  setConfirmText(text:string){
+    this.config.confirmText=text;
+    return this;
+  }
+  setCloseBackdropClick(flag:boolean){
+    this.config.closeOnBackdropClick=flag;
+    return this;
+  }
+
+  setShowActionButton(flag:boolean){
+    this.config.showActionButton = flag;
+    return this;
+  }
+  setCancelActionButton(flag:boolean){
+    this.config.showCancelButton = flag;
+    return this;
+  }
+
+  setConfirmCallback(cb:()=>void){
+    this.config.onConfirm = cb;
+    return this;
+  }
+
+  show() {
+    this.state.update((s) => ({ ...s, ...this.config, isOpen: true }));
+    this.config = {};
+  }
+
+  confirm() {
+    this.state()?.onConfirm?.();
+    this.close()
+  }
+
 
   close() {
-    this.isOpen.set(false);
-    // reset the modaltype to default
-    this.type.set('default');
-    this.confirmCallback = null;
+    //reset the state
+    this.state.set({
+      isOpen: false,
+      title: '',
+      content: '',
+      type: 'default',
+      icon: '',
+      confirmText: 'Bevestigen',
+      closeOnBackdropClick: true,
+      showActionButton: true,
+      showCancelButton: true,
+    })
   }
 }

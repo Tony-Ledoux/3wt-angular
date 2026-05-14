@@ -115,10 +115,6 @@ namespace backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<string>("Email")
-                        .HasColumnType("text")
-                        .HasColumnName("email");
-
                     b.Property<int>("HouseholdId")
                         .HasColumnType("integer")
                         .HasColumnName("household_id");
@@ -682,6 +678,58 @@ namespace backend.Migrations
                         .HasDatabaseName("ix_storage_rules_product_category_id");
 
                     b.ToTable("storage_rules", (string)null);
+                });
+
+            modelBuilder.Entity("backend.Entities.SystemSetting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("key");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("value");
+
+                    b.HasKey("Id")
+                        .HasName("pk_system_settings");
+
+                    b.ToTable("system_settings", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "The maximum number of households a user can be part of.",
+                            Key = "MaxHouseholdsPerUser",
+                            Value = "5"
+                        });
                 });
 
             modelBuilder.Entity("backend.Entities.Weekmenu", b =>

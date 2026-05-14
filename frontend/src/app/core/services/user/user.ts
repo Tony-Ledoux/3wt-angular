@@ -4,6 +4,8 @@ import { ApiService } from '../api/api-service';
 import { AuthService } from '@auth0/auth0-angular';
 import { firstValueFrom } from 'rxjs';
 
+export const ROLE_CLAIM = 'http://localhost:5213/roles';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -11,11 +13,17 @@ export class UserService {
   api = inject(ApiService);
   auth = inject(AuthService);
 
-  householdusers = signal<any[]|null>(null);
-  numHouseholdUsers = computed(()=> this.householdusers()?.length ?? -1) //if length = -1 state is loading
-
-  readonly isAuth = toSignal(this.auth.isAuthenticated$, { initialValue: false })
+  readonly isInitializing = computed(()=>{
+    return this.user() === null && this.isAuth() === null;
+  })
+  readonly isAuth = toSignal(this.auth.isAuthenticated$, { initialValue: null })
   readonly user = toSignal(this.auth.user$,{initialValue:null})
+  readonly isAdmin = computed(()=>{
+    const user = this.user();
+    if(!user) return false;
+    const roles = user[ROLE_CLAIM] as string[]| undefined;
+    return roles?.includes('Admin')?? false;
+  });
 
   login() {
     this.auth.loginWithRedirect({
@@ -27,8 +35,8 @@ export class UserService {
       }
     });
   }
+
   logoff() {
-    console.log('logoff called in user')
     this.auth.logout();
   }
 
@@ -38,26 +46,9 @@ export class UserService {
       target: '/onboarding'
     },
     authorizationParams: {
-      screen_hint: 'signup', // Let op: Auth0 gebruikt vaak 'signup' in plaats van 'register'
+      screen_hint: 'signup',
     }
   });
 }
-
-  async loadHouseholdUsers(){
-    try{
-      this.householdusers.set(null);
-      const data = await firstValueFrom(this.api.get<any[]>('/users/me'));
-      this.householdusers.set(data);
-    } catch (error){
-      console.error('Fout bij laden van gebruikersdata:', error);
-      this.householdusers.set([]); // Zet op lege lijst bij fout om loading state te beëindigen
-      throw error;
-    }
-    
-  }
-
-
-  
-
 
 }

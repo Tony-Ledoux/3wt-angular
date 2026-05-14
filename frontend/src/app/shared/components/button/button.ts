@@ -11,7 +11,7 @@ export type ButtonType = 'button' | 'submit' | 'reset';
   styleUrl: './button.css',
 })
 export class ButtonComponent {
-  disabled = input<boolean>(false);
+  disabled = input<boolean|null>(false);
   variant = input<ButtonVariant>('primary');
   size = input<ButtonSize>('md');
   type = input<ButtonType>('button');

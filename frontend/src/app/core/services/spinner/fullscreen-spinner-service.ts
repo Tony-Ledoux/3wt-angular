@@ -4,7 +4,7 @@ import { Injectable, signal } from '@angular/core';
   providedIn: 'root',
 })
 export class FullscreenSpinnerService {
-  isLoading = signal(false);
+  readonly isLoading = signal(false);
 
   show(){
     this.isLoading.set(true);

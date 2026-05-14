@@ -7,5 +7,5 @@ namespace backend.Services;
 public interface IUserService
 {
     Task<IEnumerable<HouseholdUser>> GetHouseholdUsersAsync(string id);
-    Task<HouseholdUser> CreateNewHousholdAndUser(string id,string email, HouseholdCreationDto input);
+    Task<HouseholdUser> CreateNewHousholdAndUser(string id, HouseholdCreationDto input);
 }

@@ -9,5 +9,5 @@ import { PublicMenu } from "@app/layout/menus/public-menu/public-menu";
   styleUrl: './public.css',
 })
 export class Public {
-
+  
 }

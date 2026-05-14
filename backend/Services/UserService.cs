@@ -1,6 +1,8 @@
 using System;
 using backend.DbContexts;
 using backend.Entities;
+using backend.Extentions;
+using backend.Models;
 using backend.Models.Create;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,16 +13,14 @@ public class UserService(KitchenDbContext context) : IUserService
     private readonly KitchenDbContext _db = context;
 
 
-    public async Task<HouseholdUser> CreateNewHousholdAndUser(string id, string email, HouseholdCreationDto input)
+    public async Task<HouseholdUser> CreateNewHousholdAndUser(string id,HouseholdCreationDto input)
     {
+        
         // create a new Household
-        var household_new = new Household()
-        {
-            Name = input.Name,
-            Address = input.Address,
-            IsOpenForInvite = input.IsOpenForInvite,
-            InviteCode = Guid.NewGuid().ToString()
-        };
+        var household_new = input.ToEntity();
+        //generate a new invitecode
+        household_new.InviteCode = InviteCodeGenerator.Generate();
+        
         _db.Add(household_new); 
         // create a new HousholdUser // this is the owner, Need to insert HouseholdId Here
 
@@ -28,8 +28,7 @@ public class UserService(KitchenDbContext context) : IUserService
         {
             UserId = id,
             Household = household_new,
-            HouseholdOwner = true,
-            Email = email
+            HouseholdOwner = true
         };
         _db.Add(HouseholdUser);
         await _db.SaveChangesAsync();

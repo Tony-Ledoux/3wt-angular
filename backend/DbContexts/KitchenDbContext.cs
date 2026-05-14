@@ -20,6 +20,8 @@ public class KitchenDbContext(DbContextOptions<KitchenDbContext> options) : DbCo
     public DbSet<RecipeCategory> Categories {get;set;}
     public DbSet<Weekmenu> Weekmenus {get;set;}
     public DbSet<Shoppinglist> Shoppinglists {get;set;}
+
+    public DbSet<SystemSetting> SystemSettings {get;set;}
     
     // Automatic states for softDelete
     public override int SaveChanges()
@@ -61,6 +63,16 @@ public class KitchenDbContext(DbContextOptions<KitchenDbContext> options) : DbCo
         }
         modelBuilder.Entity<ProductCategory>().HasMany(pc=>pc.Products).WithMany(p=>p.ProductCategories).UsingEntity<ProductCategoryMapping>();
         modelBuilder.Entity<Recipe>().HasMany(r=>r.Categories).WithMany(c=>c.Recipes).UsingEntity<RecipeCategoryMapping>();
+
+        modelBuilder.Entity<SystemSetting>().HasData([
+            new SystemSetting(){
+                Id=1,
+                Key="MaxHouseholdsPerUser",
+                Value="5",
+                Description="The maximum number of households a user can be part of.",
+                CreatedAt=new DateTime(2020,1,1,0,0,0).ToUniversalTime()
+                }
+        ]);
     }
 
     // Helper function for the Query Filter

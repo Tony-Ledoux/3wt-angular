@@ -1,5 +1,5 @@
 <!-- frontend/src/app/shared/components/modal/modal.html -->
-@if (modalService.isOpen()) {
+@if (modalService.state().isOpen) {
 <div
   class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300"
   (click)="handleBackdropClick()">
@@ -22,10 +22,10 @@
           }
         </span>
         <h3 class="text-xl font-bold tracking-tight" [class]="theme().header">
-          {{ modalService.title() }}
+          {{ modalService.state().title }}
         </h3>
       </div>
-      @if(showCancelButton()){
+      @if(modalService.state().showCancelButton){
       <button (click)="modalService.close()"
         class="text-slate-400 hover:text-slate-600 transition-colors p-1 hover:bg-slate-200 rounded-full text-2xl leading-none">
         &times;
@@ -41,7 +41,7 @@
         </ng-container>
       </div>
       } @else {
-      <div class="text-lg whitespace-pre-wrap" [innerHTML]="modalService.content()"></div>
+      <div class="text-lg whitespace-pre-wrap" [innerHTML]="modalService.state().content"></div>
       }
     </div>
 
@@ -51,7 +51,7 @@
     <div class="px-6 py-5 bg-slate-50/80 border-t border-slate-100 flex flex-col gap-3">
       @if(showActionButton()){
       <app-button [variant]="theme().buttonVariant" size="lg" [fullWidth]="true" (click)="confirmAction()">
-        {{modalService.confirmText()}}
+        {{modalService.state().confirmText}}
       </app-button>
       }
       @if(showCancelButton()){

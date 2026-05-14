@@ -1,7 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, take } from 'rxjs';
 import { ConfigService } from '../config/config-service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +16,7 @@ export class ApiService {
   }
 
   post<T>(path: string, body: any): Observable<T> {
+    
     return this.http.post<T>(`${this.config.apiUrl}${path}`, body);
   }
 

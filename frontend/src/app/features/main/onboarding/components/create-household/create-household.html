@@ -1,31 +1,32 @@
-    <div class="p-4 max-w-md mx-auto">
-            
-      <div class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-slate-600 mb-1">Naam van het huishouden</label>
-          <input 
-            type="text" 
-            [(ngModel)]="householdName" 
-            placeholder="bijv. Familie Jansen"
-            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-          />
-        </div>
+<div class="p-4 max-w-md mx-auto">
+  <form #householdForm="ngForm" (ngSubmit)="onSubmit()">
 
-        <div class="flex gap-3 pt-4">
-          <button 
-            (click)="cancel()" 
-            class="flex-1 px-4 py-2 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium transition-colors"
-          >
-            Annuleren
-          </button>
-          
-          <button 
-            (click)="create()" 
-            [disabled]="!householdName()"
-            class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white rounded-lg font-medium transition-colors"
-          >
-            Aanmaken
-          </button>
-        </div>
+    <div class="space-y-4">
+      <!-- Naam Veld -->
+     <app-labeled-input 
+        label="Naam van het huishouden" 
+        name="name"
+        placeholder="bijv. Familie Jansen"
+        [(ngModel)]="form().name" 
+        minlength="3"
+        maxlength="30"
+        required 
+        #name="ngModel" /> 
+
+      <!-- Adres Veld -->
+       <app-labeled-input
+       label="Adres van het huishouden"
+       name="address"
+       placeholder="Berkenlei 12, 1000 Brussel"
+       [(ngModel)]="form().address"
+       #address = "ngModel"
+       required
+       />
+      <!-- Acties -->
+      <div class="flex gap-3 pt-4 justify-center">
+        <app-button size="lg" variant="secondary" (click)="cancel()">Annuleren</app-button>
+        <app-button size="lg" variant="primary" type="submit" [disabled]="householdForm.invalid">Aanmaken</app-button>
       </div>
     </div>
+  </form>
+</div>
