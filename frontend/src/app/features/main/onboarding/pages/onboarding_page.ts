@@ -9,8 +9,8 @@ import { HouseholdCard } from "../components/household-card/household-card";
 import { ButtonComponent } from "@app/shared/components/button/button";
 import { DatabaseSettings } from '@app/core/services/config/database-settings';
 
-//this page is behind the authGuard and noAdmin Guard!
-//TODO Deze pagina mag enkel getoond worden als een gebruiker nog geen houshold heeft geselecteerd.
+//this page is behind the authGuard, notOnboardedGuard and noAdmin Guard!
+
 
 @Component({
   selector: 'app-onboarding',
@@ -23,18 +23,30 @@ export class OnboardingPage {
   router = inject(Router);
   modal = inject(ModalService);
   settings = inject(DatabaseSettings);
-
+  
   // We gebruiken een signal om de selectie bij te houden
-  selectedHouseholdIndex = signal<number | null>(null);
+  selectedHousehold = signal<number | null>(null);
 
-  selectCard(index: number) {
-    this.selectedHouseholdIndex.set(index);
+  constructor(){
+    effect(()=>{
+      const households = this.h_srv.households();
+      if(households && households.length === 1){
+        const id = households[0].householdId;
+        this.h_srv.selectHousehold(id);
+        this.router.navigate(['/dashboard']);
+      }
+    });
+  }
+ 
+  
+  selectCard(id: number) {
+    this.selectedHousehold.set(id);
   }
 
   goToDashboard() {
-    const index = this.selectedHouseholdIndex();
-    if (index !== null) {
-      this.h_srv.selectHousehold(index);
+    const id = this.selectedHousehold();
+    if (id !== null) {
+      this.h_srv.selectHousehold(id);
       this.router.navigate(['/dashboard']);
     }
   }

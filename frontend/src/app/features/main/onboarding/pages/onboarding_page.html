@@ -2,13 +2,15 @@
     <app-spinner text="Huishoudens worden geladen" />
 }
 @if(h_srv.num_households() === 0){
-    <div class="flex flex-col gap-4 mt-2 p-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl text-center">   
+    <div class="flex flex-col gap-4 mt-2 p-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl text-center">
         <p class="text-slate-500">Je hebt nog geen huishouden.</p>
+        <p class="text-slate-500">Maak er een aan of voeg je toe </p>
         <app-button size="lg" (click)="handleCreateNewHousehold()"><span>
             <i class="fa fa-plus pe-2"></i>
             Maak er een aan
         </span>
         </app-button>
+        
     </div>
 }
 
@@ -21,8 +23,8 @@
 
         <!-- Card Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            @for(h of h_srv.households(); track h.householdId; let i = $index){
-                <app-household-card [household]="h" [index]="i" [isSelected]="selectedHouseholdIndex() === i" (select)="selectCard($event)"  />
+            @for(h of h_srv.households(); track h.householdId){
+                <app-household-card [household]="h" [isSelected]="selectedHousehold() === h.householdId" (select)="selectCard($event)"  />
             }
         </div>
 
@@ -30,9 +32,9 @@
         <div class="flex justify-center mt-4">
             <button 
                 (click)="goToDashboard()" 
-                [disabled]="selectedHouseholdIndex() === null"
+                [disabled]="selectedHousehold() === null"
                 [class]="'px-8 py-3 rounded-full font-bold text-white transition-all duration-200 shadow-lg flex items-center gap-2 ' + 
-                          (selectedHouseholdIndex() === null ? 'bg-slate-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 hover:scale-105 active:scale-95')"
+                          (selectedHousehold() === null ? 'bg-slate-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 hover:scale-105 active:scale-95')"
             >
                 Ga naar Dashboard
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

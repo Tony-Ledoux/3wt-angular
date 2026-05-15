@@ -15,10 +15,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       } else if (error.status === 401) {
 
         toaster.error('Sessie verlopen, log opnieuw in.',5000,false)
-      } else {
-        toaster.error(`Er is een fout opgetreden: ${error.message}`,5000,false)
-
-      }
+      } 
       
       return throwError(() => error);
     })

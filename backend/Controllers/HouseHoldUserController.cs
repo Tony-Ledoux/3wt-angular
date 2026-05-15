@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using backend.Contexts;
+using backend.Entities;
 using backend.Extentions;
 using backend.Models;
 using backend.Models.Create;
@@ -20,18 +21,36 @@ namespace backend.Controllers
         [HttpGet("users/me")]
         public async Task<ActionResult<IEnumerable<HouseholdUserDto>>> GetMeAndMyHouseHolds()
         {
-            return Ok(_uc.HouseholdUsers.ToDtoList());   
+            return Ok(_uc.HouseholdUsers.ToDtoList());
 
+        }
+
+        [HttpGet("users/households/{id:int}")]
+        public async Task<ActionResult<HouseholdUserDto>> PartOfThisHousehold(int id)
+        {
+            if (_uc.HouseholdUsers == null)
+            {
+                return BadRequest("Geen gebruikersdata gevonden");
+            }
+            HouseholdUser? isMember = _uc.HouseholdUsers.FirstOrDefault(hu => hu.HouseholdId == id);
+            if (isMember != null)
+            {
+                return Ok(isMember.ToDto());
+            }
+            else
+            {
+                return Forbid();
+            }
         }
 
         [HttpPost("setup")]
         public async Task<ActionResult<RequestResponse<HouseholdUserDto>>> CreateNewHouseHold(HouseholdCreationDto request)
         {
             // if no body i got 415 error
-            var result = await _us.CreateNewHousholdAndUser(_uc.UserId,request);
+            var result = await _us.CreateNewHousholdAndUser(_uc.UserId, request);
             if (result.Success)
             {
-                return Created("",result.Data.ToDto());
+                return Created("", result.Data.ToDto());
             }
             return BadRequest(result.ErrorMessage);
         }
@@ -40,7 +59,7 @@ namespace backend.Controllers
         public async Task<ActionResult<HouseholdUserDto>> JoinWithInviteCode(InviteRequestCodeDto request)
         {
             var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _us.JoinByInviteCode(id,request);
+            var result = await _us.JoinByInviteCode(id, request);
             if (result == null)
             {
                 return Forbid("Je kan niet toetreden tot dit huishouden");
