@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using backend.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace backend.DbContexts;
+namespace backend.Contexts;
 
 public class KitchenDbContext(DbContextOptions<KitchenDbContext> options) : DbContext(options)
 {
@@ -71,7 +71,20 @@ public class KitchenDbContext(DbContextOptions<KitchenDbContext> options) : DbCo
                 Value="5",
                 Description="The maximum number of households a user can be part of.",
                 CreatedAt=new DateTime(2020,1,1,0,0,0).ToUniversalTime()
-                }
+                },
+            new SystemSetting(){
+                Id=2,
+                Key = "MaxInviteCodeLenght",
+                Value = "6",
+                Description = "The max Lenght of a  invite code",
+                CreatedAt=new DateTime(2020,1,1,0,0,0).ToUniversalTime()},
+            new SystemSetting(){
+                Id=3,
+                Key = "AllowedCharsInvite",
+                Value = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789#?!",
+                Description = "The Characters an invite code can consist of",
+                CreatedAt=new DateTime(2020,1,1,0,0,0).ToUniversalTime()
+            }
         ]);
     }
 

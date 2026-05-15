@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { UserService } from '@app/core/services/user/user';
 import { ButtonComponent } from "@app/shared/components/button/button";
@@ -10,9 +10,14 @@ import { ButtonComponent } from "@app/shared/components/button/button";
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
-export class Home {
+export class Home implements OnInit {
   private readonly userservice = inject(UserService);
   private readonly router = inject(Router);
+  ngOnInit(): void {
+    if(this.userservice.isAuth()){
+      this.router.navigate(['/onboarding']);
+    }
+  }
 
   handleLetsGetStarted(){
     if(this.userservice.isAuth()){

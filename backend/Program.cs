@@ -1,5 +1,6 @@
 using System.Security.Claims;
-using backend.DbContexts;
+using backend.Contexts;
+using backend.Middleware;
 using backend.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -37,8 +38,10 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddSingleton<ISystemSettingsServce, SystemSettingsService>();
+builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddScoped<IUserService, UserService>();
-
+builder.Services.AddScoped<IInviteCodeGenerator, InviteCodeGenerator>();
 
 builder.Services.AddControllers().AddJsonOptions(options =>
     {
@@ -64,6 +67,15 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
+app.UseMiddleware<UserContextMiddleware>();
+
 app.MapControllers();
+
+// 2. LAAD DE SETTINGS BIJ STARTUP
+using (var scope = app.Services.CreateScope())
+{
+    var settingsService = scope.ServiceProvider.GetRequiredService<ISystemSettingsServce>();
+    await settingsService.RefreshAsync();
+}
 
 app.Run();

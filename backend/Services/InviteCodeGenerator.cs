@@ -1,14 +1,14 @@
-using System;
-using backend.Constants;
-
 namespace backend.Services;
 
-public static class InviteCodeGenerator
+public class InviteCodeGenerator(ISystemSettingsServce settings) : IInviteCodeGenerator
 {
-    public static string Generate()
+    
+    public async Task<string> GenerateAsync()
     {
-        const string chars = HouseholdConstants.AllowedInviteCodeChars;
+        var allowed_chars = settings.GetValue("AllowedCharsInvite","ABCDEFGHJKLMNPQRSTUVWXYZ23456789#?!");
+        var max_length = settings.GetIntValue("MaxInviteCodeLenght",4);
+        // create the string
         var random = new Random();
-        return new string([.. Enumerable.Repeat(chars, HouseholdConstants.InviteCodeLength).Select(s => s[random.Next(s.Length)])]);
+        return new string([.. Enumerable.Repeat(allowed_chars, max_length).Select(s => s[random.Next(s.Length)])]);
     }
 }

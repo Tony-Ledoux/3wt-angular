@@ -4,6 +4,7 @@ import { ToasterComponent } from "./layout/shared/toaster-component/toaster-comp
 import { Modal } from "./layout/shared/modal/modal";
 import { FullScreenLoadSpinner } from "@app/layout/shared/full-screen-load-spinner/full-screen-load-spinner";
 import { UserService } from './core/services/user/user';
+import { DatabaseSettings } from './core/services/config/database-settings';
 
 @Component({
   selector: 'app-root',
@@ -13,4 +14,5 @@ import { UserService } from './core/services/user/user';
 })
 export class App {
   auth = inject(UserService); // loads the user 
+  settings = inject(DatabaseSettings); //loads settings from the database
 }

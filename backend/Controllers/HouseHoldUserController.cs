@@ -1,5 +1,5 @@
 using System.Security.Claims;
-
+using backend.Contexts;
 using backend.Extentions;
 using backend.Models;
 using backend.Models.Create;
@@ -13,22 +13,39 @@ namespace backend.Controllers
     [Route("api")]
     [ApiController]
     [Authorize]
-    public class HouseHoldUserController(IUserService srv_user) : ControllerBase
+    public class HouseHoldUserController(IUserService srv_user, IUserContext context) : ControllerBase
     {
         private readonly IUserService _us = srv_user;
+        private readonly IUserContext _uc = context;
         [HttpGet("users/me")]
         public async Task<ActionResult<IEnumerable<HouseholdUserDto>>> GetMeAndMyHouseHolds()
         {
-            var auth0Id = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _us.GetHouseholdUsersAsync(auth0Id);
-            return Ok(result.ToDtoList());
+            return Ok(_uc.HouseholdUsers.ToDtoList());   
+
         }
 
         [HttpPost("setup")]
-        public async Task<ActionResult<HouseholdUserDto>> CreateNewHouseHold(HouseholdCreationDto request)
+        public async Task<ActionResult<RequestResponse<HouseholdUserDto>>> CreateNewHouseHold(HouseholdCreationDto request)
         {
-            var result = await _us.CreateNewHousholdAndUser(User.FindFirstValue(ClaimTypes.NameIdentifier),request);
-            return Created("",result.ToDto());
+            // if no body i got 415 error
+            var result = await _us.CreateNewHousholdAndUser(_uc.UserId,request);
+            if (result.Success)
+            {
+                return Created("",result.Data.ToDto());
+            }
+            return BadRequest(result.ErrorMessage);
+        }
+
+        [HttpPost("households/join")]
+        public async Task<ActionResult<HouseholdUserDto>> JoinWithInviteCode(InviteRequestCodeDto request)
+        {
+            var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _us.JoinByInviteCode(id,request);
+            if (result == null)
+            {
+                return Forbid("Je kan niet toetreden tot dit huishouden");
+            }
+            return Ok(result.Data.ToDto());
         }
     }
 }

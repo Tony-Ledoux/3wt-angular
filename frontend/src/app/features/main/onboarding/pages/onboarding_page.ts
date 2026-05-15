@@ -7,8 +7,10 @@ import { Spinner } from '@app/shared/components/spinner/spinner';
 import { Router } from '@angular/router';
 import { HouseholdCard } from "../components/household-card/household-card";
 import { ButtonComponent } from "@app/shared/components/button/button";
+import { DatabaseSettings } from '@app/core/services/config/database-settings';
 
 //this page is behind the authGuard and noAdmin Guard!
+//TODO Deze pagina mag enkel getoond worden als een gebruiker nog geen houshold heeft geselecteerd.
 
 @Component({
   selector: 'app-onboarding',
@@ -20,6 +22,7 @@ export class OnboardingPage {
   h_srv = inject(HouseholdService);
   router = inject(Router);
   modal = inject(ModalService);
+  settings = inject(DatabaseSettings);
 
   // We gebruiken een signal om de selectie bij te houden
   selectedHouseholdIndex = signal<number | null>(null);
