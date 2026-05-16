@@ -1,34 +1,19 @@
-<div class="flex h-screen bg-gray-100 font-sans">
-  <!-- Sidebar: Reactief tonen op basis van signal -->
-  @if (isSidebarOpen()) {
-    <aside class="w-64 bg-slate-800 text-white transition-all duration-300 ease-in-out">
-      <nav class="p-4 space-y-2">
-        <a routerLink="/dashboard" class="block p-2 hover:bg-slate-700 rounded">Dashboard</a>
-        <a routerLink="/settings" class="block p-2 hover:bg-slate-700 rounded">Instellingen</a>
-      </nav>
-      <app-button variant="danger" (click)="handleLogOffClick()">Afmelden</app-button>
-    </aside>
-  }
-
+<div class="flex h-screen bg-gray-50 font-sans overflow-hidden">
+  
   <div class="flex-1 flex flex-col overflow-hidden">
-    <!-- Topbar -->
-    <header class="h-16 bg-white shadow-sm flex items-center justify-between px-4">
-      <button (click)="toggleSidebar()" class="p-2 hover:bg-gray-200 rounded">
-        <i class="fa-solid fa-bars"></i>
-      </button>
-      
-      <div class="flex items-center gap-4">
-        @if (user.user(); as u) {
-          <span>Welkom, {{ u.name }}</span>
-        } @else {
-          <button routerLink="/login">Login</button>
-        }
+    <app-header (onToggleSidebar)="toggleSidebar()" />
+    
+    <main class="flex-1 flex overflow-hidden">
+      @if (isSidebarOpen()) {
+        <app-sidebar />
+      }
+      <div class="flex-1 overflow-y-auto">
+        <!-- Container voor content om consistente marges te houden -->
+        <div class="max-w-7xl mx-auto p-6">
+          <router-outlet />
+        </div>
       </div>
-    </header>
-
-    <!-- Main Content Area -->
-    <main class="flex-1 overflow-y-auto p-6">
-      <router-outlet />
     </main>
   </div>
 </div>
+

@@ -2,6 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ApiService } from '../api/api-service';
 import { AuthService } from '@auth0/auth0-angular';
+import { ModalService } from '@app/core/modal-service';
 
 export const ROLE_CLAIM = 'http://localhost:5213/roles';
 
@@ -11,6 +12,7 @@ export const ROLE_CLAIM = 'http://localhost:5213/roles';
 export class UserService {
   api = inject(ApiService);
   auth = inject(AuthService);
+  modalService=inject(ModalService)
 
   readonly isInitializing = computed(()=>{
     return this.user() === null && this.isAuth() === null;
@@ -39,6 +41,14 @@ export class UserService {
     // clear the local storage
     this.auth.logout();
     localStorage.clear();
+  }
+
+    handleLogOffClick() {
+    this.modalService.open(
+      "Afmelden?",
+      "Ben je zeker dat je wil afmelden?",
+      { icon: 'fa fa-sign-out', onConfirm: () => { this.logoff() } })
+      .show();
   }
 
   register() {

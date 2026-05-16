@@ -9,30 +9,32 @@ import { onlyAdminGuard } from './core/guards/only-admin-guard';
 import { Dashboard } from './features/main/pages/dashboard/dashboard';
 import { notOnboardedGuard } from './core/guards/not-onboarded-guard';
 import { hasOnboardedGuard } from './core/guards/has-onboarded-guard';
+import { Settings } from './features/main/pages/settings/settings';
+import { AdminLayout } from './layout/pages/admin/admin-layout';
+import { NotFound } from './features/public/pages/not-found/not-found';
 
 export const routes: Routes = [
     {
-        path:'',
-        component: Public,
-        canActivate:[noAdminGuard],
-        children: [
-            {path:'', component: Home},
-            {path:'onboarding', canActivate:[AuthGuard, notOnboardedGuard],component:OnboardingPage},
-            {path:'logout', redirectTo:''}
-        ]
-    },
-    {
-        path:'',
-        component:Main, //main shell
+        path: '',
+        component: Main, //main shell
         canActivate: [AuthGuard, noAdminGuard, hasOnboardedGuard],
-        children:[
-            {path:'dashboard', component:Dashboard}
-        ]
+        loadChildren: () => import('@features/main/main.routes').then(m => m.MAIN_ROUTES)
     },
     {
-        path:'admin',
-        //component: Home },
+        path: 'admin',
+        component: AdminLayout,
         canActivate: [onlyAdminGuard],
-        children:[]
-    }
+        loadChildren: () => import('@features/admin/admin.routes').then(m => m.ADMIN_ROUTES)
+    },
+    {
+        path: '',
+        component: Public,
+        canActivate: [],
+        children: [
+            { path: '', component: Home },
+            { path: 'onboarding', canActivate: [AuthGuard, notOnboardedGuard, noAdminGuard], component: OnboardingPage },
+            { path: 'logout', redirectTo: '' },
+            { path: '**', component: NotFound }
+        ]
+    },
 ];

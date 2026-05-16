@@ -58,13 +58,14 @@ namespace backend.Controllers
         [HttpPost("households/join")]
         public async Task<ActionResult<HouseholdUserDto>> JoinWithInviteCode(InviteRequestCodeDto request)
         {
-            var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _us.JoinByInviteCode(id, request);
-            if (result == null)
+            var result = await _us.JoinByInviteCode(_uc.UserId, request);
+            if (result.Success)
             {
-                return Forbid("Je kan niet toetreden tot dit huishouden");
+                return Ok(result.Data.ToDto());
             }
-            return Ok(result.Data.ToDto());
+            if(result.IsConflict) return Conflict(result.ErrorMessage);
+            if(result.IsNotFound) return NotFound(result.ErrorMessage);
+            return BadRequest(result.ErrorMessage);
         }
     }
 }

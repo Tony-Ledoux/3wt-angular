@@ -2,20 +2,22 @@ import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { ModalService } from '@app/core/modal-service';
 import { UserService } from '@app/core/services/user/user';
+import { HouseholdService } from '@app/features/main/services/household-service';
 import { ButtonComponent } from "@app/shared/components/button/button";
+import { Header } from './header/header';
+import { Sidebar } from './sidebar/sidebar';
 
 @Component({
   selector: 'app-main',
-  imports: [RouterOutlet, RouterLink, ButtonComponent],
+  imports: [RouterOutlet, Header, Sidebar],
   templateUrl: './main.html',
   styleUrl: './main.css',
 })
 export class Main {
-  user = inject(UserService);
-  modalService = inject(ModalService);
-  // Reactive state using Signals
+   // Reactive state using Signals
   isSidebarOpen = signal(true);
 
+  /*
   handleLogOffClick() {
     this.modalService.open(
       "Afmelden?",
@@ -23,7 +25,7 @@ export class Main {
       { icon: 'fa fa-sign-out', onConfirm: () => { this.user.logoff() } })
       .show();
   }
-  
+  */
 
   toggleSidebar() {
     this.isSidebarOpen.update(val => !val);

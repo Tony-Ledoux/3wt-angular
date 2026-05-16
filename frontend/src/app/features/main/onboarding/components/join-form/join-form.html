@@ -1,0 +1,26 @@
+<form #joinForm="ngForm" (ngSubmit)="onSubmit()">
+    <app-labeled-input
+    name="name"
+    label="huishoudnaam"
+    placeholder="Thuis"
+    [(ngModel)]="form().name"
+    #name="ngModel"
+    required
+    />
+     <app-labeled-input
+    name="invite"
+    label="huishoudcode"
+    placeholder="DSC9!F"
+    [(ngModel)]="form().invite"
+    #invite="ngModel"
+    required
+    />
+    <div class="p-2 flex flex-col gap-2">
+        <app-button variant="secondary" [fullWidth]="true" (click)="modal.close()">
+            Annuleren
+        </app-button>
+        <app-button [fullWidth]="true" type="submit" [disabled]="joinForm.invalid">
+            toevoegen
+        </app-button>
+    </div>
+</form>

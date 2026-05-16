@@ -1,10 +1,11 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ModalService } from '@app/core/modal-service';
 import { ApiService } from '@app/core/services/api/api-service';
 import { NotifyService } from '@app/core/services/notify/notify-service';
 import { FullscreenSpinnerService } from '@app/core/services/spinner/fullscreen-spinner-service';
 import { HouseholdUserType } from '@app/core/types/householdUserType';
-import { lastValueFrom, take } from 'rxjs';
+import { catchError, finalize, lastValueFrom, take } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -99,6 +100,26 @@ export class HouseholdService {
           this.notify.error('er gebeurde een fout', 5000)
         }
       });
+  }
+
+  joinHousehold(name:string, invite:string){
+
+    this.api.post<HouseholdUserType>('/households/join',{name,inviteCode:invite})
+    .pipe(take(1), finalize(()=>{this.modal.close()}))
+    .subscribe({
+      next: (resp)=>{
+        this.notify.success(`Je bent toegevoegd aan huishouden ${resp.householdName}`)
+        //update the households
+        this._households.update((p)=> [...(p ?? []), resp])
+      },
+      error: (err)=> {
+        //check if 404 or 409
+        if(err instanceof(HttpErrorResponse)){
+          this.notify.error(`${err.error}`, 5000)
+          console.log(err.error)
+        }
+      },
+    });
   }
 
 }

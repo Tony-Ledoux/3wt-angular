@@ -1,0 +1,7 @@
+<a [routerLink]="link()" routerLinkActive="bg-slate-700 text-white"
+    class="flex items-center p-2 hover:bg-slate-700 rounded transition-colors text-slate-300 hover:text-white">
+    @if(icon()){
+        <i class="{{icon()}} w-6"></i> 
+    }
+    <span [class.ps-2]="icon()">{{label()}}</span>
+</a>

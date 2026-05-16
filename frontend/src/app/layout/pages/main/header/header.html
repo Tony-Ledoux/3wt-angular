@@ -1,0 +1,30 @@
+<header class="h-16 bg-white shadow-sm flex items-center justify-between px-4 border-b border-gray-200">
+    
+    <!-- Linker Groep: Menu + Branding -->
+    <div class="flex items-center gap-4">
+        <button (click)="onToggleSidebar.emit()"
+            class="p-2 hover:bg-gray-100 rounded-lg text-gray-600 transition-colors" 
+            title="Menu inklappen/uitklappen">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <!-- Branding Section (Schoongemaakt van p-6 en border-b) -->
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                <i class="fa-solid fa-utensils text-white"></i>
+            </div>
+            <span class="text-xl font-bold tracking-tight text-slate-800">MyKitchen</span>
+        </div>
+    </div>
+
+    <!-- Rechter Groep: User Profile -->
+    <div class="flex items-center gap-4">
+        <div class="flex flex-col items-end">
+            <span class="text-sm font-medium text-gray-700">{{ user.user()?.name }}</span>
+            <span class="text-xs text-gray-500">{{ household_service.selected_household()?.householdName }}</span>
+        </div>
+        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-bold text-xs">
+            {{ user.user()?.name?.charAt(0) || 'U' }}
+        </div>
+    </div>
+</header>

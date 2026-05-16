@@ -2,15 +2,19 @@
     <app-spinner text="Huishoudens worden geladen" />
 }
 @if(h_srv.num_households() === 0){
-    <div class="flex flex-col gap-4 mt-2 p-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl text-center">
+    <div class="flex flex-col gap-4 mt-2 p-6 md:w-full lg:w-1/3 mx-auto bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl text-center">
         <p class="text-slate-500">Je hebt nog geen huishouden.</p>
         <p class="text-slate-500">Maak er een aan of voeg je toe </p>
-        <app-button size="lg" (click)="handleCreateNewHousehold()"><span>
+        <app-button size="lg" [fullWidth]="true" (click)="handleCreateNewHousehold()"><span>
             <i class="fa fa-plus pe-2"></i>
             Maak er een aan
         </span>
         </app-button>
-        
+        <app-button size="lg" [fullWidth]="true" variant="secondary" (click)="handleJoin()"><span>
+            <i class="fa fa-at pe-2"></i>
+            Sluit aan bij ander
+        </span>
+        </app-button>
     </div>
 }
 

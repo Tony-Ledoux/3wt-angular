@@ -25,7 +25,7 @@ export class DatabaseSettings {
     this.api.get<DynamicConfig[]>('/settings')
       .pipe(
         take(1),
-        delay(1000),
+        //delay(1000),
         finalize(() => this.spinner.hide())
       ).subscribe({
         next: (data) => {

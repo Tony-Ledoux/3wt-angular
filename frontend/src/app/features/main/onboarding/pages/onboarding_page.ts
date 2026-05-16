@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { HouseholdCard } from "../components/household-card/household-card";
 import { ButtonComponent } from "@app/shared/components/button/button";
 import { DatabaseSettings } from '@app/core/services/config/database-settings';
+import { JoinForm } from '../components/join-form/join-form';
 
 //this page is behind the authGuard, notOnboardedGuard and noAdmin Guard!
 
@@ -28,6 +29,7 @@ export class OnboardingPage {
   selectedHousehold = signal<number | null>(null);
 
   constructor(){
+    
     effect(()=>{
       const households = this.h_srv.households();
       if(households && households.length === 1){
@@ -36,6 +38,7 @@ export class OnboardingPage {
         this.router.navigate(['/dashboard']);
       }
     });
+    
   }
  
   
@@ -58,6 +61,14 @@ export class OnboardingPage {
       .setShowActionButton(false)
       .setIcon('fa fa-users')
       .show()
+  }
+
+  handleJoin(){
+    this.modal.open('Aansluiten', JoinForm)
+    .setIcon('fa fa-person-walking-luggage')
+    .setCancelActionButton(false)
+    .setShowActionButton(false)
+    .show()
   }
 
 }

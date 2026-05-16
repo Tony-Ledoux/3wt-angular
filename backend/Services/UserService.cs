@@ -50,10 +50,15 @@ public class UserService(KitchenDbContext context, IInviteCodeGenerator gencode)
     async public Task<RequestResponse<HouseholdUser>> JoinByInviteCode(string id, InviteRequestCodeDto input)
     {
         // find the household
-        var houshold = await _db.Households.FirstOrDefaultAsync(h => h.Name == input.Name && h.InviteCode == input.InviteCode && h.IsOpenForInvite == true);
+        var houshold = await _db.Households.Include(h=>h.HouseholdUsers).FirstOrDefaultAsync(h => h.Name == input.Name && h.InviteCode == input.InviteCode && h.IsOpenForInvite == true);
         if (houshold == null)
         {
-            return null;
+            return new RequestResponse<HouseholdUser>().Failure("Geen huishouden gevonden met deze code dat invites accepteerd").SetIsNotFound();
+        }
+        //check of gebruiker nog geen lid
+        if (houshold.HouseholdUsers.Any(hu=>hu.UserId == id))
+        {
+            return new RequestResponse<HouseholdUser>().Failure("Je bent al lid van dit huishouden").SetIsConflict();
         }
         var HouseholdUser = new HouseholdUser()
         {
