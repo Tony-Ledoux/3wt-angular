@@ -8,7 +8,7 @@ export const notOnboardedGuard: CanActivateFn = async (route, state) => {
   const isValid = await household_service.validateSelectedHoushold();
   if(isValid){
     console.log('User already has a household, redirecting to dashboard...');
-    router.navigate(['/dashboard']);
+    router.navigate(['/app/dashboard']);
     return false;
   }
   return true;

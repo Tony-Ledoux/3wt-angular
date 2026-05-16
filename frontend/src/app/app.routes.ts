@@ -15,7 +15,7 @@ import { NotFound } from './features/public/pages/not-found/not-found';
 
 export const routes: Routes = [
     {
-        path: '',
+        path: 'app',
         component: Main, //main shell
         canActivate: [AuthGuard, noAdminGuard, hasOnboardedGuard],
         loadChildren: () => import('@features/main/main.routes').then(m => m.MAIN_ROUTES)

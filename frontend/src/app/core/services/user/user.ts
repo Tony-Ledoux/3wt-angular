@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ApiService } from '../api/api-service';
 import { AuthService } from '@auth0/auth0-angular';
 import { ModalService } from '@app/core/modal-service';
+import { DatabaseSettings } from '../config/database-settings';
 
 export const ROLE_CLAIM = 'http://localhost:5213/roles';
 
@@ -10,29 +11,30 @@ export const ROLE_CLAIM = 'http://localhost:5213/roles';
   providedIn: 'root',
 })
 export class UserService {
+  private configSrv = inject(DatabaseSettings);
   api = inject(ApiService);
   auth = inject(AuthService);
-  modalService=inject(ModalService)
+  modalService = inject(ModalService)
 
-  readonly isInitializing = computed(()=>{
+  readonly isInitializing = computed(() => {
     return this.user() === null && this.isAuth() === null;
   })
   readonly isAuth = toSignal(this.auth.isAuthenticated$, { initialValue: null })
-  readonly user = toSignal(this.auth.user$,{initialValue:null})
-  readonly isAdmin = computed(()=>{
+  readonly user = toSignal(this.auth.user$, { initialValue: null })
+  readonly isAdmin = computed(() => {
     const user = this.user();
-    if(!user) return false;
-    const roles = user[ROLE_CLAIM] as string[]| undefined;
-    return roles?.includes('Admin')?? false;
+    if (!user) return false;
+    const roles = user[ROLE_CLAIM] as string[] | undefined;
+    return roles?.includes('Admin') ?? false;
   });
 
   login() {
     this.auth.loginWithRedirect({
-      appState:{
-        target:'/onboarding'
+      appState: {
+        target: '/onboarding'
       },
-      authorizationParams:{
-        prompt:'login'
+      authorizationParams: {
+        prompt: 'login'
       }
     });
   }
@@ -43,7 +45,7 @@ export class UserService {
     localStorage.clear();
   }
 
-    handleLogOffClick() {
+  handleLogOffClick() {
     this.modalService.open(
       "Afmelden?",
       "Ben je zeker dat je wil afmelden?",
@@ -52,14 +54,14 @@ export class UserService {
   }
 
   register() {
-  this.auth.loginWithRedirect({
-    appState: {
-      target: '/onboarding'
-    },
-    authorizationParams: {
-      screen_hint: 'signup',
-    }
-  });
-}
+    this.auth.loginWithRedirect({
+      appState: {
+        target: '/onboarding'
+      },
+      authorizationParams: {
+        screen_hint: 'signup',
+      }
+    });
+  }
 
 }

@@ -74,12 +74,19 @@ public class KitchenDbContext(DbContextOptions<KitchenDbContext> options) : DbCo
                 },
             new SystemSetting(){
                 Id=2,
+                Key = "MaxUserOwns",
+                Value = "2",
+                Description = "The maximum number of households a user can own (this may not be higer than MaxHouseholdsPerUser)",
+                CreatedAt=new DateTime(2020,1,1,0,0,0).ToUniversalTime()
+            },
+            new SystemSetting(){
+                Id=3,
                 Key = "MaxInviteCodeLenght",
                 Value = "6",
                 Description = "The max Lenght of a  invite code",
                 CreatedAt=new DateTime(2020,1,1,0,0,0).ToUniversalTime()},
             new SystemSetting(){
-                Id=3,
+                Id=4,
                 Key = "AllowedCharsInvite",
                 Value = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789#?!",
                 Description = "The Characters an invite code can consist of",

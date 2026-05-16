@@ -11,7 +11,21 @@ public static class HouseholdExtention
     {
         return new HouseholdDto
         {
-            Name = entity.Name
+            Name = entity.Name,
+            Address = entity.Address,
+            InviteCode = entity.InviteCode,
+            IsOpenForInvite = entity.IsOpenForInvite
+        };
+    }
+    public static HouseholdWithUsersDto ToDetailsDto(this Household entity)
+    {
+        return new HouseholdWithUsersDto
+        {
+          Name=entity.Name,
+          Address = entity.Address,
+          InviteCode = entity.InviteCode,
+          IsOpenForInvite = entity.IsOpenForInvite,
+          Users = entity.HouseholdUsers.ToDtoList() 
         };
     }
     public static Household ToEntity(this HouseholdCreationDto input)

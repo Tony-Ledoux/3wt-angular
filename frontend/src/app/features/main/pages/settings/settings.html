@@ -1,1 +1,131 @@
-<p>settings works!</p>
+<div class="max-w-4xl mx-auto p-2 md:p-6 space-y-8">
+  <!-- Header -->
+  <header class="border-b pb-4">
+    <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">
+      Huishouden Instellingen
+    </h1>
+    <p class="text-gray-500 mt-1">Beheer de details en leden van je huishouden</p>
+  </header>
+
+  @if (isLoadingS()) {
+    <div class="flex justify-center items-center min-h-100">
+      <app-spinner text="Laden..." />
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 gap-8">
+      
+      <!-- Sectie 1: Details -->
+      <section class="bg-white shadow-sm border border-gray-200 rounded-xl p-6">
+        <div class="flex items-center gap-2 mb-6">
+          <span class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+            <i class="fa fa-info-circle"></i>
+          </span>
+          <h2 class="text-xl font-semibold text-gray-800">Algemene Details</h2>
+        </div>
+
+        <form [formGroup]="householdForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <app-labeled-input label="Naam van huishouden" name="name" formControlName="name" />
+            <app-labeled-input label="Adres van huishouden" name="address" formControlName="address" />
+          </div>
+
+          <div class="flex justify-end gap-3 pt-4 border-t">
+            <app-button 
+              variant="secondary" 
+                class="px-6" 
+              [fullWidth]="false" 
+              size="lg" 
+              (click)="detailsReset()" 
+              [disabled]="isSaveDisabledS()">
+              Reset
+            </app-button>
+            <app-button 
+              type="submit" 
+              size="lg" 
+              class="px-6" 
+              [fullWidth]="false" 
+              [disabled]="isSaveDisabledS()">
+              Aanpassen
+            </app-button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Sectie 2: Uitnodigingen -->
+      <section class="bg-white shadow-sm border border-gray-200 rounded-xl p-6">
+        <div class="flex items-center gap-2 mb-6">
+          <span class="p-2 bg-green-50 text-green-600 rounded-lg">
+            <i class="fa fa-envelope"></i>
+          </span>
+          <h2 class="text-xl font-semibold text-gray-800">Uitnodiging en Invitecode</h2>
+        </div>
+
+        <div class="flex flex-col gap-6">
+          <app-checkbox label="open voor anderen" [formControl]="inviteControl" />
+          
+          <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+            <div class="flex flex-col">
+              <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Huidige invitecode</span>
+              <span class="text-lg font-mono font-bold text-gray-700">{{detailsS()?.inviteCode}}</span>
+            </div>
+            <app-button size="sm" variant="success" (click)="onRecycleClick()" class="ml-auto">
+              <i class="fa fa-recycle"></i>
+              <span class="ml-2">Vernieuwen</span>
+            </app-button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sectie 3: Deelnemers -->
+      <section class="bg-white shadow-sm border border-gray-200 rounded-xl p-6">
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-2">
+            <span class="p-2 bg-purple-50 text-purple-600 rounded-lg">
+              <i class="fa fa-users"></i>
+            </span>
+            <h2 class="text-xl font-semibold text-gray-800">Deelnemers</h2>
+          </div>
+          <span class="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full font-medium">
+            {{guestS().length}} personen
+          </span>
+        </div>
+
+        <div class="flex flex-col divide-y divide-gray-100 border rounded-lg overflow-hidden">
+          @for(g of guestS(); track g.id){
+            <div class="flex flex-col md:flex-row items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs font-bold">
+                  {{g.email.charAt(0).toUpperCase()}}
+                </div>
+                <span class="text-gray-700 font-medium">{{g.email}}</span>
+              </div>
+              <app-button variant="danger" size="sm">
+                <i class="fa fa-trash mr-2"></i> Verwijderen
+              </app-button>
+            </div>
+          } @empty {
+            <div class="p-8 text-center text-gray-400 italic">
+              Geen deelnemers gevonden.
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="bg-rose-100 shadow-sm border border-rose-400 rounded-xl p-6">
+        <div class="flex items-center justify-between mb-6">
+             <div class="flex items-center gap-2">
+            <span class="p-2 bg-amber-50 text-amber-600 rounded-lg">
+              <i class="fa fa-triangle-exclamation"></i>
+            </span>
+            <h2 class="text-xl font-semibold text-gray-800">Gevarenzone</h2>
+          </div>
+        </div>
+        <div class="text-center">
+          <p class="mb-2">Opgelet deze handelingen zijn onomkeerbaar!</p>
+          <app-button variant="danger"><i class="fa fa-trash mr-2"></i> Verwijder huishouden</app-button>
+        </div>
+      </section>
+
+    </div>
+  }
+</div>

@@ -12,10 +12,13 @@ public class UserContextMiddleware(RequestDelegate next)
     public async Task InvokeAsync(HttpContext context, IUserContext userContext, IUserService _srv)
     {
         var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (!string.IsNullOrEmpty(userId))
+        var email = context.User.FindFirstValue(ClaimTypes.Email);
+        if (!string.IsNullOrEmpty(userId) && !string.IsNullOrEmpty(email))
         {
+            var HouseholdUsers = await _srv.GetHouseholdUsersAsync(userId);
             userContext.UserId = userId;
-            userContext.HouseholdUsers = await _srv.GetHouseholdUsersAsync(userId);
+            userContext.Email = email;
+            userContext.HouseholdUsers = HouseholdUsers;
         }
         await _next(context);
     }

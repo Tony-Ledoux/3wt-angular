@@ -10,6 +10,7 @@ public class HouseholdUser: BaseEntity
     public int HouseholdId {get;set;}
 
     public bool HouseholdOwner {get;set;}
+    public string Email {get;set;}
 
     
     [ForeignKey(nameof(HouseholdId))]

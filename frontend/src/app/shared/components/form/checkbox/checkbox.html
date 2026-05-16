@@ -1,0 +1,35 @@
+<label 
+  
+  class="flex items-center gap-3  select-none" 
+  [class.opacity-50]="disabled()" [class.cursor-not-allowed]="disabled()" [class.cursor-pointer]="!disabled()">
+  
+  
+  <div class="relative inline-flex items-center">
+      <!-- Native checkbox: de bron van de waarheid -->
+      <input 
+      type="checkbox" 
+      [checked]="value()" 
+      [disabled]="disabled()"
+      class="sr-only peer" 
+      (change)="toggle()"
+      />
+      
+      <!-- Visuele Track -->
+      <div class="w-11 h-6 bg-gray-200 rounded-full peer 
+      peer-checked:bg-blue-400 
+      dark:bg-blue-400 dark:peer-checked:bg-blue-800 
+      transition-colors duration-200 ease-in-out">
+    </div>
+    
+    <!-- Visuele Dot -->
+    <div class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full 
+    transition-transform duration-200 ease-in-out 
+    peer-checked:translate-x-5 shadow-sm">
+</div>
+@if (label()) {
+  <span class="text-sm font-medium ps-2">
+    {{ label() }}
+  </span>
+}
+</div>
+</label>

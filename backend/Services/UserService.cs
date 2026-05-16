@@ -21,9 +21,9 @@ public class UserService(KitchenDbContext context, IInviteCodeGenerator gencode)
     }
 
 
-    public async Task<RequestResponse<HouseholdUser>> CreateNewHousholdAndUser(string id, HouseholdCreationDto input)
+    public async Task<RequestResponse<HouseholdUser>> CreateNewHousholdAndUser(string id, string email, HouseholdCreationDto input)
     {
-        if(input == null) return new RequestResponse<HouseholdUser>().Failure("Gelieve mij data te geven");
+        if (input == null) return new RequestResponse<HouseholdUser>().Failure("Gelieve mij data te geven");
 
         // create a new Household
         var household_new = input.ToEntity();
@@ -38,25 +38,26 @@ public class UserService(KitchenDbContext context, IInviteCodeGenerator gencode)
         {
             UserId = id,
             Household = household_new,
-            HouseholdOwner = true
+            HouseholdOwner = true,
+            Email = email
         };
         _db.Add(HouseholdUser);
         await _db.SaveChangesAsync();
         return new RequestResponse<HouseholdUser>().Ok(HouseholdUser);
     }
 
-   
 
-    async public Task<RequestResponse<HouseholdUser>> JoinByInviteCode(string id, InviteRequestCodeDto input)
+
+    async public Task<RequestResponse<HouseholdUser>> JoinByInviteCode(string id, string email, InviteRequestCodeDto input)
     {
         // find the household
-        var houshold = await _db.Households.Include(h=>h.HouseholdUsers).FirstOrDefaultAsync(h => h.Name == input.Name && h.InviteCode == input.InviteCode && h.IsOpenForInvite == true);
+        var houshold = await _db.Households.Include(h => h.HouseholdUsers).FirstOrDefaultAsync(h => h.Name == input.Name && h.InviteCode == input.InviteCode && h.IsOpenForInvite == true);
         if (houshold == null)
         {
             return new RequestResponse<HouseholdUser>().Failure("Geen huishouden gevonden met deze code dat invites accepteerd").SetIsNotFound();
         }
         //check of gebruiker nog geen lid
-        if (houshold.HouseholdUsers.Any(hu=>hu.UserId == id))
+        if (houshold.HouseholdUsers.Any(hu => hu.UserId == id))
         {
             return new RequestResponse<HouseholdUser>().Failure("Je bent al lid van dit huishouden").SetIsConflict();
         }
@@ -64,11 +65,26 @@ public class UserService(KitchenDbContext context, IInviteCodeGenerator gencode)
         {
             UserId = id,
             Household = houshold,
-            HouseholdOwner = false
+            HouseholdOwner = false,
+            Email = email
         };
         _db.Add(HouseholdUser);
         await _db.SaveChangesAsync();
         return new RequestResponse<HouseholdUser>().Ok(HouseholdUser);
 
+    }
+
+    public async Task<RequestResponse<bool>> DeleteUser(HouseholdUser entity)
+    {
+        try
+        {
+            _db.Remove(entity);
+            await _db.SaveChangesAsync();
+            return new RequestResponse<bool>().Ok(true);
+        }
+        catch (Exception)
+        {
+            return new RequestResponse<bool>().Failure("Er liep iets fout").SetIsConflict();
+        }
     }
 }

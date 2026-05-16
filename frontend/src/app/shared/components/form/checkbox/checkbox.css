@@ -1,0 +1,4 @@
+/* De styling is volledig afgehandeld via Tailwind utility classes in de HTML */
+:host {
+  display: inline-block;
+}

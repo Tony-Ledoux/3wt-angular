@@ -11,21 +11,26 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
 {
-    [Route("api")]
+    [Route("api/users")]
     [ApiController]
     [Authorize]
     public class HouseHoldUserController(IUserService srv_user, IUserContext context) : ControllerBase
     {
         private readonly IUserService _us = srv_user;
         private readonly IUserContext _uc = context;
-        [HttpGet("users/me")]
+        [HttpGet("test")]
+        public async Task<IActionResult> Test()
+        {
+            return Ok(_uc);
+        }
+        [HttpGet("me")]
         public async Task<ActionResult<IEnumerable<HouseholdUserDto>>> GetMeAndMyHouseHolds()
         {
             return Ok(_uc.HouseholdUsers.ToDtoList());
 
         }
 
-        [HttpGet("users/households/{id:int}")]
+        [HttpGet("households/{id:int}")]
         public async Task<ActionResult<HouseholdUserDto>> PartOfThisHousehold(int id)
         {
             if (_uc.HouseholdUsers == null)
@@ -47,7 +52,7 @@ namespace backend.Controllers
         public async Task<ActionResult<RequestResponse<HouseholdUserDto>>> CreateNewHouseHold(HouseholdCreationDto request)
         {
             // if no body i got 415 error
-            var result = await _us.CreateNewHousholdAndUser(_uc.UserId, request);
+            var result = await _us.CreateNewHousholdAndUser(_uc.UserId, _uc.Email, request);
             if (result.Success)
             {
                 return Created("", result.Data.ToDto());
@@ -58,7 +63,7 @@ namespace backend.Controllers
         [HttpPost("households/join")]
         public async Task<ActionResult<HouseholdUserDto>> JoinWithInviteCode(InviteRequestCodeDto request)
         {
-            var result = await _us.JoinByInviteCode(_uc.UserId, request);
+            var result = await _us.JoinByInviteCode(_uc.UserId,_uc.Email, request);
             if (result.Success)
             {
                 return Ok(result.Data.ToDto());
@@ -66,6 +71,19 @@ namespace backend.Controllers
             if(result.IsConflict) return Conflict(result.ErrorMessage);
             if(result.IsNotFound) return NotFound(result.ErrorMessage);
             return BadRequest(result.ErrorMessage);
+        }
+        [HttpDelete("households/{id:int}")]
+        public async Task<IActionResult> LeaveHousehold(int id)
+        {
+            var entity = _uc.HouseholdUsers.FirstOrDefault(hu=>hu.HouseholdId == id);
+            if(entity == null) return Forbid();
+            var result = await _us.DeleteUser(entity);
+            if (result.Success)
+            {
+                return NoContent();
+            }
+            if(result.IsConflict) return Conflict(result.ErrorMessage);
+            return BadRequest();
         }
     }
 }

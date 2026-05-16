@@ -1,1 +1,39 @@
-<p>profile works!</p>
+<div class="p-6 max-w-5xl mx-auto">
+    <div class="text-center mb-10">
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Mijn Huishoudens</h1>
+        <p class="text-slate-500">
+            Je bent lid van {{householdSrv.num_households()}} van de {{config.getNumber("MaxHouseholdsPerUser")}} maximale huishoudens.
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (house of householdSrv.households(); track house.householdId) {
+            <app-household-management-card 
+                [household]="house" 
+                [isSelected]="isHouseholdSelected(house.householdId)"
+                (select)="onSelectHousehold($event)" 
+                (leave)="onLeaveHousehold($event)"
+                (remove)="onRemoveHouseHold($event)"
+                />
+        }
+    </div>
+
+    <!-- Sectie voor nieuwe huishoudens -->
+    @if(householdSrv.houshold_slots_left() > 0){
+        <div class="mt-12 p-8 border-2 border-dashed border-slate-200 rounded-2xl text-center bg-slate-50/50">
+            <p class="text-slate-600 mb-4">
+                Je hebt nog {{householdSrv.houshold_slots_left()}} plek over voor een nieuw huishouden.
+            </p>
+            @if(householdSrv.canCreateHousehold()){
+                <app-button size="lg" class="shadow-lg shadow-blue-200" (click)="householdSrv.handleCreateNewHousehold()">
+                    <span class="flex items-center gap-2"><i class="fa fa-plus"></i> Nieuw Huishouden Aanmaken</span>
+                </app-button>
+            }
+            @if(householdSrv.canJoinHouseholds()){
+                <app-button size="lg" class="shadow-lg shadow-blue-200" variant="secondary" (click)="householdSrv.handleJoinNewHousehold()">
+                    <span class="flex items-center gap-2"><i class="fa fa-location-dot"></i> voeg Huishouden toe</span>
+                </app-button>
+            }
+        </div>
+    }
+</div>

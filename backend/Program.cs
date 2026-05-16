@@ -41,6 +41,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddSingleton<ISystemSettingsServce, SystemSettingsService>();
 builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IHouseholdService, HouseholdService>();
 builder.Services.AddScoped<IInviteCodeGenerator, InviteCodeGenerator>();
 
 builder.Services.AddControllers().AddJsonOptions(options =>

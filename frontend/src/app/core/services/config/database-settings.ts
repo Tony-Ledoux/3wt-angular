@@ -1,8 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ApiService } from '../api/api-service';
-import { delay, finalize, switchMap, take, timer } from 'rxjs';
-import { ModalService } from '@app/core/modal-service';
-import { FullscreenSpinnerService } from '../spinner/fullscreen-spinner-service';
+import { delay,firstValueFrom} from 'rxjs';
 import { DynamicConfig } from '@app/core/types/dynamic-config';
 
 @Injectable({
@@ -10,39 +8,40 @@ import { DynamicConfig } from '@app/core/types/dynamic-config';
 })
 export class DatabaseSettings {
   private api = inject(ApiService);
-  private modal = inject(ModalService);
-  private spinner = inject(FullscreenSpinnerService)
+  private _errors = signal<any[]>([]);
   private _settings = signal<DynamicConfig[] | null>(null);
   readonly settings = this._settings.asReadonly();
-
-  constructor() {
-    this.init()
+  readonly errors = this._errors.asReadonly();
+  
+  
+  /**
+   * Functie die aangeroepen wordt in app initialize
+   * hier is er nog geen toegang tot componenten
+   */
+  async init(): Promise<void> {
+    try {
+      const data = await firstValueFrom(this.api.get<DynamicConfig[]>('/settings'));
+      this._settings.set(data);
+      console.log('database settings geladen', data);
+    } catch (err) {
+        console.error(err)
+        this._errors.update((p)=>[...p, err])
+    }
   }
 
-  private init() {
-    this.spinner.show();
-    console.log('start database settings loading');
-    this.api.get<DynamicConfig[]>('/settings')
-      .pipe(
-        take(1),
-        //delay(1000),
-        finalize(() => this.spinner.hide())
-      ).subscribe({
-        next: (data) => {
-          this._settings.set(data);
-          console.log('database settings geladen ', data)
-        },
-        error: (err) => {
-          this.modal.open('Error', 'Kon dynamische settings niet ophalen, contacteer de administrator')
-            .setType('danger')
-            .setIcon('fa fa-bomb')
-            .setConfirmText("oké")
-            .setCloseBackdropClick(false)
-            .setCancelActionButton(false)
-            .setConfirmCallback(() => window.location.reload()) //destroys the angular app
-            .show();
-          console.error(err);
-        }
-      });
+  getValue(key:string):string | undefined {
+    const currentSettings = this.settings()??[];
+    const settings = currentSettings.find(s=>s.key === key);
+    return settings?.value;
+  }
+
+  getNumber(key:string, defaultValue = 0):number {
+    const value = this.getValue(key)
+    try{
+      const result = parseInt(value??"",10);
+      return result
+    } catch (e){
+      return defaultValue;
+    }
   }
 }

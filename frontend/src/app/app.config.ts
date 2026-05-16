@@ -1,12 +1,13 @@
 //app.config.ts
 import { routes } from './app.routes';
-import { provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
+import { inject, provideAppInitializer, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter, withEnabledBlockingInitialNavigation } from '@angular/router';
 import { HttpInterceptorFn, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { provideAuth0, authHttpInterceptorFn } from '@auth0/auth0-angular';
 import { RUNTIME_CONFIG } from './core/config.token';
 import { authInterceptor } from './core/interceptors/unauthorized-test-interceptor';
+import { DatabaseSettings } from './core/services/config/database-settings';
 
 
 
@@ -20,6 +21,10 @@ export function appConfig(runtimeConfig: any) {
   return {
     providers: [
       { provide: RUNTIME_CONFIG, useValue: runtimeConfig },
+      provideAppInitializer(()=>{
+        const dbService = inject(DatabaseSettings);
+        return dbService.init();
+      }),
       provideBrowserGlobalErrorListeners(),
       provideZonelessChangeDetection(),
       //provideRouter(routes),
@@ -29,7 +34,7 @@ export function appConfig(runtimeConfig: any) {
         //withInterceptors([authHttpInterceptorFn, errorInterceptor,debugInterceptor]) //activeer deze om te debuggen
 
       ),
-      provideAuth0({
+      provideAuth0({ // ik zou deze waarden graag vanuit de databank krijgen ik heb hierboven een appinitializer gebruikt, kan ik al aan deze waarden? 
         domain: runtimeConfig.auth0.domain,
         clientId: runtimeConfig.auth0.client_id,
         useRefreshTokens: true,

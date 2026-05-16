@@ -1,8 +1,9 @@
-@if(auth.isInitializing()){
-    loading ...
-}@else {
+@if(settings.errors().length == 0){
     <router-outlet />
     <internal-app-modal />
     <internal-app-toaster-component />
     <app-full-screen-load-spinner />
+} @else {
+    <app-major-error-page />
 }
+

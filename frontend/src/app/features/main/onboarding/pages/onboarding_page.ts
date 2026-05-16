@@ -35,7 +35,7 @@ export class OnboardingPage {
       if(households && households.length === 1){
         const id = households[0].householdId;
         this.h_srv.selectHousehold(id);
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/app/dashboard']);
       }
     });
     
@@ -50,7 +50,7 @@ export class OnboardingPage {
     const id = this.selectedHousehold();
     if (id !== null) {
       this.h_srv.selectHousehold(id);
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/app/dashboard']);
     }
   }
 
