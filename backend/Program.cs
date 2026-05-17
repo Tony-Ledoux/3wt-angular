@@ -1,6 +1,10 @@
 using System.Security.Claims;
 using backend.Contexts;
+using backend.Entities;
+using backend.Mappers;
 using backend.Middleware;
+using backend.Models;
+using backend.Repository;
 using backend.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -39,10 +43,24 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddSingleton<ISystemSettingsServce, SystemSettingsService>();
+// Repos
+builder.Services.AddScoped(typeof(IGeneric<>),typeof(Generic<>));
+builder.Services.AddScoped<IStoragelocationRepository, StoragelocationRepository>();
+builder.Services.AddScoped<IStoragelocationRepository, StoragelocationRepository>();
+builder.Services.AddScoped<IHouseholdUserRepository, HouseholdUserRepository>();
+builder.Services.AddScoped<IHouseholdRepository, HouseholdRepository>();
+
+//Mappers
+builder.Services.AddSingleton<IMapper<DeviceType,DeviceTypeDto>,DeviceTypeMapper>();
+builder.Services.AddSingleton<IMapper<Household,HouseholdDto>,HouseholdMapper>();
+builder.Services.AddSingleton<IMapper<HouseholdUser,HouseholdUserDto>,HouseholdUserMapper>();
+
+//Services
 builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IHouseholdService, HouseholdService>();
 builder.Services.AddScoped<IInviteCodeGenerator, InviteCodeGenerator>();
+builder.Services.AddScoped<IInventoryService, InventoryService>();
 
 builder.Services.AddControllers().AddJsonOptions(options =>
     {

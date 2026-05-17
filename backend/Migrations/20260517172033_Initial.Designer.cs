@@ -12,8 +12,8 @@ using backend.Contexts;
 namespace backend.Migrations
 {
     [DbContext(typeof(KitchenDbContext))]
-    [Migration("20260517075658_Test")]
-    partial class Test
+    [Migration("20260517172033_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -55,6 +55,26 @@ namespace backend.Migrations
                         .HasName("pk_device_types");
 
                     b.ToTable("device_types", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc),
+                            Type = "Koelkast"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc),
+                            Type = "Diepvries"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc),
+                            Type = "Kast"
+                        });
                 });
 
             modelBuilder.Entity("backend.Entities.Household", b =>

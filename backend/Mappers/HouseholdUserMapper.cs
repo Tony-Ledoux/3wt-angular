@@ -1,14 +1,14 @@
-using System;
 using backend.Entities;
+
 using backend.Models;
 
-namespace backend.Extentions;
+namespace backend.Mappers;
 
-public static class HouseholdUserExtention
+public class HouseholdUserMapper : BaseMapper<HouseholdUser, HouseholdUserDto>
 {
-    public static HouseholdUserDto ToDto(this HouseholdUser entity)
+    public override HouseholdUserDto Map(HouseholdUser entity)
     {
-        if (entity == null) return null;
+         if (entity == null) return null;
         return new HouseholdUserDto
         {
             Id = entity.UserId,
@@ -18,10 +18,5 @@ public static class HouseholdUserExtention
             Isowner = entity.HouseholdOwner,
             Email = entity.Email
         };
-    }
-
-    public static IEnumerable<HouseholdUserDto> ToDtoList(this IEnumerable<HouseholdUser> list)
-    {
-        return list.Select(hu => hu.ToDto());
     }
 }

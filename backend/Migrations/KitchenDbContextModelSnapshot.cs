@@ -52,6 +52,26 @@ namespace backend.Migrations
                         .HasName("pk_device_types");
 
                     b.ToTable("device_types", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc),
+                            Type = "Koelkast"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc),
+                            Type = "Diepvries"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc),
+                            Type = "Kast"
+                        });
                 });
 
             modelBuilder.Entity("backend.Entities.Household", b =>

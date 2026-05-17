@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using backend.Contexts;
 using backend.Entities;
-using backend.Extentions;
+
 using backend.Models;
 using backend.Models.Create;
 using backend.Services;
@@ -26,7 +26,7 @@ namespace backend.Controllers
         [HttpGet("me")]
         public async Task<ActionResult<IEnumerable<HouseholdUserDto>>> GetMeAndMyHouseHolds()
         {
-            return Ok(_uc.HouseholdUsers.ToDtoList());
+            return Ok(_uc.HouseholdUsers);
 
         }
 
@@ -37,10 +37,10 @@ namespace backend.Controllers
             {
                 return BadRequest("Geen gebruikersdata gevonden");
             }
-            HouseholdUser? isMember = _uc.HouseholdUsers.FirstOrDefault(hu => hu.HouseholdId == id);
+            HouseholdUserDto? isMember = _uc.IsCurrentUserInHouseholdWithId(id);
             if (isMember != null)
             {
-                return Ok(isMember.ToDto());
+                return Ok(isMember);
             }
             else
             {
@@ -55,7 +55,7 @@ namespace backend.Controllers
             var result = await _us.CreateNewHousholdAndUser(_uc.UserId, _uc.Email, request);
             if (result.Success)
             {
-                return Created("", result.Data.ToDto());
+                return Created("", result.Data);
             }
             return BadRequest(result.ErrorMessage);
         }
@@ -66,7 +66,7 @@ namespace backend.Controllers
             var result = await _us.JoinByInviteCode(_uc.UserId,_uc.Email, request);
             if (result.Success)
             {
-                return Ok(result.Data.ToDto());
+                return Ok(result.Data);
             }
             if(result.IsConflict) return Conflict(result.ErrorMessage);
             if(result.IsNotFound) return NotFound(result.ErrorMessage);
@@ -75,15 +75,15 @@ namespace backend.Controllers
         [HttpDelete("households/{id:int}")]
         public async Task<IActionResult> LeaveHousehold(int id)
         {
-            var entity = _uc.HouseholdUsers.FirstOrDefault(hu=>hu.HouseholdId == id);
+            var entity = _uc.IsCurrentUserInHouseholdWithId(id);
             if(entity == null) return Forbid();
-            var result = await _us.DeleteUser(entity);
+            var result = await _us.DeleteUserFromHousehold(entity.Id, entity.HouseholdId);
             if (result.Success)
             {
+                _uc.DeleteFromContext(entity);
                 return NoContent();
             }
-            if(result.IsConflict) return Conflict(result.ErrorMessage);
-            return BadRequest();
+            return Ok(entity);
         }
     }
 }

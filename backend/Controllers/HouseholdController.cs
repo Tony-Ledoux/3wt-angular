@@ -1,11 +1,10 @@
 using backend.Contexts;
-using backend.Extentions;
 using backend.Models;
 using backend.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration.UserSecrets;
+
 
 namespace backend.Controllers
 {
@@ -16,22 +15,21 @@ namespace backend.Controllers
     {
         private readonly IUserContext _uc= userContext;
         private readonly IHouseholdService _hs = service;
+        
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteHousehold(int id)
         {
-            var householdUser = _uc.HouseholdUsers.FirstOrDefault(hu=>hu.HouseholdId == id);
-            var isOwner = householdUser?.HouseholdOwner ?? false;
-            if (isOwner)
-            {
-                var result = await _hs.GetHouseholdWithUsersByIdAsync(id);
-                var deleted = await _hs.DeleteHouseholdWithAllUsersAsync(result);
-                if(deleted.Success) return NoContent();
-                return BadRequest();  
-            }
-            return Forbid();
-        }
+            var householdUser = _uc.IsCurrentUserInHouseholdWithId(id);
+            if(householdUser == null) return Forbid();
+            if(!householdUser.Isowner) return Forbid();
+            var result = await _hs.DeleteHouseholdWithAllUsersAsync(id);
+            if(!result) return BadRequest();
+            _uc.DeleteFromContext(householdUser);
+            return Ok(householdUser);
 
+        }
+/*
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetHouseholdDetails(int id)
         {
@@ -42,13 +40,14 @@ namespace backend.Controllers
 
         }
 
+
         [HttpPost("{householdId:int}/generateinvitecode")]
         public async Task<ActionResult<RequestResponse<HouseholdDto>>> GetNewInvitecode(int householdId)
         {
             var household = _uc.HouseholdUsers.FirstOrDefault(hu=>hu.HouseholdId == householdId && hu.HouseholdOwner==true)?.Household;
             if(household == null) return Forbid();
             var result = await _hs.GenerateNewInviteCode(household);
-            if(result.Success) return Ok(result.Data.ToDto());
+            if(result.Success) return Ok(result.Data);
             return BadRequest();
         }
 
@@ -58,7 +57,7 @@ namespace backend.Controllers
             var household = _uc.HouseholdUsers.FirstOrDefault(hu=>hu.HouseholdId == householdId && hu.HouseholdOwner==true)?.Household;
             if(household == null) return Forbid();
             var result = await _hs.ToggleIsOpenForInvite(household);
-            if(result.Success) return Ok(result.Data.ToDto());
+            if(result.Success) return Ok(result.Data);
             return BadRequest();
         }
         [HttpDelete("{householdId:int}/user")]
@@ -70,6 +69,6 @@ namespace backend.Controllers
             if(result.Success) return NoContent();
             return BadRequest();
         }
-        
+        */
     }
 }

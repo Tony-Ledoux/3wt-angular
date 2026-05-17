@@ -446,6 +446,16 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "device_types",
+                columns: new[] { "id", "created_at", "deleted_at", "type", "updated_at" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc), null, "Koelkast", null },
+                    { 2, new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc), null, "Diepvries", null },
+                    { 3, new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc), null, "Kast", null }
+                });
+
+            migrationBuilder.InsertData(
                 table: "system_settings",
                 columns: new[] { "id", "created_at", "deleted_at", "description", "key", "updated_at", "value" },
                 values: new object[,]
