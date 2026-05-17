@@ -11,6 +11,7 @@ public static class HouseholdExtention
     {
         return new HouseholdDto
         {
+            Id = entity.Id,
             Name = entity.Name,
             Address = entity.Address,
             InviteCode = entity.InviteCode,
@@ -21,6 +22,7 @@ public static class HouseholdExtention
     {
         return new HouseholdWithUsersDto
         {
+            Id = entity.Id,
           Name=entity.Name,
           Address = entity.Address,
           InviteCode = entity.InviteCode,

@@ -1,4 +1,4 @@
-import { Component, forwardRef, input, signal } from '@angular/core';
+import { Component, computed, forwardRef, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
@@ -17,6 +17,8 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 export class Checkbox implements ControlValueAccessor {
   label = input<string>();
   disabled = input<boolean>(false);
+  private _formDisabled = signal(false);
+  isDisabled = computed(()=> this.disabled() || this._formDisabled());
 
   value = signal<boolean>(false);
 
@@ -24,7 +26,7 @@ export class Checkbox implements ControlValueAccessor {
   onTouched: any = ()=>{};
 
   toggle():void {
-    if(this.disabled()) return;
+    if(this.isDisabled()) return;
 
     this.value.update((v)=> !v);
     this.onChange(this.value());
@@ -44,7 +46,7 @@ export class Checkbox implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    
+    this._formDisabled.set(isDisabled);
   }
 
 }

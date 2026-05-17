@@ -16,9 +16,8 @@
 
         <!-- Content Section -->
         <div class="flex-1 pt-0.5">
-            <p class="text-sm font-medium text-gray-900 leading-tight">
-                {{toast.message}}
-            </p>
+            <div class="text-sm font-medium text-gray-900 leading-tight" [innerHTML]="toast.message" ></div>
+    
         </div>
 
         <!-- Close Button -->

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using backend.Contexts;
+using backend.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services;
@@ -14,6 +15,8 @@ public interface ISystemSettingsServce
     string GetDescription(string key, string defaultValue = "");
     IEnumerable<SystemSettingDto> GetAllSettings();
     Task RefreshAsync();
+
+    Task<bool> UpdateSettingsAsync(List<SettingDto> updatedSettings);
 }
 
 public class SystemSettingsService(IServiceProvider serviceProvider) : ISystemSettingsServce
@@ -47,5 +50,24 @@ public class SystemSettingsService(IServiceProvider serviceProvider) : ISystemSe
     public IEnumerable<SystemSettingDto> GetAllSettings()
     {
         return _cache.Values;
+    }
+
+    public async Task<bool> UpdateSettingsAsync(List<SettingDto> updatedSettings)
+    {
+         using var scope = _serviceProvider.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<KitchenDbContext>();
+        if (updatedSettings == null || updatedSettings.Count == 0) return false;
+        var existingSettings = await db.SystemSettings.ToListAsync();
+        foreach (var dto in updatedSettings)
+        {
+            var setting = existingSettings.FirstOrDefault(s=>s.Key == dto.Key);
+            if(setting != null)
+            {
+                setting.Value = dto.Value;
+                setting.Description = dto.Description;
+            }
+        }
+
+        return await db.SaveChangesAsync() > 0;
     }
 }

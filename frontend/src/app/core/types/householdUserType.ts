@@ -7,8 +7,17 @@ export interface HouseholdUserType {
     email:string;
 }
 
+export interface Household {
+    id:number;
+    name:string;
+    address:string;
+    inviteCode:string;
+    isOpenForInvite:boolean;
+}
+
 
 export interface HouseholdWithUsersType {
+    id: number
     name:string;
     address:string;
     inviteCode:string;

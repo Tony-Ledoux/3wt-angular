@@ -1,7 +1,7 @@
 <label 
   
   class="flex items-center gap-3  select-none" 
-  [class.opacity-50]="disabled()" [class.cursor-not-allowed]="disabled()" [class.cursor-pointer]="!disabled()">
+  [class.opacity-50]="isDisabled()" [class.cursor-not-allowed]="isDisabled()" [class.cursor-pointer]="!isDisabled()">
   
   
   <div class="relative inline-flex items-center">
@@ -9,7 +9,7 @@
       <input 
       type="checkbox" 
       [checked]="value()" 
-      [disabled]="disabled()"
+      [disabled]="isDisabled()"
       class="sr-only peer" 
       (change)="toggle()"
       />

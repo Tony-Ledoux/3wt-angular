@@ -1,7 +1,7 @@
 import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { HouseholdService } from '../../services/household-service';
 import { ApiService } from '@app/core/services/api/api-service';
-import { HouseholdUserType, HouseholdWithUsersType } from '@app/core/types/householdUserType';
+import { Household, HouseholdUserType, HouseholdWithUsersType } from '@app/core/types/householdUserType';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Spinner } from '@app/shared/components/spinner/spinner';
 import { untracked } from '@angular/core/primitives/signals';
@@ -10,7 +10,9 @@ import { Checkbox } from '@app/shared/components/form/checkbox/checkbox';
 import { LabeledInput } from "@app/shared/components/form/labeled-input/labeled-input";
 import { ButtonComponent } from "@app/shared/components/button/button";
 import { JsonPipe } from '@angular/common';
-//ToDO: hook up buttons and form
+import { ModalService } from '@app/core/modal-service';
+import { NotifyService } from '@app/core/services/notify/notify-service';
+// TODO Add polling in the future for members of a household
 @Component({
   selector: 'app-settings',
   imports: [Spinner, ReactiveFormsModule, Checkbox, LabeledInput, ButtonComponent, JsonPipe],
@@ -21,6 +23,8 @@ export class Settings {
   //injects
   private fb = inject(FormBuilder);
   private apiSrv = inject(ApiService);
+  private modalSrv = inject(ModalService);
+  private notify = inject(NotifyService);
   householdSrv = inject(HouseholdService);
   //Forms
   householdForm = this.fb.group({
@@ -38,6 +42,7 @@ export class Settings {
   private formValuesS = toSignal(this.householdForm.valueChanges, {
     initialValue: this.householdForm.value
   });
+  
 
 
   isSaveDisabledS = computed(() => {
@@ -64,14 +69,22 @@ export class Settings {
         });
       }
     });
-    effect(() => {
-      const change = this.inviteControl.valueChanges
-      change.subscribe({
-        next: (d) => {
-          console.log(d);
-        }
-      })
-    })
+    this.inviteControl.valueChanges.subscribe({
+      next: ()=>{
+        const id = this.detailsS()?.id ?? 0;
+        this.inviteControl.disable({emitEvent:false});
+        // do the api call
+        this.apiSrv.post<Household>(`/households/${id}/toggleinvite`,{}).subscribe({
+          next:()=>{
+
+          },
+          complete: ()=>{
+           this.inviteControl.enable({emitEvent:false});
+          }
+        });
+        console.log("flipped", this.inviteControl.value, id)
+      }
+    });
   }
 
   detailsReset() {
@@ -79,11 +92,53 @@ export class Settings {
   }
 
   onSubmit() {
+    //TODO verwerk het formulier en stuur het door
     console.log('submitted');
   }
 
-  onRecycleClick() {
 
+  onRecycleClick() {
+    this.modalSrv.open("Code vernieuwen", `<p>Wil je de inviteercode vernieuwen?</p><p class="text-red-500"> Je kan de huidige code dan <strong>niet</strong> meer gebruiken</p>`)
+    .setIcon('fa fa-question')
+    .setConfirmCallback(()=>this.handleRecycleConfirm())
+    .show();
+  }
+
+  handleRecycleConfirm(){
+    const id = this.detailsS()?.id ?? 0;
+    this.apiSrv.post<Household>(`/households/${id}/generateinvitecode`,{}).subscribe({
+      next: (d)=>{
+        this.detailsS.update(p=>{
+          if(!p) return p;
+          return {...p, inviteCode: d.inviteCode}
+        });
+       this.notify.success(`invite code bijgewerkt naar <b>${d.inviteCode}</b>`);
+      },
+      error: (err)=> {
+
+      }
+    });
+  }
+
+  onRemoveMemberClick(id:string){
+    const user = this.detailsS()?.users.find(u=>u.id === id)
+    this.modalSrv.open("Buitensluiten",`Ben je zeker dat je deze deelnemer <br/> <strong>${user?.email ?? 'onbekend'}</strong><br/> wil uitsluiten?`)
+    .setType('danger')
+    .setIcon('fa fa-person-circle-minus')
+    .setConfirmCallback(()=>this.handleMemberRemove(id))
+    .show()
+    console.log(id);
+  }
+
+  handleMemberRemove(id:string){
+    const householdId = this.detailsS()?.id ?? 0;
+    this.apiSrv.deleteWithBody(`/households/${householdId}/user`, { id:id }).subscribe({
+      next:() => {
+        //update the members
+       this.guestS.update((p)=> p.filter(u=>u.id !== id));
+      }
+    });
+    console.log('remove clicked')
   }
 
 

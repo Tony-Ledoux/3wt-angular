@@ -29,6 +29,15 @@ export class DatabaseSettings {
     }
   }
 
+  updateSettings(settings: DynamicConfig[]){
+    //TODO API CALL!
+    this._settings.update(p=>[...settings])
+    this.api.put('/settings/update',this._settings()).subscribe({
+      next:(d)=> console.log(d)
+    })
+    console.log(settings);
+  }
+
   getValue(key:string):string | undefined {
     const currentSettings = this.settings()??[];
     const settings = currentSettings.find(s=>s.key === key);

@@ -16,7 +16,7 @@ export class ApiService {
   }
 
   post<T>(path: string, body: any): Observable<T> {
-    
+
     return this.http.post<T>(`${this.config.apiUrl}${path}`, body);
   }
 
@@ -26,6 +26,10 @@ export class ApiService {
 
   delete(path: string): Observable<void> {
     return this.http.delete<void>(`${this.config.apiUrl}${path}`);
+  }
+
+  deleteWithBody(path: string, body: any): Observable<void> {
+    return this.http.delete<void>(`${this.config.apiUrl}${path}`, {body:body});
   }
 
   private http_params(params: Record<string, any>): HttpParams {

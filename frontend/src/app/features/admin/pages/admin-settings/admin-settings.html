@@ -1,1 +1,10 @@
-<p>admin-settings works!</p>
+<div class="page-container">
+  <h2>Systeem Beheer</h2>
+  <p>Pas hier de globale configuraties van de applicatie aan.</p>
+
+  <!-- De nieuwe tabel component -->
+  <app-settings-table 
+    [settings]="settings()" 
+    (saveRequested)="handleSave($event)" 
+  />
+</div>

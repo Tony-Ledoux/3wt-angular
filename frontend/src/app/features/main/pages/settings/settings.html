@@ -99,7 +99,7 @@
                 </div>
                 <span class="text-gray-700 font-medium">{{g.email}}</span>
               </div>
-              <app-button variant="danger" size="sm">
+              <app-button variant="danger" size="sm" (click)="onRemoveMemberClick(g.id)">
                 <i class="fa fa-trash mr-2"></i> Verwijderen
               </app-button>
             </div>
@@ -110,7 +110,7 @@
           }
         </div>
       </section>
-
+      {{detailsS()?.id|json}}
       <section class="bg-rose-100 shadow-sm border border-rose-400 rounded-xl p-6">
         <div class="flex items-center justify-between mb-6">
              <div class="flex items-center gap-2">
