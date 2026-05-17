@@ -21,8 +21,8 @@ builder.Services.AddAuthentication().AddJwtBearer(options =>
     options.Audience = auth0.GetValue<string>("audience");
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        NameClaimType= ClaimTypes.Name,
-        RoleClaimType= $"{options.Audience}/roles"
+        NameClaimType = ClaimTypes.Name,
+        RoleClaimType = $"{options.Audience}/roles"
     };
 
 });
@@ -32,7 +32,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularDev", policy =>
     {
-        policy.WithOrigins("http://localhost:4200","http://localhost:8000","http://192.168.1.21:8000")
+        policy.WithOrigins("http://localhost:4200", "http://localhost:8000", "http://localhost")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
@@ -48,7 +48,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     }
-    
+
     );
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -72,11 +72,56 @@ app.UseMiddleware<UserContextMiddleware>();
 
 app.MapControllers();
 
-// 2. LAAD DE SETTINGS BIJ STARTUP
+// 1. Voer migrations uit
 using (var scope = app.Services.CreateScope())
 {
-    var settingsService = scope.ServiceProvider.GetRequiredService<ISystemSettingsServce>();
-    await settingsService.RefreshAsync();
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<KitchenDbContext>();
+        
+        // Forceer een check
+        var pendingMigrations = context.Database.GetPendingMigrations().ToList();
+        
+        if (pendingMigrations.Any())
+        {
+            Console.WriteLine($"Found {pendingMigrations.Count} pending migrations. Applying...");
+            context.Database.Migrate();
+            Console.WriteLine("Database migrations applied successfully.");
+        }
+        else
+        {
+            Console.WriteLine("No pending migrations found in the assembly.");
+        }
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "CRITICAL: Migration failed.");
+        throw; // Stop de app als de DB niet klaar is
+    }
 }
+
+// 2. LAAD DE SETTINGS BIJ STARTUP
+// We doen dit in een aparte scope om zeker te weten dat de migratie-scope is afgesloten
+using (var scope = app.Services.CreateScope())
+{
+    try 
+    {
+        var settingsService = scope.ServiceProvider.GetRequiredService<ISystemSettingsServce>();
+        await settingsService.RefreshAsync();
+        Console.WriteLine("System settings loaded successfully.");
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Could not load system settings. Table might be missing.");
+        // Beslis hier: moet de app crashen of doorgaan? 
+        // Meestal wil je dat hij crasht als settings essentieel zijn:
+        throw; 
+    }
+}
+
+
 
 app.Run();

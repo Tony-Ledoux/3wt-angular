@@ -5,10 +5,49 @@ services:
       POSTGRES_DB: MyKitchen
       POSTGRES_USER: HungryClient
       POSTGRES_PASSWORD: ChowingF00d!
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U HungryClient -d MyKitchen"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
+    networks:
+      - kitchen_network
 
+  backend:
+    build:
+      context: ./backend
+      dockerfile: .dockerfile
+    container_name: kitchen_backend
+    ports:
+      - "5197:8080"
+    environment:
+      - ASPNETCORE_ENVIROMENT=Production
+      - ConnectionStrings__Default=Host=postgres;Database=MyKitchen;Username=HungryClient;Password=ChowingF00d!
+    depends_on:
+      postgres:
+          condition: service_healthy
+    networks:
+      - kitchen_network
+  
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: .Dockerfile
+    container_name: kitchen_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - kitchen_network
+    
 volumes:
   postgres_data:
+networks:
+  kitchen_network:
+    driver: bridge

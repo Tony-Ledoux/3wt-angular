@@ -12,8 +12,8 @@ using backend.Contexts;
 namespace backend.Migrations
 {
     [DbContext(typeof(KitchenDbContext))]
-    [Migration("20260516181606_Initial")]
-    partial class Initial
+    [Migration("20260517075658_Test")]
+    partial class Test
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
