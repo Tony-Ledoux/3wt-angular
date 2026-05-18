@@ -46,7 +46,6 @@ builder.Services.AddSingleton<ISystemSettingsServce, SystemSettingsService>();
 // Repos
 builder.Services.AddScoped(typeof(IGeneric<>),typeof(Generic<>));
 builder.Services.AddScoped<IStoragelocationRepository, StoragelocationRepository>();
-builder.Services.AddScoped<IStoragelocationRepository, StoragelocationRepository>();
 builder.Services.AddScoped<IHouseholdUserRepository, HouseholdUserRepository>();
 builder.Services.AddScoped<IHouseholdRepository, HouseholdRepository>();
 
