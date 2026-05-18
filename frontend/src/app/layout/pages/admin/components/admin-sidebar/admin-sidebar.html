@@ -6,14 +6,14 @@
 
       <nav class="flex-1 px-4 space-y-2 mt-4">
         <app-admin-sidebar-nav-link link="/admin/dashboard" label="dashboard" icon="fas fa-chart-pie" />
+        <app-admin-sidebar-nav-link link="/admin/households" label="Huishoudens" icon="fas fa-users" />
         <app-admin-sidebar-nav-link link="/admin/product-categorie" label="Product categoriën" icon="fas fa-rocket" />
-        <app-admin-sidebar-nav-link link="/admin/users" label="Gebruikers" icon="fas fa-users" />
-        <app-admin-sidebar-nav-link link="/admin/settings" label="Instellingen" icon="fas fa-cog" />
+        <app-admin-sidebar-nav-link link="/admin/product" label="Producten" icon="fas fa-burger" />
       </nav>
-
-      <div class="p-4 border-t border-slate-800">
-        <app-button variant="danger" size="lg" [fullWidth]="true" (click)="auth.handleLogOffClick()" ><i class="fas fa-sign-out-alt w-5 text-center"></i>
+      
+      <div class="p-4 border-t border-slate-800 gap-2 flex flex-col">
+        <app-admin-sidebar-nav-link link="/admin/settings" label="Instellingen" icon="fas fa-cog" />
+        <app-button variant="danger" size="lg" [fullWidth]="true" (click)="auth.handleLogOffClick()" icon="fas fa-sign-out-alt" >
           <span>Uitloggen</span></app-button>
-        
       </div>
     </aside>

@@ -1,1 +1,50 @@
-<p>admin-users works!</p>
+<div class="max-w-7xl mx-auto p-6">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Beheer Huishoudens</h1>
+        <!-- Hier zou eventueel een "Toevoegen" knop kunnen komen -->
+    </div>
+
+    <!-- Debugging info (optioneel, ik heb het subtiel gemaakt) -->
+     <!--
+        <pre class="text-xs text-gray-400 mb-4 p-2 bg-gray-50 rounded border">{{households() | json}}</pre>
+    -->
+
+    @if(households().length === 0) {
+        <div class="flex flex-col items-center justify-center p-12 bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl text-gray-500">
+            <i class="fa fa-users text-4xl mb-3 opacity-50"></i>
+            <p class="text-lg">Er zijn geen huishoudens gevonden in deze app.</p>
+        </div>
+    } @else {
+                <div class="mb-2 flex gap-2 items-center justify-center p-12 bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl text-gray-500">
+            <i class="fa fa-users text-4xl mb-3 opacity-50"></i>
+            <p class="text-lg">Er zijn {{households().length}} huishoudens gevonden in deze app.</p>
+        </div>
+        <div class="overflow-hidden border border-gray-200 rounded-xl shadow-sm">
+            <table class="w-full text-left border-collapse bg-white">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-4 text-sm font-semibold text-gray-600 uppercase tracking-wider">Naam</th>
+                        <th class="px-6 py-4 text-sm font-semibold text-gray-600 uppercase tracking-wider">Adres</th>
+                        <th class="px-6 py-4 text-sm font-semibold text-gray-600 uppercase tracking-wider text-right">Acties</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @for(h of households(); track h.id) {
+                        <tr class="hover:bg-gray-50 transition-colors group">
+                            <td class="px-6 py-4 text-gray-800 font-medium">{{h.name}}</td>
+                            <td class="px-6 py-4 text-gray-600">{{h.address}}</td>
+                            <td class="px-6 py-4 text-right">
+                                <app-button 
+                                    variant="danger" 
+                                    size="sm" 
+                                    icon="fa fa-trash" 
+                                    (click)="onRemoveClick(h.id)"
+                                     />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

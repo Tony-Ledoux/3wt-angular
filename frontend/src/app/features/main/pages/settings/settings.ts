@@ -16,7 +16,7 @@ import { Router } from '@angular/router';
 // TODO Add polling in the future for members of a household
 @Component({
   selector: 'app-settings',
-  imports: [Spinner, ReactiveFormsModule, Checkbox, LabeledInput, ButtonComponent, JsonPipe],
+  imports: [Spinner, ReactiveFormsModule, Checkbox, LabeledInput, ButtonComponent],
   templateUrl: './settings.html',
   styleUrl: './settings.css',
 })

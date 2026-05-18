@@ -16,6 +16,7 @@ export class ButtonComponent {
   size = input<ButtonSize>('md');
   type = input<ButtonType>('button');
   fullWidth = input<boolean>(false); // Nieuw: voor menu-items
+  icon = input<string>();
 
 
   buttonClasses = computed(() => {

@@ -8,16 +8,18 @@ import { AdminSettings } from './pages/admin-settings/admin-settings';
 import { AdminProductCategories } from './pages/admin-product-categories/admin-product-categories';
 import { onlyAdminGuard } from '@app/core/guards/only-admin-guard';
 import { AdminLayout } from '@app/layout/pages/admin/admin-layout';
+import { NotFound } from '../public/pages/not-found/not-found';
 
 export const ADMIN_ROUTES: Routes = [
   {
     path: '',
     children: [
       { path: 'dashboard', component: AdminDashboard },
-      { path: 'users', component: AdminUsers },
+      { path: 'households', component: AdminUsers },
       { path: 'settings', component: AdminSettings },
       { path: 'product-categorie', component: AdminProductCategories },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: '**', component: NotFound }
     ],
   },
 ];

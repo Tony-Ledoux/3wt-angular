@@ -18,6 +18,9 @@ public interface IHouseholdService
     public Task<RequestResponse<HouseholdDto>> GenerateNewInviteCode(int householdId);
     public Task<RequestResponse<HouseholdDto>> ToggleIsOpenForInvite(int householdId);
     public Task<RequestResponse<bool>> DeleteHouseholdUserAsync(string userid, int householdId);
+
+    //Admin
+    public Task<IEnumerable<HouseholdDto>> GetAllHouseholds();
     
 }
 
@@ -73,6 +76,12 @@ public class HouseholdService(KitchenDbContext context,
         var success = await repo.SaveChangesAsync();
         if(!success) return new RequestResponse<HouseholdDto>().Failure("");
         return new RequestResponse<HouseholdDto>().Ok(_mapper.Map(h));
+    }
+
+    public async Task<IEnumerable<HouseholdDto>> GetAllHouseholds()
+    {
+        var households = await repo.GetAllAsync();
+        return _mapper.MapList(households);
     }
 
     public async Task<HouseholdWithUsersDto?> GetHouseholdWithUsersByIdAsync(int id)

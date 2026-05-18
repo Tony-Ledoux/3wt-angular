@@ -7,6 +7,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl } from '@angular/for
   templateUrl: './labeled-input.html',
   styleUrl: './labeled-input.css',
 })
+// TODO: make generic types like positive-numbers
 export class LabeledInput implements ControlValueAccessor {
   private ngControl = inject(NgControl, { self: true, optional: true });
   label = input.required<string>();

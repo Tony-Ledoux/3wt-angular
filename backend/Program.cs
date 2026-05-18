@@ -48,6 +48,7 @@ builder.Services.AddScoped(typeof(IGeneric<>),typeof(Generic<>));
 builder.Services.AddScoped<IStoragelocationRepository, StoragelocationRepository>();
 builder.Services.AddScoped<IHouseholdUserRepository, HouseholdUserRepository>();
 builder.Services.AddScoped<IHouseholdRepository, HouseholdRepository>();
+builder.Services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
 
 //Mappers
 builder.Services.AddSingleton<IMapper<DeviceType,DeviceTypeDto>,DeviceTypeMapper>();
@@ -89,37 +90,8 @@ app.UseMiddleware<UserContextMiddleware>();
 
 app.MapControllers();
 
-// 1. Voer migrations uit
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        var context = services.GetRequiredService<KitchenDbContext>();
-        
-        // Forceer een check
-        var pendingMigrations = context.Database.GetPendingMigrations().ToList();
-        
-        if (pendingMigrations.Any())
-        {
-            Console.WriteLine($"Found {pendingMigrations.Count} pending migrations. Applying...");
-            context.Database.Migrate();
-            Console.WriteLine("Database migrations applied successfully.");
-        }
-        else
-        {
-            Console.WriteLine("No pending migrations found in the assembly.");
-        }
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "CRITICAL: Migration failed.");
-        throw; // Stop de app als de DB niet klaar is
-    }
-}
 
-// 2. LAAD DE SETTINGS BIJ STARTUP
+// 1. LAAD DE SETTINGS BIJ STARTUP
 // We doen dit in een aparte scope om zeker te weten dat de migratie-scope is afgesloten
 using (var scope = app.Services.CreateScope())
 {
