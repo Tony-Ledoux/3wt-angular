@@ -5,7 +5,7 @@ import { ApiService } from '@app/core/services/api/api-service';
 import { DatabaseSettings } from '@app/core/services/config/database-settings';
 import { NotifyService } from '@app/core/services/notify/notify-service';
 import { FullscreenSpinnerService } from '@app/core/services/spinner/fullscreen-spinner-service';
-import { HouseholdUserType } from '@app/core/types/householdUserType';
+import { Household, HouseholdUserType, HouseholdWithUsersType } from '@app/core/types/householdUserType';
 import { catchError, finalize, lastValueFrom, take } from 'rxjs';
 import { CreateHousehold } from '../onboarding/components/create-household/create-household';
 import { JoinForm } from '../onboarding/components/join-form/join-form';
@@ -82,7 +82,7 @@ export class HouseholdService {
     }
   }
 
-  private loadHouseholds() {
+   loadHouseholds() {
     this.api.get<HouseholdUserType[]>('/users/me').pipe(take(1)).subscribe({
       next: (data) => {
         this._households.set(data);
@@ -119,6 +119,18 @@ export class HouseholdService {
       localStorage.removeItem(this.STORAGE_KEY);
     }
 
+  }
+
+  updateSelectedHouseholdDetails(data:HouseholdUserType){
+    this._selected_household.update(p=>{
+      if(p === null) return p;
+      return {
+        ...p,
+        householdName:data.householdName,
+        address: data.address
+      } 
+    })
+    this.loadHouseholds();
   }
 
   leaveHouseHold(id: number) {

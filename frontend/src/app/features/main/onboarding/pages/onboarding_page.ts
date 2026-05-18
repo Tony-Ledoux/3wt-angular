@@ -9,6 +9,7 @@ import { HouseholdCard } from "../components/household-card/household-card";
 import { ButtonComponent } from "@app/shared/components/button/button";
 import { DatabaseSettings } from '@app/core/services/config/database-settings';
 import { JoinForm } from '../components/join-form/join-form';
+import { NotifyService } from '@app/core/services/notify/notify-service';
 
 //this page is behind the authGuard, notOnboardedGuard and noAdmin Guard!
 
@@ -24,6 +25,7 @@ export class OnboardingPage {
   router = inject(Router);
   modal = inject(ModalService);
   settings = inject(DatabaseSettings);
+  notify = inject(NotifyService)
   
   // We gebruiken een signal om de selectie bij te houden
   selectedHousehold = signal<number | null>(null);
@@ -35,6 +37,7 @@ export class OnboardingPage {
       if(households && households.length === 1){
         const id = households[0].householdId;
         this.h_srv.selectHousehold(id);
+        this.notify.info(`U bent automatisch doorverwezen gezien maar 1 huishouden beschikbaar is.`)
         this.router.navigate(['/app/dashboard']);
       }
     });

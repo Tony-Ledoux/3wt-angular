@@ -1,11 +1,12 @@
 using backend.Contexts;
 using backend.Models;
+using backend.Models.Update;
 using backend.Services;
 using Microsoft.AspNetCore.Authorization;
 
 using Microsoft.AspNetCore.Mvc;
 
-
+//TODO Rework the routes to use -->services-->repos
 namespace backend.Controllers
 {
     [Route("api/households")]
@@ -29,24 +30,33 @@ namespace backend.Controllers
             return Ok(householdUser);
 
         }
-/*
+
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetHouseholdDetails(int id)
         {
-            var households = _uc.HouseholdUsers.Any(hu=>hu.HouseholdId == id && hu.HouseholdOwner==true);
-            if(!households) return Forbid();
+            var isOwner = _uc.CurrentUserOwnsHousehold(id);
+            if(!isOwner) return Forbid();
             var details = await _hs.GetHouseholdWithUsersByIdAsync(id);
-            return Ok(details.ToDetailsDto());
+            return Ok(details);
 
+        }
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<HouseholdUserDto>> UpdateHouseholdDetails(int id, HouseholdUpdateDto input)
+        {
+            var isOwner = _uc.CurrentUserOwnsHousehold(id);
+            if(!isOwner) return Forbid();
+            var result = await _hs.UpdateHouseholdWithUser(input,id,_uc.UserId);
+            if(result== null) return BadRequest();
+            return Ok(result);
         }
 
 
         [HttpPost("{householdId:int}/generateinvitecode")]
         public async Task<ActionResult<RequestResponse<HouseholdDto>>> GetNewInvitecode(int householdId)
         {
-            var household = _uc.HouseholdUsers.FirstOrDefault(hu=>hu.HouseholdId == householdId && hu.HouseholdOwner==true)?.Household;
-            if(household == null) return Forbid();
-            var result = await _hs.GenerateNewInviteCode(household);
+            var isOwner = _uc.CurrentUserOwnsHousehold(householdId);
+            if(!isOwner) return Forbid();
+            var result = await _hs.GenerateNewInviteCode(householdId);
             if(result.Success) return Ok(result.Data);
             return BadRequest();
         }
@@ -54,21 +64,22 @@ namespace backend.Controllers
         [HttpPost("{householdId:int}/toggleinvite")]
         public async Task<ActionResult<RequestResponse<HouseholdDto>>> ToggleInvite(int householdId)
         {
-            var household = _uc.HouseholdUsers.FirstOrDefault(hu=>hu.HouseholdId == householdId && hu.HouseholdOwner==true)?.Household;
-            if(household == null) return Forbid();
-            var result = await _hs.ToggleIsOpenForInvite(household);
+            var isOwner = _uc.CurrentUserOwnsHousehold(householdId);
+            if(!isOwner) return Forbid();
+            var result = await _hs.ToggleIsOpenForInvite(householdId);
             if(result.Success) return Ok(result.Data);
             return BadRequest();
         }
+        
         [HttpDelete("{householdId:int}/user")]
         public async Task<IActionResult> DeleteUser(int householdId, DeleteUserDto input)
         {
-            var owner = _uc.HouseholdUsers.Any(hu=>hu.HouseholdId == householdId && hu.HouseholdOwner == true );
-            if(!owner) return Forbid();
+            var isOwner = _uc.CurrentUserOwnsHousehold(householdId);
+            if(!isOwner) return Forbid();
             var result = await _hs.DeleteHouseholdUserAsync(input.Id,householdId);
             if(result.Success) return NoContent();
             return BadRequest();
         }
-        */
+        
     }
 }

@@ -52,7 +52,7 @@ builder.Services.AddScoped<IHouseholdRepository, HouseholdRepository>();
 
 //Mappers
 builder.Services.AddSingleton<IMapper<DeviceType,DeviceTypeDto>,DeviceTypeMapper>();
-builder.Services.AddSingleton<IMapper<Household,HouseholdDto>,HouseholdMapper>();
+builder.Services.AddSingleton<IHouseholdMapper,HouseholdMapper>();
 builder.Services.AddSingleton<IMapper<HouseholdUser,HouseholdUserDto>,HouseholdUserMapper>();
 
 //Services

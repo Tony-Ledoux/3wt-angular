@@ -12,6 +12,7 @@ import { ButtonComponent } from "@app/shared/components/button/button";
 import { JsonPipe } from '@angular/common';
 import { ModalService } from '@app/core/modal-service';
 import { NotifyService } from '@app/core/services/notify/notify-service';
+import { Router } from '@angular/router';
 // TODO Add polling in the future for members of a household
 @Component({
   selector: 'app-settings',
@@ -25,6 +26,7 @@ export class Settings {
   private apiSrv = inject(ApiService);
   private modalSrv = inject(ModalService);
   private notify = inject(NotifyService);
+  private router = inject(Router);
   householdSrv = inject(HouseholdService);
   //Forms
   householdForm = this.fb.group({
@@ -42,7 +44,7 @@ export class Settings {
   private formValuesS = toSignal(this.householdForm.valueChanges, {
     initialValue: this.householdForm.value
   });
-  
+
 
 
   isSaveDisabledS = computed(() => {
@@ -53,7 +55,7 @@ export class Settings {
     return this.householdForm.invalid || isUnchanged;
   });
 
- 
+
   guestS = signal<HouseholdUserType[]>([])
 
 
@@ -65,21 +67,21 @@ export class Settings {
           this.detailsS.set(source)
           this.householdForm.patchValue({ name: source?.name, address: source?.address })
           this.inviteControl.setValue(source?.isOpenForInvite!, { emitEvent: false });
-          this.guestS.set(source?.users.filter(u=>u.isowner !== true)!);
+          this.guestS.set(source?.users.filter(u => u.isowner !== true)!);
         });
       }
     });
     this.inviteControl.valueChanges.subscribe({
-      next: ()=>{
+      next: () => {
         const id = this.detailsS()?.id ?? 0;
-        this.inviteControl.disable({emitEvent:false});
+        this.inviteControl.disable({ emitEvent: false });
         // do the api call
-        this.apiSrv.post<Household>(`/households/${id}/toggleinvite`,{}).subscribe({
-          next:()=>{
+        this.apiSrv.post<Household>(`/households/${id}/toggleinvite`, {}).subscribe({
+          next: () => {
 
           },
-          complete: ()=>{
-           this.inviteControl.enable({emitEvent:false});
+          complete: () => {
+            this.inviteControl.enable({ emitEvent: false });
           }
         });
         console.log("flipped", this.inviteControl.value, id)
@@ -92,54 +94,97 @@ export class Settings {
   }
 
   onSubmit() {
-    //TODO verwerk het formulier en stuur het door
-    console.log('submitted');
-  }
-
-
-  onRecycleClick() {
-    this.modalSrv.open("Code vernieuwen", `<p>Wil je de inviteercode vernieuwen?</p><p class="text-red-500"> Je kan de huidige code dan <strong>niet</strong> meer gebruiken</p>`)
-    .setIcon('fa fa-question')
-    .setConfirmCallback(()=>this.handleRecycleConfirm())
-    .show();
-  }
-
-  handleRecycleConfirm(){
-    const id = this.detailsS()?.id ?? 0;
-    this.apiSrv.post<Household>(`/households/${id}/generateinvitecode`,{}).subscribe({
-      next: (d)=>{
-        this.detailsS.update(p=>{
-          if(!p) return p;
-          return {...p, inviteCode: d.inviteCode}
-        });
-       this.notify.success(`invite code bijgewerkt naar <b>${d.inviteCode}</b>`);
-      },
-      error: (err)=> {
-
-      }
+    this.apiSrv.put<HouseholdUserType>(`/households/${this.detailsS()?.id}`, this.householdForm.value).subscribe({
+      next: (data) => {
+        console.log('recieved data', data)
+        // update the details
+        this.detailsS.update((p) => {
+          if (p == null) return p;
+          return {
+            ...p,
+            name: data.householdName,
+            address: data.address?? 'onbekend'
+          }
+        })
+        // update the selected signal (witch also updates the available households)
+        this.householdSrv.updateSelectedHouseholdDetails(data)
+        //notify
+  },
+  error: (err) => {
+        console.error(err);
+}
     });
+console.log('submitted', this.householdForm.value, this.detailsS());
   }
 
-  onRemoveMemberClick(id:string){
-    const user = this.detailsS()?.users.find(u=>u.id === id)
-    this.modalSrv.open("Buitensluiten",`Ben je zeker dat je deze deelnemer <br/> <strong>${user?.email ?? 'onbekend'}</strong><br/> wil uitsluiten?`)
+
+onRecycleClick() {
+  this.modalSrv.open("Code vernieuwen", `<p>Wil je de inviteercode vernieuwen?</p><p class="text-red-500"> Je kan de huidige code dan <strong>niet</strong> meer gebruiken</p>`)
+    .setIcon('fa fa-question')
+    .setConfirmCallback(() => this.handleRecycleConfirm())
+    .show();
+}
+
+handleRecycleConfirm(){
+  const id = this.detailsS()?.id ?? 0;
+  this.apiSrv.post<Household>(`/households/${id}/generateinvitecode`, {}).subscribe({
+    next: (d) => {
+      this.detailsS.update(p => {
+        if (!p) return p;
+        return { ...p, inviteCode: d.inviteCode }
+      });
+      this.notify.success(`invite code bijgewerkt naar <b>${d.inviteCode}</b>`);
+    },
+    error: (err) => {
+
+    }
+  });
+}
+
+onRemoveMemberClick(id: string){
+  const user = this.detailsS()?.users.find(u => u.id === id)
+  this.modalSrv.open("Buitensluiten", `Ben je zeker dat je deze deelnemer <br/> <strong>${user?.email ?? 'onbekend'}</strong><br/> wil uitsluiten?`)
     .setType('danger')
     .setIcon('fa fa-person-circle-minus')
-    .setConfirmCallback(()=>this.handleMemberRemove(id))
+    .setConfirmCallback(() => this.handleMemberRemove(id))
     .show()
-    console.log(id);
-  }
+  console.log(id);
+}
 
-  handleMemberRemove(id:string){
-    const householdId = this.detailsS()?.id ?? 0;
-    this.apiSrv.deleteWithBody(`/households/${householdId}/user`, { id:id }).subscribe({
-      next:() => {
-        //update the members
-       this.guestS.update((p)=> p.filter(u=>u.id !== id));
-      }
-    });
-    console.log('remove clicked')
-  }
+handleMemberRemove(id: string){
+  const householdId = this.detailsS()?.id ?? 0;
+  this.apiSrv.deleteWithBody(`/households/${householdId}/user`, { id: id }).subscribe({
+    next: () => {
+      //update the members
+      this.guestS.update((p) => p.filter(u => u.id !== id));
+    }
+  });
+  console.log('remove clicked')
+}
+
+onRemoveHouseholdClick(id: number){
+  const name = this.detailsS()?.name ?? 'onbekend';
+  this.modalSrv.open("Verwijderen", `Ben je zeker dat je huishoden <br/> <strong>${name}</strong><br/> wil verwijderen?`)
+    .setType('danger')
+    .setIcon('fa fa-trash')
+    .setConfirmCallback(() => this.RemoveHousehold(id, name))
+    .show()
+}
+
+RemoveHousehold(id: number, name: string){
+  this.apiSrv.delete(`/households/${id}`).subscribe({
+    next: () => {
+      //clear the selected household
+      this.householdSrv.selectHousehold(null);
+      // repopulate the signal in the householduser service
+      this.householdSrv.loadHouseholds();
+      // send a notification
+      this.notify.success(`Huishouden ${name} is verwijderd`);
+      // redirect
+      this.router.navigate(['/onboarding']);
+    }
+  })
+}
 
 
 }
