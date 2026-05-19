@@ -16,8 +16,8 @@ public interface IInventoryService
     // StorageLocations
     Task<IEnumerable<StorageLocation>> GetStoragelocationsOfHouseholdsAsync(int householdId);
     // ProductCategories
-    Task<IEnumerable<ProductCategory>> GetAllProductCategorieWithStorageRulessAsync();
-    Task<ProductCategory?> CreateNewProductCategoryAsync(CategoryCreationDto input);
+    Task<IEnumerable<ProductCategoryDto>> GetAllProductCategorieWithStorageRulessAsync();
+    Task<ProductCategoryDto?> CreateNewProductCategoryAsync(CategoryCreationDto input);
     // StorageRules
 
     // Products
@@ -31,21 +31,23 @@ public class InventoryService(
     IGeneric<DeviceType> dev,
     IProductCategoryRepository prodcatrepo,
     IStoragelocationRepository stg,
-    IMapper<DeviceType,DeviceTypeDto> devmap,
-    IGeneric<StorageRule> srr
+    IMapper<DeviceType, DeviceTypeDto> devmap,
+    IGeneric<StorageRule> srr,
+    IMapper<ProductCategory, ProductCategoryDto> mapper_pc
     ) : IInventoryService
 {
     private readonly IGeneric<DeviceType> devicetypeRepo = dev;
     private readonly IGeneric<StorageRule> storageRuleRepo = srr;
     private readonly IStoragelocationRepository storagelocation = stg;
-    private readonly IMapper<DeviceType, DeviceTypeDto> _deviceMapper= devmap;
+    private readonly IMapper<DeviceType, DeviceTypeDto> _deviceMapper = devmap;
     private readonly IProductCategoryRepository _catProdRepo = prodcatrepo;
+    private readonly IMapper<ProductCategory, ProductCategoryDto> _Map_product = mapper_pc;
 
-    public async Task<ProductCategory?> CreateNewProductCategoryAsync(CategoryCreationDto input)
+    public async Task<ProductCategoryDto?> CreateNewProductCategoryAsync(CategoryCreationDto input)
     {
         // TODO optimize this query so i get all requested devicetypes in one go
-        var reqdev = input.StorageRules.Select(sr=> sr.DeviceType).ToList().Distinct();
-        
+        var devices = await dev.GetAllAsync();
+
         var cat = new ProductCategory()
         {
             Category = input.CategorieName
@@ -53,19 +55,24 @@ public class InventoryService(
         await _catProdRepo.AddAsync(cat);
         foreach (var sr in input.StorageRules)
         {
-            var Sr = new StorageRule()
+            var device = devices.FirstOrDefault(x => x.Id == sr.DeviceType);
+            if (device != null)
             {
-                DeviceType= await devicetypeRepo.GetByIdAsync(sr.DeviceType),
-                Multiplier = sr.Multiplier,
-                ProductCategory = cat
-            };
-            await storageRuleRepo.AddAsync(Sr);
-            cat.StorageRules.Add(Sr);
+                var Sr = new StorageRule()
+                {
+                    DeviceType = device,
+                    Multiplier = sr.Multiplier,
+                    ProductCategory = cat,
+                };
+                await storageRuleRepo.AddAsync(Sr);
+                cat.StorageRules.Add(Sr);
+            }
+            ;
         }
         var success = await _catProdRepo.SaveChangesAsync();
-        if(!success) return null;
+        if (!success) return null;
         //ToDo map to dto
-        return cat;
+        return _Map_product.Map(cat);
     }
 
     public async Task<IEnumerable<DeviceTypeDto>> GetAllDeviceTypesAsync()
@@ -74,9 +81,10 @@ public class InventoryService(
         return _deviceMapper.MapList(devices);
     }
 
-    public async Task<IEnumerable<ProductCategory>> GetAllProductCategorieWithStorageRulessAsync()
+    public async Task<IEnumerable<ProductCategoryDto>> GetAllProductCategorieWithStorageRulessAsync()
     {
-        return await _catProdRepo.GetAllWithStorageRulesAsync();
+        var data = await _catProdRepo.GetAllWithStorageRulesAsync();
+        return _Map_product.MapList(data);
     }
 
     public async Task<IEnumerable<StorageLocation>> GetStoragelocationsOfHouseholdsAsync(int householdId)

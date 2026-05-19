@@ -54,6 +54,8 @@ builder.Services.AddScoped<IProductCategoryRepository, ProductCategoryRepository
 builder.Services.AddSingleton<IMapper<DeviceType,DeviceTypeDto>,DeviceTypeMapper>();
 builder.Services.AddSingleton<IHouseholdMapper,HouseholdMapper>();
 builder.Services.AddSingleton<IMapper<HouseholdUser,HouseholdUserDto>,HouseholdUserMapper>();
+builder.Services.AddSingleton<IMapper<StorageRule,StorageRuleDto>,StorageRuleMapper>();
+builder.Services.AddSingleton<IMapper<ProductCategory,ProductCategoryDto>,ProductCategoryMapper>();
 
 //Services
 builder.Services.AddScoped<IUserContext, UserContext>();

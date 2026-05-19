@@ -72,7 +72,7 @@ export class AdminProductCategories {
         next: (data) => {
           //update category signal 
           this.categories.update(p=> [...p, data])
-          this.notifySrc.success(`${data.category} is toegevoegd `);
+          this.notifySrc.success(`${data.categorieName} is toegevoegd `);
         }
       });
     }

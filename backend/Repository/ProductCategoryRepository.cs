@@ -14,6 +14,6 @@ public class ProductCategoryRepository(KitchenDbContext db) : Generic<ProductCat
 {
     public async Task<IEnumerable<ProductCategory>> GetAllWithStorageRulesAsync()
     {
-        return await _dbSet.Include(x=>x.StorageRules).ToListAsync();
+        return await _dbSet.Include(x=>x.StorageRules).ThenInclude(y=>y.DeviceType).ToListAsync();
     }
 }
