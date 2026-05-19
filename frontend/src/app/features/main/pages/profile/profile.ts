@@ -10,10 +10,12 @@ import { ModalService } from '@app/core/modal-service';
 import { HouseholdManagementCard } from '../../components/household-management-card/household-management-card';
 import { Router } from '@angular/router';
 import { NotifyService } from '@app/core/services/notify/notify-service';
+import { PageHeader } from "../../components/page-header/page-header";
+import { SectionCard } from "@app/shared/components/section-card/section-card";
 
 @Component({
   selector: 'app-profile',
-  imports: [JsonPipe, ButtonComponent, HouseholdManagementCard],
+  imports: [JsonPipe, ButtonComponent, HouseholdManagementCard, PageHeader, SectionCard],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
@@ -24,6 +26,11 @@ export class Profile {
   userSrv = inject(UserService);
   householdSrv = inject(HouseholdService);
   config = inject(DatabaseSettings);
+  subtitleText = computed(()=>{
+    const current = this.householdSrv.num_households();
+  const max = this.config.getNumber("MaxHouseholdsPerUser");
+  return `Je bent lid van ${current} van de ${max} maximale huishoudens.`;
+  })
 
   // Helper om te bepalen of een specifiek huishouden geselecteerd is
   isHouseholdSelected(id: number): boolean {

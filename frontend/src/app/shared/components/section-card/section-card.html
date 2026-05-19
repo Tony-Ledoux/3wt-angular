@@ -1,0 +1,21 @@
+<section [class]="containerClasses()">
+    <div class="flex items-center justify-between mb-6">
+
+        <div class="flex items-center gap-2">
+            @if(icon()){
+            <span [class]="iconContainerClasses()">
+                <i [class]="icon()"></i>
+            </span>
+            }
+            @if(title()){
+
+                <h2 class="text-xl font-semibold text-app-text-main">
+                    {{ title() }}
+                </h2>
+            }
+        </div>
+        <ng-content select="[card-header-action]"></ng-content>
+    </div>
+
+    <ng-content></ng-content>
+</section>

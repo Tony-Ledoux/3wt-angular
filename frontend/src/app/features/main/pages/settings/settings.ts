@@ -13,10 +13,11 @@ import { JsonPipe } from '@angular/common';
 import { ModalService } from '@app/core/modal-service';
 import { NotifyService } from '@app/core/services/notify/notify-service';
 import { Router } from '@angular/router';
+import { PageHeader } from "../../components/page-header/page-header";
 // TODO Add polling in the future for members of a household
 @Component({
   selector: 'app-settings',
-  imports: [Spinner, ReactiveFormsModule, Checkbox, LabeledInput, ButtonComponent],
+  imports: [Spinner, ReactiveFormsModule, Checkbox, LabeledInput, ButtonComponent, PageHeader],
   templateUrl: './settings.html',
   styleUrl: './settings.css',
 })

@@ -1,27 +1,32 @@
-import { Component, forwardRef, inject, input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
+import { Component, inject, input } from '@angular/core';
+import { ControlValueAccessor, NgControl, ReactiveFormsModule } from '@angular/forms';
+
+export type InputType = 'text' | 'number' | 'positive-number' | 'decimal' | 'positive-decimal' | 'password' | 'email' | 'date';
 
 @Component({
   selector: 'app-labeled-input',
-  imports: [],
+  standalone: true,
+  imports: [ReactiveFormsModule],
   templateUrl: './labeled-input.html',
   styleUrl: './labeled-input.css',
 })
-// TODO: make generic types like positive-numbers
 export class LabeledInput implements ControlValueAccessor {
-  private ngControl = inject(NgControl, { self: true, optional: true });
+  // Injecteer NgControl om direct toegang te hebben tot de validatie status van de parent
+  public ngControl = inject(NgControl, { self: true, optional: true });
+
+  // Inputs via Signals (Angular 17+)
   label = input.required<string>();
   placeholder = input<string>('');
-  type = input<string>('text');
+  type = input<InputType>('text');
   name = input.required<string>();
 
-  value:any ='';
+  // CVA State
+  value: any = '';
   disabled = false;
-  touched = false;
-  invalid = false;
 
-  onChange:any = ()=>{};
-  onTouched:any = ()=>{};
+  // CVA Callbacks
+  onChange: any = () => {};
+  onTouched: any = () => {};
 
   constructor() {
     if (this.ngControl) {
@@ -29,7 +34,47 @@ export class LabeledInput implements ControlValueAccessor {
     }
   }
 
-   writeValue(value: any): void {
+  /**
+   * Vertaalt custom InputTypes naar standaard HTML attributen
+   */
+  get attributes() {
+    const type = this.type();
+    const map: Record<string, any> = {
+      'positive-number': { type: 'number', min: '0', step: '1' },
+      'decimal':         { type: 'number', step: '0.01' },
+      'positive-decimal':{ type: 'number', min: '0', step: '0.01' },
+      'number':          { type: 'number', step: '1' },
+    };
+
+    return map[type] || { type: type };
+  }
+
+  /**
+   * Bepaalt of de input visueel als 'invalid' moet worden getoond
+   */
+  get isInvalid(): boolean {
+    const control = this.ngControl?.control;
+    return !!(control?.invalid && (control?.dirty || control?.touched));
+  }
+
+  /**
+   * Genereert de foutmelding op basis van de actieve validators
+   */
+  get errorMessage(): string {
+    const errors = this.ngControl?.control?.errors;
+    if (!errors) return '';
+
+    if (errors['required']) return `${this.label()} is verplicht`;
+    if (errors['min']) return `${this.label()} mag niet lager zijn dan ${errors['min'].min}`;
+    if (errors['minlength']) return `Minimaal ${errors['minlength'].requiredLength} tekens nodig`;
+    if (errors['maxlength']) return `Maximaal ${errors['maxlength'].requiredLength} tekens toegestaan`;
+
+    return `${this.label()} is ongeldig`;
+  }
+
+  // --- ControlValueAccessor Implementatie ---
+
+  writeValue(value: any): void {
     this.value = value;
   }
 
@@ -45,33 +90,17 @@ export class LabeledInput implements ControlValueAccessor {
     this.disabled = isDisabled;
   }
 
-  // Helper methodes voor de template
   handleInput(event: Event): void {
-    const val = (event.target as HTMLInputElement).value;
+    const inputElement = event.target as HTMLInputElement;
+    let val = inputElement.value;
+
+    // Voorkom negatieve tekens bij positive types
+    if (this.type() === 'positive-number' || this.type() === 'positive-decimal') {
+      val = val.replace(/-/g, '');
+      inputElement.value = val; 
+    }
+
     this.value = val;
     this.onChange(val);
-  }
-
-  handleBlur(): void {
-    this.touched = true;
-    this.onTouched();
-  }
-
-   get isError(): boolean {
-    const control = this.ngControl?.control;
-    return !!(control?.invalid && (control?.dirty || control?.touched));
-  }
-
-  get errorMessage(): string {
-    const control = this.ngControl?.control;
-    if (!control || !control.errors) return '';
-
-    const errors = control.errors;
-
-    if (errors['required']) return `${this.label()} is verplicht`;
-    if (errors['minlength']) return `${this.label()} moet minimaal ${errors['minlength'].requiredLength} tekens hebben`;
-    if (errors['maxlength']) return `${this.label()} mag maximaal ${errors['maxlength'].requiredLength} tekens hebben`;
-    
-    return `${this.label()} is ongeldig`;
   }
 }

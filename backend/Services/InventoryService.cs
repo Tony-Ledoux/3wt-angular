@@ -1,10 +1,11 @@
-using System;
+
 using backend.Entities;
 
 using backend.Mappers;
 using backend.Models;
 using backend.Models.Create;
 using backend.Repository;
+
 
 namespace backend.Services;
 
@@ -13,12 +14,12 @@ public interface IInventoryService
     // DeviceTypes
     Task<IEnumerable<DeviceTypeDto>> GetAllDeviceTypesAsync();
 
-    // StorageLocations
-    Task<IEnumerable<StorageLocation>> GetStoragelocationsOfHouseholdsAsync(int householdId);
-    // ProductCategories
+    // ProductCategories and storageRules
     Task<IEnumerable<ProductCategoryDto>> GetAllProductCategorieWithStorageRulessAsync();
     Task<ProductCategoryDto?> CreateNewProductCategoryAsync(CategoryCreationDto input);
-    // StorageRules
+    
+    // StorageLocations
+    Task<IEnumerable<StorageLocation>> GetStoragelocationsOfHouseholdsAsync(int householdId);
 
     // Products
 
@@ -38,40 +39,35 @@ public class InventoryService(
 {
     private readonly IGeneric<DeviceType> devicetypeRepo = dev;
     private readonly IGeneric<StorageRule> storageRuleRepo = srr;
+    private readonly IProductCategoryRepository _catProdRepo = prodcatrepo;
     private readonly IStoragelocationRepository storagelocation = stg;
     private readonly IMapper<DeviceType, DeviceTypeDto> _deviceMapper = devmap;
-    private readonly IProductCategoryRepository _catProdRepo = prodcatrepo;
     private readonly IMapper<ProductCategory, ProductCategoryDto> _Map_product = mapper_pc;
 
     public async Task<ProductCategoryDto?> CreateNewProductCategoryAsync(CategoryCreationDto input)
     {
-        // TODO optimize this query so i get all requested devicetypes in one go
-        var devices = await dev.GetAllAsync();
 
-        var cat = new ProductCategory()
-        {
-            Category = input.CategorieName
-        };
+        var devices = await devicetypeRepo.GetAllAsync(); // lookup voor diepvries, ijskast, kast
+        // 1. Create a new ProductCategorie Instance and track it
+        var cat = _catProdRepo.GetNewEmptyInstance();
+        cat.Category = input.CategorieName;
         await _catProdRepo.AddAsync(cat);
+        // 2. Loop over storageRules in input
         foreach (var sr in input.StorageRules)
         {
-            var device = devices.FirstOrDefault(x => x.Id == sr.DeviceType);
+            var device = devices.FirstOrDefault(x => x.Id == sr.DeviceType); //get the devicetype from memory (devices)
             if (device != null)
             {
-                var Sr = new StorageRule()
-                {
-                    DeviceType = device,
-                    Multiplier = sr.Multiplier,
-                    ProductCategory = cat,
-                };
-                await storageRuleRepo.AddAsync(Sr);
-                cat.StorageRules.Add(Sr);
-            }
-            ;
+                var x = storageRuleRepo.GetNewEmptyInstance();
+                x.DeviceType = device;
+                x.Multiplier = sr.Multiplier;
+                x.ProductCategory = cat;
+                cat.StorageRules.Add(x); // AutoTracks because cat is tracked
+            };
         }
+        // 3. Save categorie and rules
         var success = await _catProdRepo.SaveChangesAsync();
         if (!success) return null;
-        //ToDo map to dto
         return _Map_product.Map(cat);
     }
 

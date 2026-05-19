@@ -1,6 +1,6 @@
 <div class="w-full group">
-    <!-- Label met subtiele animatie en styling -->
-    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1 transition-colors group-focus-within:text-indigo-600">
+    <!-- Label: slate-500 -> app-text-muted | indigo-600 -> brand-primary -->
+    <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-1.5 ml-1 transition-colors group-focus-within:text-brand-primary">
         {{ label() }}
     </label>
 
@@ -9,36 +9,35 @@
             [value]="value"
             (change)="onChangeEvent($event)"
             (blur)="onTouched()"
-            [class.border-red-500]="isError"
-            [class.border-slate-200]="!isError"
-            class="block w-full pl-4 pr-10 py-2.5 bg-slate-50 border rounded-xl 
-                   text-slate-700 text-sm transition-all duration-200 
+            [class.border-status-danger]="isError"
+            [class.border-app-border]="!isError"
+            class="block w-full pl-4 pr-10 py-2.5 bg-brand-primary-light border rounded-xl 
+                   text-app-text-body text-sm transition-all duration-200 
                    appearance-none cursor-pointer
-                   hover:bg-white hover:border-slate-300
-                   focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:outline-none
-                   disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
+                   hover:bg-app-card hover:border-app-border-dark
+                   focus:bg-app-card focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary focus:outline-none
+                   disabled:bg-app-border disabled:text-app-text-light disabled:cursor-not-allowed"
         >
             <option value="" disabled>Kies een optie ...</option>
             @for (option of choices(); track option.value){
-                <option [value]="option.value" class="text-slate-800">{{option.label}}</option>
+                <!-- slate-800 -> app-text-main -->
+                <option [value]="option.value" class="text-app-text-main">{{option.label}}</option>
             }
         </select>
 
-        <!-- Custom Chevron-pijl (Zorgt voor de 'flashy' look) -->
-        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400 group-focus-within:text-indigo-500 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-200 group-focus-within:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
+        <!-- Chevron: slate-400 -> app-text-light | indigo-500 -> brand-primary -->
+        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-app-text-light group-focus-within:text-brand-primary transition-colors">
+            <i class="fa fa-chevron-down transition-transform duration-200 group-focus-within:rotate-180"></i>
         </div>
     </div>
 
-    <!-- Error melding met subtiele slide-down animatie -->
+    <!-- Error melding: status-danger blijft status-danger -->
     @if (isError) {
-    <div class="flex items-center gap-1 mt-1.5 ml-1 text-red-500 animate-in fade-in slide-in-from-top-1 duration-200">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 001 1h2a1 1 0 001-1V6a1 1 0 00-1-1h-2z" clip-rule="evenodd" />
-        </svg>
-        <p class="text-[11px] font-semibold italic leading-none">{{ errorMessage }}</p>
-    </div>
+        <p class="text-status-danger text-xs mt-1 ml-1 font-medium animate-in fade-in slide-in-from-top-1 duration-200 flex gap-1 items-center">
+            <i class="fa fa-circle-exclamation"></i>
+            <span>
+                {{ errorMessage }}
+            </span>
+        </p>
     }
 </div>

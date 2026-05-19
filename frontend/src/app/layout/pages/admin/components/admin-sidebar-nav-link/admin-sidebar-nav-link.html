@@ -1,8 +1,10 @@
 <a [routerLink]="link()"
-    routerLinkActive="bg-blue-600 text-white"
-    class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-slate-800 group">
+    routerLinkActive="bg-brand-accent text-white"
+    class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-slate-800 group">
+    
     @if(icon()){
-        <i [class]="'fas ' + icon() + ' w-5 text-center group-hover:text-blue-400'"></i>
+        <i [class]="'fas ' + icon() + ' w-5 text-center transition-colors group-hover:text-brand-accent'"></i>
     }
-    <span>{{ label() }}</span>
+    
+    <span class="font-medium">{{ label() }}</span>
 </a>

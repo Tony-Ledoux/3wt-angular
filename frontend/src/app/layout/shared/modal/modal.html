@@ -1,15 +1,16 @@
 <!-- frontend/src/app/shared/components/modal/modal.html -->
 @if (modalService.state().isOpen) {
 <div
-  class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300"
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-app-text-main/60 backdrop-blur-md animate-in fade-in duration-300"
   (click)="handleBackdropClick()">
 
   <div
-    class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-4 duration-300"
+    class="bg-app-card rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-4 duration-300"
     role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
 
     <!-- Header: Nu met subtiele achtergrond en icoon -->
-    <div [class]="'px-6 py-5 flex justify-between items-center border-b border-slate-100 ' + theme().bgLight">
+    <!-- Aangepast: border-slate-100 -> border-app-border -->
+    <div [class]="'px-6 py-5 flex justify-between items-center border-b border-app-border ' + theme().bgLight">
       <div class="flex items-center gap-3">
         <!-- Dynamisch Icoon Sectie -->
         <span class="text-2xl" [class]="theme().accent">
@@ -26,18 +27,17 @@
         </h3>
       </div>
       @if(modalService.state().showCancelButton){
-      <button (click)="modalService.close()"
-        class="text-slate-400 hover:text-slate-600 transition-colors p-1 hover:bg-slate-200 rounded-full text-2xl leading-none">
-        &times;
-      </button>
+        <app-button variant="ghost" icon="fa fa-xmark" (click)="modalService.close()" />
       }
     </div>
 
     <!-- Content: Meer witruimte en betere typografie -->
-    <div class="p-8 text-slate-600 leading-relaxed text-center min-h-48">
+    <!-- Aangepast: text-slate-600 -> text-app-text-body -->
+    <div class="p-8 text-app-text-body leading-relaxed text-center min-h-48">
       @if(isComponent()){
       <div class="text-left">
-        <ng-container *ngComponentOutlet="componentContent()">
+        <!-- Aangepast: *ngComponentOutlet -> [ngComponentOutlet] (geen deprecated syntax) -->
+        <ng-container [ngComponentOutlet]="componentContent()">
         </ng-container>
       </div>
       } @else {
@@ -46,9 +46,9 @@
     </div>
 
     <!-- Footer: Cleanere look, buttons meer focus -->
-    @if(showActionButton()||showCancelButton()){
-
-    <div class="px-6 py-5 bg-slate-50/80 border-t border-slate-100 flex flex-col gap-3">
+    @if(showActionButton() || showCancelButton()){
+    <!-- Aangepast: bg-slate-50/80 -> bg-app-bg | border-slate-100 -> border-app-border -->
+    <div class="px-6 py-5 bg-app-bg border-t border-app-border flex flex-col gap-3">
       @if(showActionButton()){
       <app-button [variant]="theme().buttonVariant" size="lg" [fullWidth]="true" (click)="confirmAction()">
         {{modalService.state().confirmText}}

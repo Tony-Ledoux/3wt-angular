@@ -1,1 +1,45 @@
-<p>not-found works!</p>
+<div class="min-h-[80vh] flex flex-col items-center justify-center px-6 text-center">
+  <!-- SVG Illustratie -->
+  <div class="relative w-64 h-64 mb-8">
+    <!-- Achtergrond cirkel voor diepte -->
+    <div class="absolute inset-0 bg-brand-primary-light rounded-full scale-110 opacity-50 animate-pulse"></div>
+    
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" class="relative z-10 w-full h-full">
+      <!-- Het Huisje (met een vraagteken) -->
+      <path d="M100 40 L40 80 V160 H160 V80 L100 40Z" fill="none" stroke="currentColor" stroke-width="6" class="text-app-text-muted" stroke-linejoin="round"/>
+      
+      <!-- De deur die 'open' staat naar het niets -->
+      <path d="M90 160 V120 H110 V160" fill="none" stroke="currentColor" stroke-width="6" class="text-app-text-muted" stroke-linejoin="round"/>
+      
+      <!-- Het grote vraagteken in het midden -->
+      <text x="100" y="120" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="60" fill="currentColor" class="text-brand-primary">?</text>
+      
+      <!-- Een klein detail: een 'verdwaald' icoontje (bijv. een sleutel of document) -->
+      <circle cx="150" cy="140" r="8" fill="currentColor" class="text-brand-secondary" />
+      <path d="M145 140 H155" stroke="white" stroke-width="2" />
+    </svg>
+  </div>
+
+  <!-- Tekstuele content -->
+  <h1 class="text-6xl font-extrabold text-app-text-main mb-4">
+    404
+  </h1>
+  <h2 class="text-2xl font-semibold text-app-text-body mb-2">
+    Oeps! Ik weet niet wat je wil?
+  </h2>
+  <p class="text-app-text-muted max-w-md mb-8">
+    Het lijkt erop dat de pagina die je zoekt is verhuisd of nooit heeft bestaan. 
+    Geen zorgen, we brengen je zo weer terug naar huis.
+  </p>
+
+  <!-- Actie Button -->
+  <app-button 
+    (click)="goToHome()" 
+    size="lg" 
+    icon="fas fa-home"
+    >
+   
+      Terug naar Start
+
+  </app-button>
+</div>

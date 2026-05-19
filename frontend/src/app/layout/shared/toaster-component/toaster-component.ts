@@ -1,4 +1,3 @@
-//toaster-component.ts
 import { Component, inject } from '@angular/core';
 import { NotifyService, ToastType } from '@app/core/services/notify/notify-service';
 
@@ -14,10 +13,17 @@ export class ToasterComponent {
   getTypeClasses(type: ToastType): string {
     const base = 'border-l-4';
     const types = {
-      success: `${base} bg-green-100 border-green-500 text-green-800`,
-      error: `${base} bg-red-100 border-red-500 text-red-800`,
-      warning: `${base} bg-yellow-100 border-yellow-500 text-yellow-800`,
-      info: `${base} bg-blue-100 border-blue-500 text-blue-800`,
+      // Succes: Gebruikt status-success en status-success-light
+      success: `${base} bg-status-success-light border-status-success text-status-success`,
+      
+      // Error: Gebruikt status-danger en status-danger-light
+      error: `${base} bg-status-danger-light border-status-danger text-status-danger`,
+      
+      // Warning: Gebruikt brand-accent en brand-accent-light
+      warning: `${base} bg-brand-accent-light border-brand-accent text-brand-accent`,
+      
+      // Info: Gebruikt brand-primary en brand-primary-light
+      info: `${base} bg-brand-primary-light border-brand-primary text-brand-primary`,
     };
     return types[type];
   }
@@ -31,14 +37,14 @@ export class ToasterComponent {
     };
     return icons[type];
   }
-  // Voeg deze methode toe aan ToasterComponent
-getProgressBarColor(type: ToastType): string {
-  const colors = {
-    success: 'bg-green-600',
-    error: 'bg-red-600',
-    warning: 'bg-yellow-600',
-    info: 'bg-blue-600',
-  };
-  return colors[type];
-}
+
+  getProgressBarColor(type: ToastType): string {
+    const colors = {
+      success: 'bg-status-success',
+      error: 'bg-status-danger',
+      warning: 'bg-brand-accent',
+      info: 'bg-brand-primary',
+    };
+    return colors[type];
+  }
 }

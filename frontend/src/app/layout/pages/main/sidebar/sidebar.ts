@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ModalService } from '@app/core/modal-service';
 import { UserService } from '@app/core/services/user/user';
 import { ButtonComponent } from '@app/shared/components/button/button';
@@ -22,6 +21,7 @@ export class Sidebar {
       "Afmelden?",
       "Ben je zeker dat je wil afmelden?",
       { icon: 'fa fa-sign-out', onConfirm: () => { this.userService.logoff() } })
+      .setType('danger')
       .show();
   }
 }

@@ -1,4 +1,5 @@
-<aside class="w-64 bg-slate-800 text-white flex flex-col h-full transition-all duration-300 ease-in-out">
+<!-- Aangepast: bg-slate-800 -> bg-brand-primary-dark | text-white blijft behouden voor contrast -->
+<aside class="w-64 bg-brand-primary-dark text-white flex flex-col h-full transition-all duration-300 ease-in-out">
   <!-- Navigation Section -->
   <nav class="p-4 space-y-2 flex-1 flex flex-col">
     <app-sidemenu-link label="Dashboard" link="/app/dashboard" icon="fa fa-chart-pie" />
@@ -7,15 +8,17 @@
     <app-sidemenu-link label="Recepten" link="/app/recepten" icon="fa fa-book" />
     <app-sidemenu-link label="Weekplanning" link="/app/menu" icon="fa fa-calendar" />
     <app-sidemenu-link label="Winkelijst" link="/app/shoppinglist" icon="fa fa-cart-shopping" />
-
   </nav>
 
   <!-- User/Action Section -->
-  <div class="p-4 border-t border-slate-700 flex flex-col gap-2">
+  <!-- Aangepast: border-slate-700 -> border-brand-primary (subtiele scheiding in de donkere kleur) -->
+  <div class="p-4 border-t border-brand-primary flex flex-col gap-2">
     @if(householdService.isOwner()){
     <app-sidemenu-link label="Instellingen" link="/app/settings" icon="fa fa-gear" />
     }
     <app-sidemenu-link label="Profiel" link="/app/profile" icon="fa fa-user" />
+    
+    <!-- De button variant "danger" maakt al gebruik van de status-danger kleur uit je theme via de ButtonComponent -->
     <app-button variant="danger" (click)="handleLogOffClick()" [fullWidth]="true"
       class="flex items-center justify-center gap-2">
       <i class="fa-solid fa-right-from-bracket"></i> Afmelden

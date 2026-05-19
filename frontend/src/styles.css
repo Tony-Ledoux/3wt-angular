@@ -1,1 +1,31 @@
 @import "tailwindcss";
+@theme {
+  /* --- BRAND COLORS --- */
+  --color-brand-primary: #2563eb;       /* De hoofdkleur (was blue-600) */
+  --color-brand-primary-light: #eff6ff; /* Lichte variant voor backgrounds (was blue-50) */
+  --color-brand-primary-dark: #1d4ed8;  /* Donkere variant voor hover (was blue-700) */
+  
+  --color-brand-secondary: #7c3aed;     /* Accent kleur (was purple-600) */
+  --color-brand-secondary-light: #f5f3ff; 
+  
+  --color-brand-accent: #d97706;        /* Voor Admin/Waarschuwingen (was amber-600) */
+  --color-brand-accent-light: #fffbeb;
+
+  /* --- APP UI COLORS --- */
+  --color-app-bg: #f8fafc;              /* Pagina achtergrond (was slate-50) */
+  --color-app-card: #ffffff;            /* Card achtergrond (was white) */
+  --color-app-border: #e2e8f0;          /* Borders (was slate-200) */
+  --color-app-border-dark: #cbd5e1;     /* Donkere borders (was slate-300) */
+
+  /* --- TEXT COLORS --- */
+  --color-app-text-main: #0f172a;       /* Titels/hoofdtekst (was slate-900) */
+  --color-app-text-body: #334155;       /* Normale tekst (was slate-700) */
+  --color-app-text-muted: #64748b;      /* Subtekst (was slate-500) */
+  --color-app-text-light: #94a3b8;      /* Hulpmiddel teksten (was slate-400) */
+
+  /* --- STATUS COLORS --- */
+  --color-status-danger: #ef4444;       /* Fout/Verwijderen (was red-500) */
+  --color-status-danger-light: #fee2e2; /* Danger background (was red-50/rose-100) */
+  --color-status-success: #22c55e;      /* Succes (was green-600) */
+  --color-status-success-light: #f0fdf4; 
+}

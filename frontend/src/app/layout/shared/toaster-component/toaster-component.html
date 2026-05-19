@@ -16,20 +16,22 @@
 
         <!-- Content Section -->
         <div class="flex-1 pt-0.5">
-            <div class="text-sm font-medium text-gray-900 leading-tight" [innerHTML]="toast.message" ></div>
-    
+            <!-- Aangepast: text-gray-900 -> text-app-text-main -->
+            <div class="text-sm font-medium text-app-text-main leading-tight" [innerHTML]="toast.message"></div>
         </div>
 
         <!-- Close Button -->
         @if(toast.dismissable) {
+        <!-- Aangepast: text-gray-500 -> text-app-text-muted | hover:text-gray-700 -> hover:text-app-text-main -->
         <button (click)="toastService.remove(toast.id)"
-            class="ml-4 text-gray-500 hover:text-gray-700 transition-colors">
+            class="ml-4 text-app-text-muted hover:text-app-text-main transition-colors">
             <span class="text-lg leading-none">&times;</span>
         </button>
         }
 
         <!-- Progress Bar -->
-        <div class="absolute bottom-0 left-0 h-1 bg-black/10 w-full">
+        <!-- Aangepast: bg-black/10 -> bg-app-border (voor een subtielere, theme-consistente achtergrond) -->
+        <div class="absolute bottom-0 left-0 h-1 bg-app-border w-full">
             <div class="h-full animate-progress" [class]="getProgressBarColor(toast.type)"
                 [style.animation-duration.ms]="toast.duration || 3000">
             </div>

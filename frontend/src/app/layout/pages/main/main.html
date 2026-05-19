@@ -1,4 +1,4 @@
-<div class="flex h-screen bg-gray-50 font-sans overflow-hidden">
+<div class="flex h-screen bg-app-bg font-sans overflow-hidden">
   
   <div class="flex-1 flex flex-col overflow-hidden">
     <app-header (onToggleSidebar)="toggleSidebar()" />
@@ -9,7 +9,7 @@
       }
       <div class="flex-1 overflow-y-auto">
         <!-- Container voor content om consistente marges te houden -->
-        <div class="max-w-full mx-auto p-6">
+        <div class="p-6 max-w-7xl mx-auto">
           <router-outlet />
         </div>
       </div>

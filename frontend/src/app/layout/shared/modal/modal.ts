@@ -26,27 +26,27 @@ export class Modal {
     return typeof icon === 'function' ? icon : null;
   });
 
-  // Computed styling op basis van het type
+  // Computed styling op basis van het type - AANGEPAST NAAR NIEUWE THEME
   theme = computed(() => {
     const themes = {
       default: {
-        header: 'text-slate-900',
-        bgLight: 'bg-blue-50', // Subtiele blauwe tint
-        accent: 'text-blue-600',
+        header: 'text-app-text-main',
+        bgLight: 'bg-brand-primary-light', // Lichte brand primary achtergrond
+        accent: 'text-brand-primary',      // Primaire brand kleur
         buttonVariant: 'primary' as const,
         icon: this.modalService.state().icon
       },
       danger: {
-        header: 'text-red-700',
-        bgLight: 'bg-red-50', // Subtiele rode tint
-        accent: 'text-red-600',
+        header: 'text-status-danger',
+        bgLight: 'bg-status-danger-light', // Lichte danger achtergrond
+        accent: 'text-status-danger',      // Danger kleur
         buttonVariant: 'danger' as const,
         icon: this.modalService.state().icon
       },
       success: {
-        header: 'text-green-700',
-        bgLight: 'bg-green-50', // Subtiele groene tint
-        accent: 'text-green-600',
+        header: 'text-status-success',
+        bgLight: 'bg-status-success-light', // Lichte success achtergrond
+        accent: 'text-status-success',      // Success kleur
         buttonVariant: 'success' as const,
         icon: this.modalService.state().icon
       }

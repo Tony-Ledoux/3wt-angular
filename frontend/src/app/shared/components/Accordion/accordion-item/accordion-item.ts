@@ -1,50 +1,56 @@
-import { Component, computed, input, model, signal } from '@angular/core';
-
+import { Component, computed, input, model } from '@angular/core';
 
 @Component({
   selector: 'app-accordion-item',
+  standalone: true, 
   imports: [],
   templateUrl: './accordion-item.html',
   styleUrl: './accordion-item.css',
 })
 export class AccordionItem {
- status = input<'success' | 'warning' | 'danger' | 'default'>('default');
- 
- statusStyles = computed(()=>{
-   const s = this.status();
-   const styles = {
-     success: {
-       header: 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700',
-       badge: 'bg-emerald-600 text-white',
-       border: 'border-emerald-200'
+  status = input<'primary' | 'success' | 'warning' | 'danger' | 'neutral'>('neutral');
+  
+  statusStyles = computed(() => {
+    const status = this.status();
+
+    const mappings = {
+      primary: {
+        border: 'border-brand-primary',
+        header: 'bg-brand-primary-light text-brand-primary-dark',
+        badge: 'bg-brand-primary text-white'
+      },
+      success: {
+        border: 'border-status-success',
+        header: 'bg-status-success-light text-status-success',
+        badge: 'bg-status-success text-white'
       },
       warning: {
-        header: 'bg-amber-50 hover:bg-amber-100 text-amber-700',
-        badge: 'bg-amber-600 text-white',
-        border: 'border-amber-200'
+        border: 'border-brand-accent',
+        header: 'bg-brand-accent-light text-brand-accent',
+        badge: 'bg-brand-accent text-white'
       },
       danger: {
-        header: 'bg-red-50 hover:bg-red-100 text-red-700',
-        badge: 'bg-red-600 text-white',
-        border: 'border-red-200'
+        border: 'border-status-danger',
+        header: 'bg-status-danger-light text-status-danger',
+        badge: 'bg-status-danger text-white'
       },
-      default: {
-        header: 'bg-slate-50 hover:bg-slate-100 text-slate-700',
-        badge: 'bg-slate-600 text-white',
-        border: 'border-slate-200'
+      neutral: {
+        border: 'border-app-border',
+        header: 'bg-app-bg text-app-text-main',
+        badge: 'bg-app-border-dark text-app-text-body'
       }
     };
-    return styles[s];
+
+    return mappings[status] || mappings.neutral;
   });
   
-  
-  isOpen=model(false) // model combines input and output
+  isOpen = model(false); 
   title = input<string>('Default');
   badge = input<number>(0);
-  icon = input<string>('△')
+  icon = input<string>('△');
   hasBadge = input<boolean>(false);
 
-  toggle(){
+  toggle() {
     this.isOpen.update(value => !value);
   }
 }

@@ -1,0 +1,39 @@
+<form [formGroup]="categoryForm" (ngSubmit)="saveCategory()" class="space-y-6">
+      <!-- Categorie Naam -->
+      <app-labeled-input label="Categorie Naam" name="categoryName" formControlName="CategorieName" />
+
+      <div class="relative py-4">
+        <div class="absolute inset-0 flex items-center"><span class="w-full border-t border-gray-200"></span></div>
+        <div class="relative flex justify-center text-xs uppercase"><span class="bg-white px-2 text-gray-500">Storage Rules</span></div>
+      </div>
+
+      <!-- Storage Rules Sectie -->
+      <div formArrayName="storageRules" class="space-y-4">
+        @for (rule of storageRules.controls; track rule; let i = $index) {
+          <div [formGroupName]="i" class="p-5 bg-gray-50 border border-gray-200 rounded-xl relative group hover:border-indigo-300 transition-colors">
+            <div class="flex justify-between items-center mb-4">
+              <h4 class="text-sm font-bold text-indigo-600 uppercase tracking-wider">
+                Regel #{{ i + 1 }}
+              </h4>
+
+              <app-button size="xs" icon="fa fa-trash" variant="danger" (click)="removeStorageRule(i)">verwijder</app-button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <app-labeled-selectbox formControlName="deviceType" label="Device Type" [choices]="deviceTypes()" />
+                <app-labeled-input type="decimal" formControlName="multiplier" label="multiplier" name="multiplier"  />
+            </div>
+          </div>
+        } @empty {
+          <div class="text-center py-8 border-2 border-dashed border-gray-300 rounded-xl">
+            <p class="text-gray-500 text-sm">Er zijn nog geen storage rules toegevoegd.</p>
+          </div>
+        }
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col gap-4 mt-6">
+        <app-button [fullWidth]="true" variant="secondary" size="lg" icon="fa fa-plus" (click)="addStorageRule()">Voeg Storage Rule toe</app-button>
+        <app-button [fullWidth]="true" variant="primary" [disabled]="categoryForm.invalid" size="lg" icon="fa fa-floppy-disk" type="submit">Opslaan Categorie</app-button>
+      </div>
+    </form>

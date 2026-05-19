@@ -1,19 +1,36 @@
-<aside class="w-64 h-screen bg-slate-900 text-slate-300 flex flex-col border-r border-slate-800">
-      <div class="p-6 flex items-center gap-3">
-        <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">A</div>
-        <span class="text-xl font-bold text-white tracking-tight">Admin Panel</span>
-      </div>
+<aside class="w-64 h-screen bg-slate-900 text-app-text-light flex flex-col border-r border-slate-800">
+  <!-- Logo Sectie -->
+  <div class="p-6 flex items-center gap-3">
+    <!-- Logo box: nu brand-accent i.p.v. blue-600 -->
+    <div class="w-8 h-8 bg-brand-accent rounded-lg flex items-center justify-center text-white font-bold shadow-sm">
+      A
+    </div>
+    <span class="text-xl font-bold text-white tracking-tight">Admin Panel</span>
+  </div>
 
-      <nav class="flex-1 px-4 space-y-2 mt-4">
-        <app-admin-sidebar-nav-link link="/admin/dashboard" label="dashboard" icon="fas fa-chart-pie" />
-        <app-admin-sidebar-nav-link link="/admin/households" label="Huishoudens" icon="fas fa-users" />
-        <app-admin-sidebar-nav-link link="/admin/product-categorie" label="Product categoriën" icon="fas fa-rocket" />
-        <app-admin-sidebar-nav-link link="/admin/product" label="Producten" icon="fas fa-burger" />
-      </nav>
-      
-      <div class="p-4 border-t border-slate-800 gap-2 flex flex-col">
-        <app-admin-sidebar-nav-link link="/admin/settings" label="Instellingen" icon="fas fa-cog" />
-        <app-button variant="danger" size="lg" [fullWidth]="true" (click)="auth.handleLogOffClick()" icon="fas fa-sign-out-alt" >
-          <span>Uitloggen</span></app-button>
-      </div>
-    </aside>
+  <!-- Navigatie -->
+  <nav class="flex-1 px-4 space-y-2 mt-4">
+    <!-- De nav-links componenten zullen intern de brand-accent kleur moeten gebruiken voor de 'active' state -->
+    <app-admin-sidebar-nav-link link="/admin/dashboard" label="Dashboard" icon="fas fa-chart-pie" />
+    <app-admin-sidebar-nav-link link="/admin/households" label="Huishoudens" icon="fas fa-users" />
+    <app-admin-sidebar-nav-link link="/admin/product-categorie" label="Product categoriën" icon="fas fa-rocket" />
+    <app-admin-sidebar-nav-link link="/admin/product" label="Producten" icon="fas fa-burger" />
+    <app-admin-sidebar-nav-link link="/admin/recept-categorie" label="Recept categoriën" icon="fas fa-book-open" />
+    <app-admin-sidebar-nav-link link="/admin/recepten" label="Recepten" icon="fas fa-utensils" />
+  </nav>
+  
+  <!-- Footer Sectie -->
+  <div class="p-4 border-t border-slate-800 gap-2 flex flex-col">
+    <app-admin-sidebar-nav-link link="/admin/settings" label="Instellingen" icon="fas fa-cog" />
+    
+    <!-- De button variant="danger" gebruikt intern de status-danger kleur uit je theme -->
+    <app-button 
+      variant="danger" 
+      size="lg" 
+      [fullWidth]="true" 
+      (click)="auth.handleLogOffClick()" 
+      icon="fas fa-sign-out-alt">
+      <span class="font-medium">Uitloggen</span>
+    </app-button>
+  </div>
+</aside>

@@ -1,12 +1,10 @@
-using System;
-using System.Collections.Immutable;
-using backend.Contexts;
+
 using backend.Entities;
 using backend.Mappers;
 using backend.Models;
 using backend.Models.Create;
 using backend.Repository;
-using Microsoft.EntityFrameworkCore;
+
 
 namespace backend.Services;
 
@@ -46,25 +44,28 @@ public class UserService(
     {
         if (input == null) return new RequestResponse<HouseholdUserDto>().Failure("Gelieve mij data te geven");
 
-        //generate a new invitecode
+        // 1. generate a new invitecode
         var inviteCode = await _gen.GenerateAsync();
-        // create a new Household
-        var household_new = new Household(input.Name,input.Address,inviteCode);
+        // 2. create a new Household
+        var household_new = _household_repo.GetNewEmptyInstance();
+        household_new.Name = input.Name.Trim();
+        household_new.Address = input.Address.Trim();
+        household_new.InviteCode = inviteCode;
+        // 3. Track the new household
         await _household_repo.AddAsync(household_new);
-        // create a new HousholdUser // this is the owner, Need to insert HouseholdId Here
 
-        var HouseholdUser = new HouseholdUser()
-        {
-            UserId = id,
-            Household = household_new,
-            HouseholdOwner = true,
-            Email = email
-        };
-        await _repo.AddAsync(HouseholdUser);
+        // 4. Create a new HouseholdUser
+        var u = _repo.GetNewEmptyInstance();
+        u.UserId = id;
+        u.Household = household_new;
+        u.HouseholdOwner = true;
+        u.Email = email;
+        await _repo.AddAsync(u);
+        // 5. save to database
         var result = await _repo.SaveChangesAsync();
         if (result)
         {
-            var dto = _mapper.Map(HouseholdUser);
+            var dto = _mapper.Map(u);
          return new RequestResponse<HouseholdUserDto>().Ok(dto);
         }
         return new RequestResponse<HouseholdUserDto>().Failure("");
