@@ -50,11 +50,12 @@ namespace backend.Controllers
         }
 
         [HttpPost("product-categories")]
-        public async Task<IActionResult> CreateNewProductCategoryAsync(CategoryCreationDto input)
+        public async Task<ActionResult<ProductCategoryDto>> CreateNewProductCategoryAsync(CategoryCreationDto input)
         {
             var success = await _i_srv.CreateNewProductCategoryAsync(input);
-            if(success == null) return BadRequest();
-            return Ok(success);
+            if(success.Success) return Ok(success.Data);
+            if(success.IsConflict) return Conflict(success.ErrorMessage);
+            return BadRequest(success.ErrorMessage);
         }
     }
 }

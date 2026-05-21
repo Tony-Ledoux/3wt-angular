@@ -6,6 +6,7 @@ import { NotifyService } from '@app/core/services/notify/notify-service';
 import { LabeledSelectbox, SelectOptions } from '@app/shared/components/form/labled-selectbox/labeled-selectbox';
 import { LabeledInput } from '@app/shared/components/form/labeled-input/labeled-input';
 import { ButtonComponent } from "@app/shared/components/button/button";
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-product-category-form',
@@ -70,6 +71,12 @@ export class ProductCategoryForm {
           this.categoryAdded.emit(data);
           this.categoryForm.reset();
           this.storageRules.clear();
+        },
+        error: (err: HttpErrorResponse) => {
+          const errorMessage = err.error?.message || err.error || 'Er gebeurde een onbekende fout';
+
+          this.notifySrc.error(errorMessage);
+          console.error('Full error object:', err);
         }
       });
     }

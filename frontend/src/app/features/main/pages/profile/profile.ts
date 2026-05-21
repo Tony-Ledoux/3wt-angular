@@ -1,28 +1,26 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { UserService } from '@app/core/services/user/user';
 import { HouseholdService } from '../../services/household-service';
-import { JsonPipe } from '@angular/common';
-import { OnboardingPage } from "../../onboarding/pages/onboarding_page";
-import { HouseholdCard } from '../../onboarding/components/household-card/household-card';
+
 import { DatabaseSettings } from '@app/core/services/config/database-settings';
 import { ButtonComponent } from '@app/shared/components/button/button';
 import { ModalService } from '@app/core/modal-service';
 import { HouseholdManagementCard } from '../../components/household-management-card/household-management-card';
-import { Router } from '@angular/router';
-import { NotifyService } from '@app/core/services/notify/notify-service';
-import { PageHeader } from "../../components/page-header/page-header";
+
+import { PageHeader } from "../../../../shared/components/page-header/page-header";
 import { SectionCard } from "@app/shared/components/section-card/section-card";
+import { PillComponent } from '@app/shared/components/pill-component/pill-component';
+import { SectionCardHeader } from '@app/shared/directives/section-card-header';
+
 
 @Component({
   selector: 'app-profile',
-  imports: [JsonPipe, ButtonComponent, HouseholdManagementCard, PageHeader, SectionCard],
+  imports: [ButtonComponent, HouseholdManagementCard, PageHeader, SectionCard, PillComponent, SectionCardHeader],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
 export class Profile {
   private modalS = inject(ModalService)
-  private router = inject(Router);
-  private notify = inject(NotifyService)
   userSrv = inject(UserService);
   householdSrv = inject(HouseholdService);
   config = inject(DatabaseSettings);
@@ -50,7 +48,6 @@ export class Profile {
     this.modalS.open('Huishouden wisselen', `Wil je overschakelen naar ${house?.householdName}?`)
       .setConfirmCallback(() => { 
         this.householdSrv.selectHousehold(id);
-         //this.router.navigate(['/app/dashboard']);
          })
       .show();
   }

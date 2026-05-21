@@ -20,22 +20,25 @@
 
     <!-- Sectie voor nieuwe huishoudens -->
     @if(householdSrv.houshold_slots_left() > 0){
-        <app-section-card type="danger">
+        <app-section-card title="Toevoegen">
+            <div class="max-w-xl mx-auto">
+            <app-section-card type="dashed" title="slots">
+                    <app-pill-component card-header-action  type="pill" variant="slate" label="resterend" [value]="householdSrv.houshold_slots_left()" />
+                    <div class="flex flex-col gap-2">
 
-            <div class="mt-12 p-8 border-2 border-dashed border-slate-200 rounded-2xl text-center bg-slate-50/50">
-                <p class="text-slate-600 mb-4">
-                    Je hebt nog {{householdSrv.houshold_slots_left()}} plek over voor een nieuw huishouden.
-                </p>
-                @if(householdSrv.canCreateHousehold()){
-                    <app-button size="lg" class="shadow-lg shadow-blue-200" (click)="householdSrv.handleCreateNewHousehold()">
-                        <span class="flex items-center gap-2"><i class="fa fa-plus"></i> Nieuw Huishouden Aanmaken</span>
-                    </app-button>
-                }
-                @if(householdSrv.canJoinHouseholds()){
-                    <app-button size="lg" class="shadow-lg shadow-blue-200" variant="secondary" (click)="householdSrv.handleJoinNewHousehold()">
-                        <span class="flex items-center gap-2"><i class="fa fa-location-dot"></i> voeg Huishouden toe</span>
-                    </app-button>
-                }
+                        @if(householdSrv.canCreateHousehold()){
+                            <app-button size="lg" [fullWidth]="true" (click)="householdSrv.handleCreateNewHousehold()" icon="fa fa-plus">
+                                <span>Nieuw huishouden maken</span>
+                            </app-button>
+                        }
+                        @if(householdSrv.canJoinHouseholds()){
+                            <app-button size="lg" [fullWidth]="true" variant="secondary" (click)="householdSrv.handleJoinNewHousehold()" icon="fa fa-location-dot">
+                                <span class="flex items-center gap-2">voeg Huishouden toe</span>
+                            </app-button>
+                        }
+                    </div>
+                    
+                </app-section-card>
             </div>
         </app-section-card>
     }

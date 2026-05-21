@@ -1,4 +1,5 @@
-import { Component, input } from '@angular/core';
+import { afterEveryRender, afterNextRender, Component, computed, contentChild, ElementRef, inject, input } from '@angular/core';
+import { SectionCardHeader } from '@app/shared/directives/section-card-header';
 
 export type SectionCardType = 'default' | 'danger' | 'dashed';
 
@@ -9,13 +10,20 @@ export type SectionCardType = 'default' | 'danger' | 'dashed';
   styleUrl: './section-card.css',
 })
 export class SectionCard {
+
+
+  private el = inject(ElementRef);
   title = input<string>();
   icon = input<string>();
   type = input<SectionCardType>('default');
 
+  hasAction = contentChild(SectionCardHeader)
+
+  showHeader = computed(() => { return this.title() || this.icon() || this.hasAction() });
+
   containerClasses = () => {
     const base = 'shadow-sm border rounded-xl p-6 transition-colors mb-2';
-    
+
     switch (this.type()) {
       case 'danger':
         return `${base} bg-status-danger-light border-status-danger`;
@@ -28,7 +36,7 @@ export class SectionCard {
 
   iconContainerClasses = () => {
     const base = 'p-2 rounded-lg';
-    
+
     switch (this.type()) {
       case 'danger':
         return `${base} bg-status-danger-light text-status-danger`;
@@ -38,4 +46,11 @@ export class SectionCard {
         return `${base} bg-brand-secondary-light text-brand-secondary`;
     }
   };
+
+
+   constructor() {
+    console.warn('Tof dat je dit component gebruikt, vergeet niet om de directive "SectionCardHeader" toe te voegen aan je imports of het werkt niet goed!')
+  }
+
+  
 }

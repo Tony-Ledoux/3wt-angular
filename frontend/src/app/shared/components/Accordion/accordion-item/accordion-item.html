@@ -6,8 +6,8 @@
         class="cursor-pointer flex justify-between items-center transition-colors px-4 py-3 border-b border-transparent select-none"
         [class]="statusStyles().header + ' ' + (!isOpen() ? statusStyles().border : '')" 
         [class.border-b-0]="isOpen()"
-        (click)="toggle()">
-        
+        (click)="toggle()" title="">
+   
         <div class="font-medium flex gap-2 justify-between w-full pe-1 text-app-text-main">
             <div class="grow">
                 {{title()}}

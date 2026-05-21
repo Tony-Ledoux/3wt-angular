@@ -9,30 +9,35 @@ import { Component, input } from '@angular/core';
 export class PillComponent {
   label = input.required<string>();
   value = input.required<number | string>();
-  variant = input<'emerald' | 'blue' | 'amber' | 'red'| 'slate'>('emerald');
+  variant = input<'emerald' | 'blue' | 'amber' | 'red' | 'slate'>('emerald');
   type = input<'pill' | 'card'>('card');
 
   get cardStyles() {
     const variants = {
+      // Emerald -> Status Success
       emerald: {
-        container: 'bg-emerald-50 border-emerald-100 text-emerald-700',
-        dot: 'bg-emerald-500'
+        container: 'bg-status-success-light border-status-success text-status-success',
+        dot: 'bg-status-success'
       },
+      // Blue -> Brand Primary
       blue: {
-        container: 'bg-blue-50 border-blue-100 text-blue-700',
-        dot: 'bg-blue-500',
+        container: 'bg-brand-primary-light border-brand-primary text-brand-primary',
+        dot: 'bg-brand-primary',
       },
+      // Amber -> Brand Accent
       amber: {
-        container: 'bg-amber-50 border-amber-100 text-amber-700',
-        dot: 'bg-amber-500',
+        container: 'bg-brand-accent-light border-brand-accent text-brand-accent',
+        dot: 'bg-brand-accent',
       },
+      // Red -> Status Danger
       red: {
-        container: 'bg-red-50 border-red-100 text-red-700',
-        dot: 'bg-red-500',
+        container: 'bg-status-danger-light border-status-danger text-status-danger',
+        dot: 'bg-status-danger',
       },
+      // Slate -> App Neutral/Muted
       slate: { 
-        container: 'bg-slate-50 border-slate-100 text-slate-700', 
-        dot: 'bg-slate-500' 
+        container: 'bg-app-bg border-app-border text-app-text-muted', 
+        dot: 'bg-app-text-muted' 
       },
     }
     return variants[this.variant()];
@@ -40,11 +45,16 @@ export class PillComponent {
 
   get pillStyles() {
     const variants = {
-      slate:   { label: 'text-slate-400', value: 'bg-slate-900 text-white' },
-      emerald: { label: 'text-emerald-400', value: 'bg-emerald-900 text-white' },
-      blue:    { label: 'text-blue-400', value: 'bg-blue-900 text-white' },
-      amber:   { label: 'text-amber-400', value: 'bg-amber-900 text-white' },
-      red:    { label: 'text-red-400', value: 'bg-red-900 text-white' },
+      // Emerald -> Success
+      emerald: { label: 'text-status-success', value: 'bg-status-success text-white' },
+      // Blue -> Primary
+      blue:    { label: 'text-brand-primary', value: 'bg-brand-primary text-white' },
+      // Amber -> Accent
+      amber:   { label: 'text-brand-accent', value: 'bg-brand-accent text-white' },
+      // Red -> Danger
+      red:     { label: 'text-status-danger', value: 'bg-status-danger text-white' },
+      // Slate -> Main/Muted
+      slate:   { label: 'text-app-text-light', value: 'bg-app-text-main text-white' },
     };
     return variants[this.variant()];
   }

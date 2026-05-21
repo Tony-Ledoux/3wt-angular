@@ -1,26 +1,59 @@
+<app-page-header title="Product categoriën beheren" />
+<div class="flex flex-col gap-2">
 
-    <h2 class="text-3xl font-extrabold text-gray-800 mb-8 pb-2 border-b-4 border-indigo-500 w-fit">
-      Product Categorie Beheren
-    </h2>
-    <app-accordion-item title="Toevoegen">
-      <app-product-category-form (categoryAdded)="onCategoryAdded($event)" />
-    </app-accordion-item>
-     <app-accordion-item [isOpen]="true">
-       <!-- Debug Section -->
-       <div class="mt-12">
-         <h3 class="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">
-           <span class="w-2 h-6 bg-indigo-500 rounded-full"></span>
-           Huidige Categorieën (Debug)
-         </h3>
-         <pre class="bg-gray-900 text-green-400 p-4 rounded-xl overflow-auto text-xs font-mono shadow-inner border border-gray-800">
-     {{ categories() | json }}
-         </pre>
-       </div>
+  <app-accordion-item [isOpen]="true" title="huidige categorieën">
+    @if(categories().length == 0){
+      Er zijn geen categorieën
+    } @else {
+      <div class="flex flex-col gap-2">
+        
+        @for(cat of categories(); track cat.id){
+          <div>
+            
+            <div class="flex justify-between items-center bg-app-text-light rounded-t-xl px-2">
+              <span class="text-xl font-bold">
+                {{cat.categorieName}} 
+              </span>
+              <app-button variant="danger" icon="fa fa-trash" size="xs" (click)="CategoryDeleteClick(cat.id)" ></app-button> 
+            </div>
+            <div class="flex w-full justify-between items-center px-10 bg-app-border-dark">
 
-     </app-accordion-item>
-
-     
+              @if(cat.storageRules.length == 0){
+                Er zijn geen bewaar regels <app-button icon="fa fa-plus" size="xs" (click)="RuleAddClick(cat.id)"></app-button>
+              }@else {
+                @for(r of cat.storageRules; track r.id){
+                  <span>{{r.deviceType}}</span>
+                  <span>{{r.multiplier}}</span>
+                    <app-button variant="danger" icon="fa fa-trash" size="xs" (click)="RuleDeleteClick(r.id)" ></app-button>
+                }
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
     
-
-
-
+    
+    <!-- Debug Section -->
+    <div class="mt-12">
+      <h3 class="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">
+        <span class="w-2 h-6 bg-indigo-500 rounded-full"></span>
+        Huidige Categorieën (Debug)
+      </h3>
+      <pre class="bg-gray-900 text-green-400 p-4 rounded-xl overflow-auto text-xs font-mono shadow-inner border border-gray-800">
+        {{ categories() | json }}
+      </pre>
+    </div>
+    
+  </app-accordion-item>
+  <app-accordion-item title="Toevoegen">
+    <app-product-category-form (categoryAdded)="onCategoryAdded($event)" />
+  </app-accordion-item>
+</div>
+  
+  
+  
+  
+  
+  
+  

@@ -43,9 +43,6 @@ export class HouseholdService {
 
     const maxOwned = this.settings.getNumber("MaxUserOwns", 2);
     const maxTotal = this.settings.getNumber("MaxHouseholdsPerUser", 5);
-
-    console.log(`Check: Owned(${owned}/${maxOwned}) Total(${total}/${maxTotal})`);
-
     return owned < maxOwned && total < maxTotal;
   })
 

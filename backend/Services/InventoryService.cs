@@ -1,4 +1,5 @@
 
+using System.Diagnostics;
 using backend.Entities;
 
 using backend.Mappers;
@@ -16,7 +17,7 @@ public interface IInventoryService
 
     // ProductCategories and storageRules
     Task<IEnumerable<ProductCategoryDto>> GetAllProductCategorieWithStorageRulessAsync();
-    Task<ProductCategoryDto?> CreateNewProductCategoryAsync(CategoryCreationDto input);
+    Task<RequestResponse<ProductCategoryDto>> CreateNewProductCategoryAsync(CategoryCreationDto input);
     
     // StorageLocations
     Task<IEnumerable<StorageLocation>> GetStoragelocationsOfHouseholdsAsync(int householdId);
@@ -44,8 +45,10 @@ public class InventoryService(
     private readonly IMapper<DeviceType, DeviceTypeDto> _deviceMapper = devmap;
     private readonly IMapper<ProductCategory, ProductCategoryDto> _Map_product = mapper_pc;
 
-    public async Task<ProductCategoryDto?> CreateNewProductCategoryAsync(CategoryCreationDto input)
+    public async Task<RequestResponse<ProductCategoryDto>> CreateNewProductCategoryAsync(CategoryCreationDto input)
     {
+        var exists = await _catProdRepo.ProductCategoryExistsAsync(input.CategorieName);
+        if(exists) return new RequestResponse<ProductCategoryDto>().Failure("Deze categorie bestaat al").SetIsConflict();
 
         var devices = await devicetypeRepo.GetAllAsync(); // lookup voor diepvries, ijskast, kast
         // 1. Create a new ProductCategorie Instance and track it
@@ -67,8 +70,8 @@ public class InventoryService(
         }
         // 3. Save categorie and rules
         var success = await _catProdRepo.SaveChangesAsync();
-        if (!success) return null;
-        return _Map_product.Map(cat);
+        if (!success) return new RequestResponse<ProductCategoryDto>().Failure("Er is iets misgelopen bij het opslaan");
+        return new RequestResponse<ProductCategoryDto>().Ok(_Map_product.Map(cat));
     }
 
     public async Task<IEnumerable<DeviceTypeDto>> GetAllDeviceTypesAsync()
