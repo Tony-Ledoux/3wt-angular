@@ -2,7 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ApiService } from '../api/api-service';
 import { AuthService } from '@auth0/auth0-angular';
-import { ModalService } from '@app/core/modal-service';
+import { ModalService } from '@app/core/services/modal/modal-service';
 import { DatabaseSettings } from '../config/database-settings';
 
 export const ROLE_CLAIM = 'http://localhost:5213/roles';

@@ -1,5 +1,5 @@
 import { Component, effect, inject, OnInit, signal } from '@angular/core';
-import { ModalService } from '@app/core/modal-service';
+import { ModalService } from '@app/core/services/modal/modal-service';
 import { CreateHousehold } from '../components/create-household/create-household';
 
 import { HouseholdService } from '../../services/household-service';

@@ -20,7 +20,7 @@
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <app-labeled-selectbox formControlName="deviceType" label="Device Type" [choices]="deviceTypes()" />
+                <app-labeled-selectbox formControlName="deviceType" label="Device Type" [choices]="data().choices" />
                 <app-labeled-input type="decimal" formControlName="multiplier" label="multiplier" name="multiplier"  />
             </div>
           </div>

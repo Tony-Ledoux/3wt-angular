@@ -9,7 +9,8 @@ export interface ModalOptions {
   onConfirm?: () => void,
   type?: ModalType,
   icon?: ModalIcon,
-  confirmText?: string
+  confirmText?: string,
+   onEvent?: (eventName: string, data: any) => void,
 }
 
 export interface ModalState {
@@ -23,6 +24,8 @@ export interface ModalState {
   showActionButton: boolean;
   showCancelButton: boolean;
   onConfirm?: () => void;
+  onEvent?: (eventName: string, data: any) => void;
+  data?:any;
 }
 
 @Injectable({
@@ -93,6 +96,16 @@ export class ModalService {
 
   setConfirmCallback(cb:()=>void){
     this.config.onConfirm = cb;
+    return this;
+  }
+
+  setEventCallback(evl:(name:string,data:any)=>void){
+    this.config.onEvent = evl;
+    return this;
+  }
+
+  setData(data:any){
+    this.state.update(p=>({...p, data: data}));
     return this;
   }
 

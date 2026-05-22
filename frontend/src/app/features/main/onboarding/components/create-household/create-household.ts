@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import { ModalService } from '@app/core/modal-service';
+import { ModalService } from '@app/core/services/modal/modal-service';
 
 import { HouseholdService } from '@app/features/main/services/household-service';
 import { LabeledInput } from '@app/shared/components/form/labeled-input/labeled-input';

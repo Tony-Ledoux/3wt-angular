@@ -1,12 +1,13 @@
-import { Component, inject, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { uniqueDeviceTypeValidator } from '../../validators/storagerule-list-validator';
 import { ApiService } from '@app/core/services/api/api-service';
 import { NotifyService } from '@app/core/services/notify/notify-service';
-import { LabeledSelectbox, SelectOptions } from '@app/shared/components/form/labled-selectbox/labeled-selectbox';
+import { LabeledSelectbox } from '@app/shared/components/form/labled-selectbox/labeled-selectbox';
 import { LabeledInput } from '@app/shared/components/form/labeled-input/labeled-input';
 import { ButtonComponent } from "@app/shared/components/button/button";
 import { HttpErrorResponse } from '@angular/common/http';
+
 
 @Component({
   selector: 'app-product-category-form',
@@ -19,8 +20,11 @@ export class ProductCategoryForm {
   apiSrv = inject(ApiService);
   notifySrc = inject(NotifyService);
 
+
+  data = input<any>();
+
   categoryAdded = output<any>();
-  deviceTypes = signal<SelectOptions[]>([]);
+
 
   //forms
   categoryForm = this.fb.group({
@@ -28,22 +32,6 @@ export class ProductCategoryForm {
     storageRules: this.fb.array([], [uniqueDeviceTypeValidator()])
   });
 
-  constructor() {
-    this.loadData();
-  }
-
-  private loadData() {
-    this.apiSrv.get<any[]>('/devicetypes').subscribe({
-      next: (data) => {
-        const options = data.map(dt => ({
-          label: dt.type,
-          value: dt.id
-        }));
-        console.log(data)
-        this.deviceTypes.set(options);
-      }
-    });
-  }
 
   // helpers for the form
   get storageRules() {

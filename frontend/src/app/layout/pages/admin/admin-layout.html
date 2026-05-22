@@ -1,19 +1,21 @@
  <div class="flex h-screen overflow-hidden bg-app-bg">
-      <!-- Sidebar -->
-      <app-admin-sidebar></app-admin-sidebar>
+  @if(isOpen()){
+    <!-- Sidebar -->
+    <app-admin-sidebar></app-admin-sidebar>
+  }
 
       <!-- Main Content -->
       <div class="flex-1 flex flex-col overflow-hidden">
         <!-- Top Header -->
         <header class="h-16 bg-app-bg border-b border-app-border flex items-center justify-between px-8">
-          <h2 class="text-lg font-semibold text-app-text-main">Beheer Console</h2>
+          <app-button variant="ghost" icon="fa fa-bars" (click)="toggleMenu()"></app-button>
           <div class="flex items-center gap-4">
             <span class="text-sm text-app-text-body italic">Welkom, Administrator</span>
           </div>
         </header>
 
         <!-- Page Content -->
-        <main class="flex-1 overflow-y-auto p-8">
+        <main class="flex-1 overflow-y-auto">
           <router-outlet></router-outlet>
         </main>
       </div>

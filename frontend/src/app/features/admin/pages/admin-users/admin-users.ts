@@ -1,6 +1,6 @@
 import { JsonPipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { ModalService } from '@app/core/modal-service';
+import { ModalService } from '@app/core/services/modal/modal-service';
 import { ApiService } from '@app/core/services/api/api-service';
 import { NotifyService } from '@app/core/services/notify/notify-service';
 import { ButtonComponent } from '@app/shared/components/button/button';

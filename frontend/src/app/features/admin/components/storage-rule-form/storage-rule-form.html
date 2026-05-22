@@ -1,0 +1,15 @@
+<h2>
+    <i class="fa fa-folder"></i>
+    {{data()?.category.categorieName}}
+</h2>
+    @for(sr of data().category.storageRules; track sr.id){
+        <i class="fa fa-file"></i>
+    {{sr.deviceType}} {{sr.multiplier}}
+    }
+    <form (ngSubmit)="onSubmit()">
+        <app-labeled-selectbox label="device Type" name="deviceType" [choices]="data().options" [(ngModel)]="rule().deviceType" />
+        <app-labeled-input label="multiplier" name="multiplier" [(ngModel)]="rule().multiplier" />
+        <app-button type="submit">Aanmaken</app-button>
+    </form>
+
+    {{data()|json}}

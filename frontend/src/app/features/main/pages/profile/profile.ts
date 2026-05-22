@@ -4,7 +4,7 @@ import { HouseholdService } from '../../services/household-service';
 
 import { DatabaseSettings } from '@app/core/services/config/database-settings';
 import { ButtonComponent } from '@app/shared/components/button/button';
-import { ModalService } from '@app/core/modal-service';
+import { ModalService } from '@app/core/services/modal/modal-service';
 import { HouseholdManagementCard } from '../../components/household-management-card/household-management-card';
 
 import { PageHeader } from "../../../../shared/components/page-header/page-header";

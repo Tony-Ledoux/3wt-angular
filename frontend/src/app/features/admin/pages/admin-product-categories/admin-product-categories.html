@@ -1,59 +1,98 @@
-<app-page-header title="Product categoriën beheren" />
-<div class="flex flex-col gap-2">
+<div class="p-6 max-w-5xl mx-auto">
+  <!-- Header Sectie: Titel en Actie op één lijn -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <app-page-header title="Product categoriën beheren" />
+    @if(categories().length > 0){
 
-  <app-accordion-item [isOpen]="true" title="huidige categorieën">
+      <app-button variant="success" icon="fa fa-plus" (click)="onClickAddCategory()">
+        Categorie Toevoegen
+      </app-button>
+    }
+  </div>
+
+  <div class="flex flex-col gap-6">
     @if(categories().length == 0){
-      Er zijn geen categorieën
+      <!-- Verbeterde Empty State -->
+       <app-section-card type="dashed" class="flex flex-col items-center justify-center py-20 px-4 text-center">
+           <i class="fa fa-folder-open text-4xl text-gray-400 mb-3"></i>
+           <p class="text-gray-500 text-lg">Er zijn nog geen categorieën aangemaakt.</p>
+           <app-button variant="primary" icon="fa fa-plus" class="mt-4" (click)="onClickAddCategory()">
+             Voeg je eerste categorie toe
+            </app-button>
+
+        </app-section-card>
     } @else {
-      <div class="flex flex-col gap-2">
+      <div class="grid grid-cols-1 gap-6">
         
         @for(cat of categories(); track cat.id){
-          <div>
+          <!-- Categorie Card -->
+          <div class="overflow-hidden border border-app-border-dark rounded-2xl shadow-sm transition-all hover:shadow-md bg-white">
             
-            <div class="flex justify-between items-center bg-app-text-light rounded-t-xl px-2">
-              <span class="text-xl font-bold">
-                {{cat.categorieName}} 
-              </span>
-              <app-button variant="danger" icon="fa fa-trash" size="xs" (click)="CategoryDeleteClick(cat.id)" ></app-button> 
+            <!-- Card Header: Categorie Naam -->
+            <div class="flex justify-between items-center bg-app-text-light px-4 py-3 border-b border-app-border-dark">
+              <div class="flex items-center gap-3">
+                <i class="fa fa-folder text-brand-primary"></i>
+                <span class="text-lg font-semibold text-gray-800">
+                  {{cat.categorieName}} 
+                </span>
+              </div>
+              <app-button variant="danger" icon="fa fa-trash" size="xs" (click)="CategoryDeleteClick(cat.id)" title="Categorie verwijderen"></app-button> 
             </div>
-            <div class="flex w-full justify-between items-center px-10 bg-app-border-dark">
+
+            <!-- Card Body: Storage Rules -->
+            <div class="p-4 bg-white">
+              <div class="flex items-center justify-between mb-3 px-1">
+                <h4 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Bewaar Regels</h4>
+                @if(cat.storageRules.length > 0 && cat.storageRules.length !== deviceTypes().length){
+                    <app-button icon="fa fa-plus" size="xs" (click)="RuleAddClick(cat.id)" variant="primary"></app-button>
+                }
+              </div>
 
               @if(cat.storageRules.length == 0){
-                Er zijn geen bewaar regels <app-button icon="fa fa-plus" size="xs" (click)="RuleAddClick(cat.id)"></app-button>
-              }@else {
-                @for(r of cat.storageRules; track r.id){
-                  <span>{{r.deviceType}}</span>
-                  <span>{{r.multiplier}}</span>
-                    <app-button variant="danger" icon="fa fa-trash" size="xs" (click)="RuleDeleteClick(r.id)" ></app-button>
-                }
+                <!-- Rule Empty State -->
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 text-gray-400 text-sm">
+                  <span>Geen bewaar regels gedefinieerd voor deze categorie.</span>
+                  <app-button icon="fa fa-plus" size="xs" (click)="RuleAddClick(cat.id)"></app-button>
+                </div>
+              } @else {
+                <!-- Rules List -->
+                <div class="grid grid-cols-1 gap-2">
+                  @for(r of cat.storageRules; track r.id){
+                    <div class="flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-gray-50/50 hover:bg-gray-100 transition-colors group">
+                      <div class="flex items-center gap-6">
+                        <div class="flex items-center gap-2">
+                          <span class="text-sm font-medium text-gray-700">{{r.deviceType}}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <span class="text-xs font-bold text-gray-400 w-20 uppercase">Multiplier</span>
+                          <span class="text-sm font-medium text-gray-700">{{r.multiplier}}</span>
+                        </div>
+                      </div>
+                      <app-button variant="danger" icon="fa fa-trash" size="xs" (click)="RuleDeleteClick(r.id)"></app-button>
+                    </div>
+                  }
+                </div>
               }
             </div>
           </div>
         }
       </div>
     }
-    
-    
-    <!-- Debug Section -->
-    <div class="mt-12">
-      <h3 class="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">
-        <span class="w-2 h-6 bg-indigo-500 rounded-full"></span>
-        Huidige Categorieën (Debug)
-      </h3>
-      <pre class="bg-gray-900 text-green-400 p-4 rounded-xl overflow-auto text-xs font-mono shadow-inner border border-gray-800">
-        {{ categories() | json }}
-      </pre>
+
+    <!-- Debug Section: Discreet en strak -->
+    <div class="mt-16 pt-8 border-t border-gray-200">
+      <details class="group">
+        <summary class="flex items-center gap-2 text-sm font-medium text-gray-400 cursor-pointer hover:text-gray-600 transition-colors list-none">
+          <span class="w-2 h-2 bg-gray-300 rounded-full group-open:bg-green-500 transition-colors"></span>
+          Technische data (Debug)
+          <i class="fa fa-chevron-down ml-1 text-xs group-open:rotate-180 transition-transform"></i>
+        </summary>
+        <div class="mt-4">
+          <pre class="bg-gray-900 text-green-400 p-4 rounded-xl overflow-auto text-xs font-mono shadow-inner border border-gray-800 leading-relaxed">
+            {{ categories() | json }}
+          </pre>
+        </div>
+      </details>
     </div>
-    
-  </app-accordion-item>
-  <app-accordion-item title="Toevoegen">
-    <app-product-category-form (categoryAdded)="onCategoryAdded($event)" />
-  </app-accordion-item>
+  </div>
 </div>
-  
-  
-  
-  
-  
-  
-  

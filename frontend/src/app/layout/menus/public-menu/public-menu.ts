@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { ModalService } from '@app/core/modal-service';
+import { ModalService } from '@app/core/services/modal/modal-service';
 import { UserService } from '@app/core/services/user/user';
 import { ButtonComponent } from '@app/shared/components/button/button';
 

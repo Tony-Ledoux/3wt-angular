@@ -1,8 +1,9 @@
-import { Component, computed, effect, inject, input } from '@angular/core';
+import { Component, ComponentRef, computed, effect, EventEmitter, inject, input, viewChild, ViewChild, ViewContainerRef } from '@angular/core';
 
 import { ButtonComponent } from '@app/shared/components/button/button';
 import { CommonModule } from '@angular/common';
-import { ModalIcon, ModalService } from '@app/core/modal-service';
+import { ModalIcon, ModalService } from '@app/core/services/modal/modal-service';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -13,7 +14,9 @@ import { ModalIcon, ModalService } from '@app/core/modal-service';
 })
 export class Modal {
   protected modalService = inject(ModalService);
-
+  private contentContainer = viewChild('modalContent', { read: ViewContainerRef });
+  private componentRef:ComponentRef<any> | null = null;
+  private eventSubscriptions = new Subscription();
   protected componentContent = computed(() => {
     const content = this.modalService.state().content;
     return typeof content !== 'string' ? content : null;
@@ -65,6 +68,18 @@ export class Modal {
   }
 
   constructor() {
+    // Effect om de component dynamisch aan te maken/verwijderen
+    effect(() => {
+      const state = this.modalService.state();
+      const content = state.content;
+      const container = this.contentContainer();
+      if(state.isOpen && typeof content !== 'string' && container){
+        this.loadComponent(content, container);
+      }else if(!state.isOpen){
+        this.destroyComponent();
+      }
+    });
+
     effect(() => {
       if (this.modalService.state().isOpen) {
         // Zet scrollen uit op de body
@@ -74,6 +89,39 @@ export class Modal {
         document.body.style.overflow = 'auto';
       }
     });
+  }
+
+  private loadComponent(componentType: any, container: ViewContainerRef) {
+    this.destroyComponent(); // Opruimen voor we een nieuwe laden
+    container.clear();
+    this.componentRef = container.createComponent(componentType);
+    const instance = this.componentRef.instance;
+
+    const state = this.modalService.state();
+    if(state.data){
+      this.componentRef.setInput('data', state.data);
+    }
+    if (state.onEvent) {
+      Object.keys(instance).forEach(key => {
+        const property = instance[key];
+        // Check of de property bestaat en een subscribe methode heeft (werkt voor EventEmitter en OutputEmitterRef)
+        if (property && typeof property.subscribe === 'function') {
+          const sub = property.subscribe((data: any) => {
+            state.onEvent!(key, data);
+          });
+          this.eventSubscriptions.add(sub);
+        }
+      });
+    }
+  }
+
+  private destroyComponent() {
+    this.eventSubscriptions.unsubscribe();
+    this.eventSubscriptions = new Subscription();
+    if (this.componentRef) {
+      this.componentRef.destroy();
+      this.componentRef = null;
+    }
   }
 
   handleBackdropClick() {

@@ -10,7 +10,7 @@ import { Checkbox } from '@app/shared/components/form/checkbox/checkbox';
 import { LabeledInput } from "@app/shared/components/form/labeled-input/labeled-input";
 import { ButtonComponent } from "@app/shared/components/button/button";
 import { JsonPipe } from '@angular/common';
-import { ModalService } from '@app/core/modal-service';
+import { ModalService } from '@app/core/services/modal/modal-service';
 import { NotifyService } from '@app/core/services/notify/notify-service';
 import { Router } from '@angular/router';
 import { PageHeader } from "../../../../shared/components/page-header/page-header";

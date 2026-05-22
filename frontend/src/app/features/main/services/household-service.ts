@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { ModalService } from '@app/core/modal-service';
+import { ModalService } from '@app/core/services/modal/modal-service';
 import { ApiService } from '@app/core/services/api/api-service';
 import { DatabaseSettings } from '@app/core/services/config/database-settings';
 import { NotifyService } from '@app/core/services/notify/notify-service';
