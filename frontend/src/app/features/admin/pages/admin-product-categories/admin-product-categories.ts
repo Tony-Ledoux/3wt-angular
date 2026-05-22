@@ -11,6 +11,9 @@ import { SectionCard } from "@app/shared/components/section-card/section-card";
 
 import { ProductCategory } from '@app/core/types/productCategories';
 import { StorageRuleForm } from '../../components/storage-rule-form/storage-rule-form';
+import { FullScreenLoadSpinner } from '@app/layout/shared/full-screen-load-spinner/full-screen-load-spinner';
+import { FullscreenSpinnerService } from '@app/core/services/spinner/fullscreen-spinner-service';
+import { delay, finalize } from 'rxjs';
 @Component({
   selector: 'app-admin-product-categories',
   imports: [JsonPipe, PageHeader, ButtonComponent, SectionCard],
@@ -21,7 +24,9 @@ export class AdminProductCategories {
   apiSrv = inject(ApiService);
   notifySrc = inject(NotifyService);
   modalSrv = inject(ModalService)
+  spinner = inject(FullscreenSpinnerService);
   categories = signal<ProductCategory[]>([]);
+
   deviceTypes = signal<any[]>([]);
 
 
@@ -80,16 +85,26 @@ this.apiSrv.get<any[]>('/devicetypes').subscribe({
     .setIcon("fa fa-file-circle-xmark")
     .setConfirmCallback(()=>{
       console.log(categorie,rule)
-      //TODO send api call
-      this.categories.update( cat => 
-        cat.map(cat => ({
-          ...cat,
-          storageRules: cat.storageRules.filter(rule=>rule.id !== id)
-        }))
-      );
+      this.spinner.show()
+      this.apiSrv.delete(`/admin/storage-rule/${id}`).pipe(delay(2000),finalize(()=>this.spinner.hide())).subscribe({
+        complete: ()=>{
+          // only runs if request is successful!
+          this.notifySrc.success(`regel ${rule?.deviceType} is verwijderd uit categorie ${categorie?.categorieName}`);
+        },
+        next:()=>{
+          this.categories.update( cat => 
+            cat.map(cat => ({
+              ...cat,
+              storageRules: cat.storageRules.filter(rule=>rule.id !== id)
+            }))
+          );
+        },
+        error:(err)=>{
+this.notifySrc.error(`regel ${rule?.deviceType} kan niet verwijderd worden uit categorie ${categorie?.categorieName}`);
+        }
+      });
     })
     .show()
-
   }
 
   RuleAddClick(categoryId:number){
@@ -97,6 +112,7 @@ this.apiSrv.get<any[]>('/devicetypes').subscribe({
     const existingTypes = category?.storageRules.map(x=>x.deviceType) ?? [];
     const missing = this.deviceTypes().filter(x=> !existingTypes.includes(x.type));
     const missingOptions = missing.map(x=>({value:x.id, label:x.type}));
+    
     this.modalSrv.open('Regel toevoegen',StorageRuleForm)
     .setData({
       options:missingOptions,
@@ -105,6 +121,15 @@ this.apiSrv.get<any[]>('/devicetypes').subscribe({
     .setEventCallback((name,data)=>{
       if(name ==='ruleAdded'){
         console.log(data);
+        //TODO API CALL in storageRule form
+        this.categories.update(p=>{
+          return p.map(x=>{
+            if(x.id == category?.id){
+              return {...x, storageRules: [...x.storageRules, data]}
+            }
+            return x;
+          })
+        })
       }
     })
     .setShowActionButton(false)
@@ -118,9 +143,16 @@ this.apiSrv.get<any[]>('/devicetypes').subscribe({
     .setType('danger')
     .setIcon('fa fa-folder-minus')
     .setConfirmCallback(()=>{
-      console.log("confirmed removal of:", categorie);
-      //TODO send api call
-      this.categories.update((p) =>p.filter(x=>x.id !== id));
+      this.spinner.show()
+      this.apiSrv.delete(`/admin/product-categories/${id}`).pipe(delay(2000), finalize(()=>this.spinner.hide())).subscribe({
+        next: ()=>{
+          this.categories.update((p) =>p.filter(x=>x.id !== id));
+        },
+        error:(err)=>{
+          this.notifySrc.error(`kon categorie ${categorie?.categorieName} niet verwijderen`)
+        },
+        complete: ()=> this.notifySrc.success(`categorie: ${categorie?.categorieName} is verwijderd`)
+      })
     })
     .show()
     console.log(id)

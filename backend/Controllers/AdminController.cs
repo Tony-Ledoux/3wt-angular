@@ -1,10 +1,9 @@
+using backend.Entities;
 using backend.Models;
 using backend.Models.Create;
 using backend.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Query.Expressions.Internal;
 
 namespace backend.Controllers
 {
@@ -56,6 +55,32 @@ namespace backend.Controllers
             if(success.Success) return Ok(success.Data);
             if(success.IsConflict) return Conflict(success.ErrorMessage);
             return BadRequest(success.ErrorMessage);
+        }
+        [HttpDelete("product-categories/{id:int}")]
+        public async Task<IActionResult> DeleteProductCategoryWithAllStorageRules(int id)
+        {
+            var result = await _i_srv.DeleteCategoryWithRules(id);
+            if(result.Success) return NoContent();
+            if(result.IsNotFound) return NotFound(result.ErrorMessage);
+            return BadRequest();
+        }
+
+        [HttpDelete("storage-rule/{id:int}")]
+        public async Task<IActionResult> DeleteStorageRule(int id)
+        {
+            var result = await _i_srv.DeleteStorageRuleAsync(id);
+            if(result.Success) return NoContent();
+            if(result.IsNotFound) return NotFound(result.ErrorMessage);
+            return BadRequest();
+        }
+
+        [HttpPost("storage-rule/{categotyId:int}")]
+        public async Task<ActionResult<StorageRuleDto>> AddNewStorageRuleToCategory(int categotyId, StorageRuleCreationDto input)
+        {
+            var result = await _i_srv.CreateNewStorageRuleinCategoryIdAsync(categotyId,input);
+            if(result.Success) return Ok(result.Data);
+            if(result.IsConflict) return Conflict(result.ErrorMessage);
+            return BadRequest(result.ErrorMessage);
         }
     }
 }

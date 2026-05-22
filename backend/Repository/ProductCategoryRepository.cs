@@ -9,6 +9,7 @@ public interface IProductCategoryRepository: IGeneric<ProductCategory>
 {
     Task<IEnumerable<ProductCategory>> GetAllWithStorageRulesAsync();
     Task<bool> ProductCategoryExistsAsync(string name);
+    Task<ProductCategory?> GetProductCategoryWithRulesByIdAsync(int id);
 }
 
 public class ProductCategoryRepository(KitchenDbContext db) : Generic<ProductCategory>(db), IProductCategoryRepository
@@ -18,6 +19,14 @@ public class ProductCategoryRepository(KitchenDbContext db) : Generic<ProductCat
     public async Task<IEnumerable<ProductCategory>> GetAllWithStorageRulesAsync()
     {
         return await _dbSet.Include(x=>x.StorageRules).ThenInclude(y=>y.DeviceType).ToListAsync();
+    }
+
+    public async Task<ProductCategory?> GetProductCategoryWithRulesByIdAsync(int id)
+    {
+        return  await _dbSet
+        .Include(x=>x.StorageRules)
+        .ThenInclude(y=>y.DeviceType)
+        .FirstOrDefaultAsync(x=>x.Id == id);
     }
 
     public async Task<bool> ProductCategoryExistsAsync(string name)

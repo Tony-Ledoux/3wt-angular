@@ -18,10 +18,11 @@ public interface IInventoryService
     // ProductCategories and storageRules
     Task<IEnumerable<ProductCategoryDto>> GetAllProductCategorieWithStorageRulessAsync();
     Task<RequestResponse<ProductCategoryDto>> CreateNewProductCategoryAsync(CategoryCreationDto input);
-    
+    Task<RequestResponse<bool>> DeleteCategoryWithRules(int id);
+    Task<RequestResponse<bool>> DeleteStorageRuleAsync(int id);
+    Task<RequestResponse<StorageRuleDto>> CreateNewStorageRuleinCategoryIdAsync(int categotyId, StorageRuleCreationDto input);
     // StorageLocations
     Task<IEnumerable<StorageLocation>> GetStoragelocationsOfHouseholdsAsync(int householdId);
-
     // Products
 
 
@@ -35,7 +36,8 @@ public class InventoryService(
     IStoragelocationRepository stg,
     IMapper<DeviceType, DeviceTypeDto> devmap,
     IGeneric<StorageRule> srr,
-    IMapper<ProductCategory, ProductCategoryDto> mapper_pc
+    IMapper<ProductCategory, ProductCategoryDto> mapper_pc,
+    IMapper<StorageRule,StorageRuleDto> mapper_storageRule
     ) : IInventoryService
 {
     private readonly IGeneric<DeviceType> devicetypeRepo = dev;
@@ -44,7 +46,7 @@ public class InventoryService(
     private readonly IStoragelocationRepository storagelocation = stg;
     private readonly IMapper<DeviceType, DeviceTypeDto> _deviceMapper = devmap;
     private readonly IMapper<ProductCategory, ProductCategoryDto> _Map_product = mapper_pc;
-
+    private readonly IMapper<StorageRule,StorageRuleDto> _map_storageRule = mapper_storageRule;
     public async Task<RequestResponse<ProductCategoryDto>> CreateNewProductCategoryAsync(CategoryCreationDto input)
     {
         var exists = await _catProdRepo.ProductCategoryExistsAsync(input.CategorieName);
@@ -89,5 +91,52 @@ public class InventoryService(
     public async Task<IEnumerable<StorageLocation>> GetStoragelocationsOfHouseholdsAsync(int householdId)
     {
         return await storagelocation.GetStorageLocationsByHouseholdIdAsync(householdId);
+    }
+
+    public async Task<RequestResponse<bool>> DeleteCategoryWithRules(int id)
+    {
+        // 1. get the category with rules
+        var cat = await _catProdRepo.GetProductCategoryWithRulesByIdAsync(id);
+        if(cat == null) return new RequestResponse<bool>().SetIsNotFound().Failure("categorie niet gevonden");
+        // 2. delete each rule
+        foreach (var rule in cat.StorageRules)
+        {
+            storageRuleRepo.Delete(rule);
+        }
+        // 3. delete the category
+        _catProdRepo.Delete(cat);
+        var success = await _catProdRepo.SaveChangesAsync();
+        if(success) return new RequestResponse<bool>().Ok(true);
+        return new RequestResponse<bool>().Failure("er liep iets fout");
+    }
+
+    public async Task<RequestResponse<bool>> DeleteStorageRuleAsync(int id)
+    {
+        //1. get the storageRule
+        var rule = await storageRuleRepo.GetByIdAsync(id);
+        if(rule == null) return new RequestResponse<bool>().SetIsNotFound().Failure("regel niet gevonden");
+        //2. delete the storageRule
+        storageRuleRepo.Delete(rule);
+        var result = await storageRuleRepo.SaveChangesAsync();
+        if(!result) return new RequestResponse<bool>().Failure("er gebeurde een fout");
+        return new RequestResponse<bool>().Ok(true);
+    }
+
+    public async Task<RequestResponse<StorageRuleDto>> CreateNewStorageRuleinCategoryIdAsync(int categotyId, StorageRuleCreationDto input)
+    {
+        //1.get the category
+        var cat = await _catProdRepo.GetProductCategoryWithRulesByIdAsync(categotyId);
+        if(cat == null) return new RequestResponse<StorageRuleDto>().SetIsNotFound().Failure("categorie niet gevonden");
+        //2. check if deviceType already exists within cat.storageRules.deviceTypeId
+        if(cat.StorageRules.Any(x=>x.DeviceTypeId == input.DeviceType)) return new RequestResponse<StorageRuleDto>().SetIsConflict().Failure("Regel bestaat al");
+        //create the new rule
+        var rule = storageRuleRepo.GetNewEmptyInstance();
+        rule.DeviceTypeId = input.DeviceType;
+        rule.ProductCategoryId = categotyId;
+        rule.Multiplier = input.Multiplier;
+        await storageRuleRepo.AddAsync(rule);
+        var success = await storageRuleRepo.SaveChangesAsync();
+        if(!success) return new RequestResponse<StorageRuleDto>().Failure("niet opgeslagen");
+        return new RequestResponse<StorageRuleDto>().Ok(_map_storageRule.Map(rule));
     }
 }
