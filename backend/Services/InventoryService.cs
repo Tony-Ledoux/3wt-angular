@@ -24,7 +24,7 @@ public interface IInventoryService
     // StorageLocations
     Task<IEnumerable<StorageLocation>> GetStoragelocationsOfHouseholdsAsync(int householdId);
     // Products
-
+    Task<PagedResult<ProductDto>> GetPagedProductsAsync(int page, int pageSize, bool? isGlobal, int? categoryId);
 
     // Inventory
 
@@ -33,6 +33,7 @@ public interface IInventoryService
 public class InventoryService(
     IGeneric<DeviceType> dev,
     IProductCategoryRepository prodcatrepo,
+    IProductRespository product_repo,
     IStoragelocationRepository stg,
     IMapper<DeviceType, DeviceTypeDto> devmap,
     IGeneric<StorageRule> srr,
@@ -43,6 +44,7 @@ public class InventoryService(
     private readonly IGeneric<DeviceType> devicetypeRepo = dev;
     private readonly IGeneric<StorageRule> storageRuleRepo = srr;
     private readonly IProductCategoryRepository _catProdRepo = prodcatrepo;
+    private readonly IProductRespository _prodRepo = product_repo;
     private readonly IStoragelocationRepository storagelocation = stg;
     private readonly IMapper<DeviceType, DeviceTypeDto> _deviceMapper = devmap;
     private readonly IMapper<ProductCategory, ProductCategoryDto> _Map_product = mapper_pc;
@@ -142,5 +144,28 @@ public class InventoryService(
         var success = await storageRuleRepo.SaveChangesAsync();
         if(!success) return new RequestResponse<StorageRuleDto>().Failure("niet opgeslagen");
         return new RequestResponse<StorageRuleDto>().Ok(_map_storageRule.Map(rule));
+    }
+    // products
+    public async Task<PagedResult<ProductDto>> GetPagedProductsAsync(int page, int pageSize, bool? isGlobal, int? categoryId)
+    {
+        var (products, totalCount) = await _prodRepo.GetPagedProducsAsync(page,pageSize,isGlobal,categoryId);
+        var dtos = products.Select(p=>new ProductDto
+        {
+            Id = p.Id,
+            ProductName = p.ProductName,
+            DefaultUnit = p.DefaultUnit,
+            ShelfLifeClosedDays = p.ShelfLifeClosedDays,
+            ShelfLifeOpenedDays = p.ShelfLifeOpenedDays,
+            IsGlobal = p.IsGlobal,
+            HouseholdId = p.HouseholdId,
+            CategoryIds = [.. p.ProductCategories.Select(c=>c.Id)]
+        });
+        return new PagedResult<ProductDto>
+        {
+            Items=dtos,
+            TotalCount = totalCount,
+            PageNumber = page,
+            PageSize = pageSize
+        };
     }
 }

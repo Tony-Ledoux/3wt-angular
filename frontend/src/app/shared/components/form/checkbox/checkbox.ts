@@ -1,5 +1,9 @@
-import { Component, computed, forwardRef, input, signal } from '@angular/core';
+import { Component, computed, effect, ElementRef, forwardRef, input, output, signal, viewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+export interface CheckboxChanged {
+  checked: boolean|null;
+  name: string | undefined;
+}
 
 @Component({
   selector: 'app-checkbox',
@@ -8,28 +12,53 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   styleUrl: './checkbox.css',
   providers: [
     {
-      provide:NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(()=>Checkbox),
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => Checkbox),
       multi: true,
     }
   ]
 })
 export class Checkbox implements ControlValueAccessor {
   label = input<string>();
+  name = input<string>();
+  nullable = input<boolean>(false);
+  changed = output<CheckboxChanged>();
   disabled = input<boolean>(false);
   private _formDisabled = signal(false);
-  isDisabled = computed(()=> this.disabled() || this._formDisabled());
+  isDisabled = computed(() => this.disabled() || this._formDisabled());
 
-  value = signal<boolean>(false);
+  value = signal<boolean|null>(false);
+  private inputElement = viewChild<ElementRef<HTMLInputElement>>('chekboxInput');
 
-  onChange: any = ()=>{};
-  onTouched: any = ()=>{};
+  onChange: (value: boolean|null) => void = () => { };
+  onTouched: () => void = () => { };
 
-  toggle():void {
-    if(this.isDisabled()) return;
+  constructor(){
+    effect(()=>{
+      const el = this.inputElement()?.nativeElement;
+      if(el){
+        el.indeterminate = this.value() === null;
+      }
+    })
+  }
 
-    this.value.update((v)=> !v);
-    this.onChange(this.value());
+  toggle(): void {
+    if (this.isDisabled()) return;
+    const current = this.value();
+    let newValue: boolean|null;
+    if(!this.nullable()){
+      newValue = current === null ? true: !current;
+    }else{
+      if(current === false) newValue=true;
+      else if(current == true) newValue = null;
+      else newValue = false;
+    }
+    this.value.set(newValue);
+    this.changed.emit({
+      checked: newValue,
+      name: this.name()
+    })
+    this.onChange(newValue);
     this.onTouched();
   }
 

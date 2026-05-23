@@ -86,9 +86,10 @@ namespace backend.Controllers
         //products
 
         [HttpGet("products")]
-        public async Task<IActionResult> GetAllProductsAsync()
+        public async Task<ActionResult<PagedResult<ProductDto>>> GetAllProductsAsync(int page=1, int pageSize = 10, bool? isGlobal = null, int? categoryId = null)
         {
-            return Ok("works");
+            var result = await _i_srv.GetPagedProductsAsync(page,pageSize,isGlobal,categoryId);
+            return result;
         }
     }
 }

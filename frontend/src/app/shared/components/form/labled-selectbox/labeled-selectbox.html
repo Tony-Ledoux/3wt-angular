@@ -18,7 +18,7 @@
                    focus:bg-app-card focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary focus:outline-none
                    disabled:bg-app-border disabled:text-app-text-light disabled:cursor-not-allowed"
         >
-            <option value="" disabled>Kies een optie ...</option>
+            <option value="" selected>Kies een optie ...</option>
             @for (option of choices(); track option.value){
                 <!-- slate-800 -> app-text-main -->
                 <option [value]="option.value" class="text-app-text-main">{{option.label}}</option>

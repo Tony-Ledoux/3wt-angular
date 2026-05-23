@@ -1,3 +1,21 @@
 <div class="p-6 max-w-5xl mx-auto">
-    product
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <app-page-header title="Producten beheren" />
+    </div>
+    <!-- Action Bar (Filters and new) -->
+    <app-section-card title="Filters">
+        <div class="flex items-center justify-between">
+
+            <app-labeled-selectbox label="categorie" [choices]="categorieOptions()" />
+            <app-checkbox label="Enkel Gepubliceerde" name="onlyPublished" [nullable]="true" (changed)="onFilterChange($event)" /> 
+            <app-button>Nieuw product</app-button>
+        </div>
+        
+    </app-section-card>
+    <app-section-card title="producten">
+        <app-labeled-selectbox label="aantal per pagina" [choices]="numberOfPages" />
+    </app-section-card>
+    <pre>
+        {{products()|json}}
+    </pre>
 </div>

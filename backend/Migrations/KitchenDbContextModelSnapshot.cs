@@ -52,26 +52,6 @@ namespace backend.Migrations
                         .HasName("pk_device_types");
 
                     b.ToTable("device_types", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedAt = new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc),
-                            Type = "Koelkast"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedAt = new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc),
-                            Type = "Diepvries"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedAt = new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc),
-                            Type = "Kast"
-                        });
                 });
 
             modelBuilder.Entity("backend.Entities.Household", b =>
@@ -745,40 +725,6 @@ namespace backend.Migrations
                         .HasName("pk_system_settings");
 
                     b.ToTable("system_settings", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedAt = new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "The maximum number of households a user can be part of.",
-                            Key = "MaxHouseholdsPerUser",
-                            Value = "5"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedAt = new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "The maximum number of households a user can own (this may not be higer than MaxHouseholdsPerUser)",
-                            Key = "MaxUserOwns",
-                            Value = "2"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedAt = new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "The max Lenght of a  invite code",
-                            Key = "MaxInviteCodeLenght",
-                            Value = "6"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            CreatedAt = new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "The Characters an invite code can consist of",
-                            Key = "AllowedCharsInvite",
-                            Value = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789#?!"
-                        });
                 });
 
             modelBuilder.Entity("backend.Entities.Weekmenu", b =>

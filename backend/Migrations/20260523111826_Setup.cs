@@ -4,8 +4,6 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace backend.Migrations
 {
     /// <inheritdoc />
@@ -443,27 +441,6 @@ namespace backend.Migrations
                         principalTable: "storage_locations",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.InsertData(
-                table: "device_types",
-                columns: new[] { "id", "created_at", "deleted_at", "type", "updated_at" },
-                values: new object[,]
-                {
-                    { 1, new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc), null, "Koelkast", null },
-                    { 2, new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc), null, "Diepvries", null },
-                    { 3, new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc), null, "Kast", null }
-                });
-
-            migrationBuilder.InsertData(
-                table: "system_settings",
-                columns: new[] { "id", "created_at", "deleted_at", "description", "key", "updated_at", "value" },
-                values: new object[,]
-                {
-                    { 1, new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc), null, "The maximum number of households a user can be part of.", "MaxHouseholdsPerUser", null, "5" },
-                    { 2, new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc), null, "The maximum number of households a user can own (this may not be higer than MaxHouseholdsPerUser)", "MaxUserOwns", null, "2" },
-                    { 3, new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc), null, "The max Lenght of a  invite code", "MaxInviteCodeLenght", null, "6" },
-                    { 4, new DateTime(2019, 12, 31, 23, 0, 0, 0, DateTimeKind.Utc), null, "The Characters an invite code can consist of", "AllowedCharsInvite", null, "ABCDEFGHJKLMNPQRSTUVWXYZ23456789#?!" }
                 });
 
             migrationBuilder.CreateIndex(

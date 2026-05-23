@@ -49,6 +49,7 @@ builder.Services.AddScoped<IStoragelocationRepository, StoragelocationRepository
 builder.Services.AddScoped<IHouseholdUserRepository, HouseholdUserRepository>();
 builder.Services.AddScoped<IHouseholdRepository, HouseholdRepository>();
 builder.Services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
+builder.Services.AddScoped<IProductRespository, ProductRepository>();
 
 //Mappers
 builder.Services.AddSingleton<IMapper<DeviceType,DeviceTypeDto>,DeviceTypeMapper>();
@@ -87,6 +88,24 @@ app.UseCors("AllowAngularDev");
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+// seeder
+
+using(var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<KitchenDbContext>();
+        await Seeder.SeedSystemSettings(context);
+        await Seeder.SeedDevicesAsync(context);
+        await Seeder.SeedProductCategoriesAsync(context);
+        await Seeder.SeedProductsAsync(context);
+    } catch (Exception ex)
+    {
+        Console.Write(ex.Message);
+    }
+}
 
 app.UseMiddleware<UserContextMiddleware>();
 

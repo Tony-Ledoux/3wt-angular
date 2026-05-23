@@ -5,26 +5,29 @@
   [class.cursor-pointer]="!isDisabled()">
   
   <div class="relative inline-flex items-center">
-    <!-- Native checkbox: de bron van de waarheid -->
+    <!-- Native checkbox voor accessibility en form integration -->
     <input 
+      #checkboxInput
       type="checkbox" 
-      [checked]="value()" 
+      [checked]="value() === true" 
       [disabled]="isDisabled()"
-      class="sr-only peer" 
+      class="sr-only" 
       (change)="toggle()"
     />
     
     <!-- Visuele Track -->
-    <!-- bg-gray-200 -> bg-app-border | bg-blue-400 -> bg-brand-primary -->
-    <div class="w-11 h-6 bg-app-border rounded-full peer 
-    peer-checked:bg-brand-primary 
-    transition-colors duration-200 ease-in-out">
+    <div class="w-11 h-6 rounded-full transition-colors duration-200 ease-in-out"
+      [class.bg-app-border]="value() === false"
+      [class.bg-brand-primary]="value() === true"
+      [class.bg-gray-400]="value() === null">
     </div>
     
     <!-- Visuele Dot -->
-    <div class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full 
-    transition-transform duration-200 ease-in-out 
-    peer-checked:translate-x-5 shadow-sm">
+    <div class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm
+    transition-transform duration-200 ease-in-out"
+      [class.translate-x-0]="value() === false"
+      [class.translate-x-5]="value() === true"
+      [class.translate-x-2]="value() === null">
     </div>
   </div>
 
