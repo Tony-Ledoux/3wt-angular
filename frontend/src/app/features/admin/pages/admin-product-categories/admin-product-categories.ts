@@ -16,7 +16,7 @@ import { FullscreenSpinnerService } from '@app/core/services/spinner/fullscreen-
 import { delay, finalize } from 'rxjs';
 @Component({
   selector: 'app-admin-product-categories',
-  imports: [JsonPipe, PageHeader, ButtonComponent, SectionCard],
+  imports: [ PageHeader, ButtonComponent, SectionCard],
   templateUrl: './admin-product-categories.html',
   styleUrl: './admin-product-categories.css',
 })
@@ -114,14 +114,15 @@ this.notifySrc.error(`regel ${rule?.deviceType} kan niet verwijderd worden uit c
     const missingOptions = missing.map(x=>({value:x.id, label:x.type}));
     
     this.modalSrv.open('Regel toevoegen',StorageRuleForm)
+    .setCloseBackdropClick(false)
     .setData({
       options:missingOptions,
       category:category
     })
     .setEventCallback((name,data)=>{
+      console.log(name, data);
       if(name ==='ruleAdded'){
         console.log(data);
-        //TODO API CALL in storageRule form
         this.categories.update(p=>{
           return p.map(x=>{
             if(x.id == category?.id){
@@ -130,7 +131,9 @@ this.notifySrc.error(`regel ${rule?.deviceType} kan niet verwijderd worden uit c
             return x;
           })
         })
+        this.notifySrc.success(`${data.deviceType} toegevoegd aan ${category?.categorieName}`)
       }
+      this.modalSrv.close();
     })
     .setShowActionButton(false)
     .show();

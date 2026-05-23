@@ -129,12 +129,16 @@ public class InventoryService(
         if(cat == null) return new RequestResponse<StorageRuleDto>().SetIsNotFound().Failure("categorie niet gevonden");
         //2. check if deviceType already exists within cat.storageRules.deviceTypeId
         if(cat.StorageRules.Any(x=>x.DeviceTypeId == input.DeviceType)) return new RequestResponse<StorageRuleDto>().SetIsConflict().Failure("Regel bestaat al");
+        //get the device navigation property
+        var dev = await devicetypeRepo.GetByIdAsync(input.DeviceType);
+        if(dev == null) return new RequestResponse<StorageRuleDto>().Failure("Type niet gevonden");
         //create the new rule
         var rule = storageRuleRepo.GetNewEmptyInstance();
         rule.DeviceTypeId = input.DeviceType;
         rule.ProductCategoryId = categotyId;
         rule.Multiplier = input.Multiplier;
         await storageRuleRepo.AddAsync(rule);
+        rule.DeviceType = dev;
         var success = await storageRuleRepo.SaveChangesAsync();
         if(!success) return new RequestResponse<StorageRuleDto>().Failure("niet opgeslagen");
         return new RequestResponse<StorageRuleDto>().Ok(_map_storageRule.Map(rule));

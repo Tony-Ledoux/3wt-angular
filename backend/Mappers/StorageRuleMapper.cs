@@ -12,7 +12,7 @@ public class StorageRuleMapper : BaseMapper<StorageRule, StorageRuleDto>
         return new StorageRuleDto
         {
             Id = entity.Id,
-            DeviceType = entity.DeviceType.Type ?? "onbekend",
+            DeviceType = entity.DeviceType?.Type ?? "onbekend",
             Multiplier = entity.Multiplier
         };
     }

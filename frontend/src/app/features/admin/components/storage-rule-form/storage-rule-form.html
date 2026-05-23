@@ -1,13 +1,29 @@
-<h2>
-    <i class="fa fa-folder"></i>
-    {{data()?.category?.categorieName}}
-</h2>
-    @for(sr of data()?.category?.storageRules; track sr.id){
-        <i class="fa fa-file"></i>
-    {{sr.deviceType}} {{sr.multiplier}}
-    }
-    <form (ngSubmit)="onSubmit()">
-        <app-labeled-selectbox label="device Type" name="deviceType" [choices]="data()?.options ??[]" [(ngModel)]="rule().deviceType" />
-        <app-labeled-input label="multiplier" name="multiplier" [(ngModel)]="rule().multiplier" />
-        <app-button type="submit">Aanmaken</app-button>
-    </form>
+<div>
+    <h2 class="bg-app-text-light rounded-t-2xl flex justify-start items-center px-3 gap-3">
+        <i class="fa fa-folder text-brand-primary"></i>
+        {{data()?.category?.categorieName}}
+    </h2>
+        @for(sr of data()?.category?.storageRules; track sr.id){
+            <div class="flex text-app-text-main px-6 py-1 gap-3 border-x-2 border-app-text-light">
+                <i class="fa fa-file text-brand-primary"></i>
+                {{sr.deviceType}} X {{sr.multiplier}}
+            </div>
+        } @empty {
+            <div class="flex text-app-text-main px-6 py-1 gap-3 border-x-2 border-app-text-light items-center">
+                <i class="fa fa-file-circle-question text-brand-primary"></i>
+                Er zijn nog geen regels voor deze categorie.
+            </div>
+        }
+    
+    <div class="flex-1 border-x-2 border-b-2 border-app-text-light p-2 bg-app-text-light/25">
+        <form #addForm="ngForm" (ngSubmit)="onSubmit()">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <app-labeled-selectbox label="device Type" name="deviceType" [choices]="data()?.options ??[]" [(ngModel)]="rule.deviceType" required />
+                <app-labeled-input type="decimal" label="multiplier" name="multiplier" [(ngModel)]="rule.multiplier" required />
+            </div>
+            <div class="flex justify-end mt-2">
+                <app-button type="submit" [disabled]="!addForm.valid">Aanmaken</app-button>
+            </div>
+        </form>
+    </div>
+</div>

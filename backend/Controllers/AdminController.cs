@@ -82,5 +82,13 @@ namespace backend.Controllers
             if(result.IsConflict) return Conflict(result.ErrorMessage);
             return BadRequest(result.ErrorMessage);
         }
+
+        //products
+
+        [HttpGet("products")]
+        public async Task<IActionResult> GetAllProductsAsync()
+        {
+            return Ok("works");
+        }
     }
 }
