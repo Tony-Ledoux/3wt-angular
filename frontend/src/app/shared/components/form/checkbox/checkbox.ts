@@ -27,7 +27,7 @@ export class Checkbox implements ControlValueAccessor {
   private _formDisabled = signal(false);
   isDisabled = computed(() => this.disabled() || this._formDisabled());
 
-  value = signal<boolean|null>(false);
+  value = signal<boolean|null>(null);
   private inputElement = viewChild<ElementRef<HTMLInputElement>>('chekboxInput');
 
   onChange: (value: boolean|null) => void = () => { };

@@ -44,6 +44,7 @@ public static class Seeder
             new() {Category = "Zuivel"},
             new() {Category = "Schoonmaak"},
             new() {Category = "Dranken"},
+            new() {Category = "Vlees"}
         }; 
         context.ProductCategories.AddRange(categories);
         await context.SaveChangesAsync();
@@ -52,12 +53,21 @@ public static class Seeder
     public static async Task SeedProductsAsync(KitchenDbContext context)
     {
         if(await context.Products.AnyAsync()) return;
+        var categories = await context.ProductCategories.ToListAsync();
+        // 2. Helper functie die alleen een categorie teruggeeft als deze echt bestaat
+        // We gebruiken een List om de koppelingen veilig op te bouwen
+        List<ProductCategory> GetCategories(params string[] names)
+        {
+            return categories
+                .Where(c => names.Contains(c.Category))
+                .ToList();
+        }
         var products = new List<Product>
         {
-            new(){ProductName="Melk", IsGlobal=true},
-            new(){ProductName="Eieren", IsGlobal=true},
-            new(){ProductName="Allesreiniger", IsGlobal=false},
-            new(){ProductName="Gehakt", IsGlobal=true},
+            new(){ProductName="Melk", IsGlobal=true, ProductCategories=GetCategories("Zuivel")},
+            new(){ProductName="Eieren", IsGlobal=true, ProductCategories=GetCategories("Zuivel")},
+            new(){ProductName="Allesreiniger", IsGlobal=false, ProductCategories=GetCategories("Schoonmaak")},
+            new(){ProductName="Gehakt", IsGlobal=true, ProductCategories=GetCategories("Vlees")},
         };
         context.Products.AddRange(products);
         await context.SaveChangesAsync();

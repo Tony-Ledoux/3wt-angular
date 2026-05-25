@@ -1,11 +1,14 @@
 
-using System.Diagnostics;
+using System.Collections.ObjectModel;
+using backend.Contexts;
 using backend.Entities;
 
 using backend.Mappers;
 using backend.Models;
 using backend.Models.Create;
 using backend.Repository;
+using Microsoft.EntityFrameworkCore;
+
 
 
 namespace backend.Services;
@@ -25,12 +28,16 @@ public interface IInventoryService
     Task<IEnumerable<StorageLocation>> GetStoragelocationsOfHouseholdsAsync(int householdId);
     // Products
     Task<PagedResult<ProductDto>> GetPagedProductsAsync(int page, int pageSize, bool? isGlobal, int? categoryId);
-
+    Task<Product?> CreateNewProductAsync(ProductCreationDto input);
+    Task<bool> AddCategoryToProduct(int pid, int cid, bool isAdmin);
+    Task<bool> RemoveCategoryFromProductAsync(int pid,int cid, bool isAdmin);
+    Task <bool> RemoveProduct(int pid, bool isAdmin);
     // Inventory
 
 }
 
 public class InventoryService(
+    KitchenDbContext dbcontext,
     IGeneric<DeviceType> dev,
     IProductCategoryRepository prodcatrepo,
     IProductRespository product_repo,
@@ -38,9 +45,12 @@ public class InventoryService(
     IMapper<DeviceType, DeviceTypeDto> devmap,
     IGeneric<StorageRule> srr,
     IMapper<ProductCategory, ProductCategoryDto> mapper_pc,
-    IMapper<StorageRule,StorageRuleDto> mapper_storageRule
+    IMapper<StorageRule, StorageRuleDto> mapper_storageRule,
+    IHouseholdRepository householdRepo
     ) : IInventoryService
 {
+    private readonly KitchenDbContext _dbContext = dbcontext;
+    private readonly IHouseholdRepository _hh_repo = householdRepo;
     private readonly IGeneric<DeviceType> devicetypeRepo = dev;
     private readonly IGeneric<StorageRule> storageRuleRepo = srr;
     private readonly IProductCategoryRepository _catProdRepo = prodcatrepo;
@@ -48,11 +58,11 @@ public class InventoryService(
     private readonly IStoragelocationRepository storagelocation = stg;
     private readonly IMapper<DeviceType, DeviceTypeDto> _deviceMapper = devmap;
     private readonly IMapper<ProductCategory, ProductCategoryDto> _Map_product = mapper_pc;
-    private readonly IMapper<StorageRule,StorageRuleDto> _map_storageRule = mapper_storageRule;
+    private readonly IMapper<StorageRule, StorageRuleDto> _map_storageRule = mapper_storageRule;
     public async Task<RequestResponse<ProductCategoryDto>> CreateNewProductCategoryAsync(CategoryCreationDto input)
     {
         var exists = await _catProdRepo.ProductCategoryExistsAsync(input.CategorieName);
-        if(exists) return new RequestResponse<ProductCategoryDto>().Failure("Deze categorie bestaat al").SetIsConflict();
+        if (exists) return new RequestResponse<ProductCategoryDto>().Failure("Deze categorie bestaat al").SetIsConflict();
 
         var devices = await devicetypeRepo.GetAllAsync(); // lookup voor diepvries, ijskast, kast
         // 1. Create a new ProductCategorie Instance and track it
@@ -70,7 +80,8 @@ public class InventoryService(
                 x.Multiplier = sr.Multiplier;
                 x.ProductCategory = cat;
                 cat.StorageRules.Add(x); // AutoTracks because cat is tracked
-            };
+            }
+            ;
         }
         // 3. Save categorie and rules
         var success = await _catProdRepo.SaveChangesAsync();
@@ -99,7 +110,7 @@ public class InventoryService(
     {
         // 1. get the category with rules
         var cat = await _catProdRepo.GetProductCategoryWithRulesByIdAsync(id);
-        if(cat == null) return new RequestResponse<bool>().SetIsNotFound().Failure("categorie niet gevonden");
+        if (cat == null) return new RequestResponse<bool>().SetIsNotFound().Failure("categorie niet gevonden");
         // 2. delete each rule
         foreach (var rule in cat.StorageRules)
         {
@@ -108,7 +119,7 @@ public class InventoryService(
         // 3. delete the category
         _catProdRepo.Delete(cat);
         var success = await _catProdRepo.SaveChangesAsync();
-        if(success) return new RequestResponse<bool>().Ok(true);
+        if (success) return new RequestResponse<bool>().Ok(true);
         return new RequestResponse<bool>().Failure("er liep iets fout");
     }
 
@@ -116,11 +127,11 @@ public class InventoryService(
     {
         //1. get the storageRule
         var rule = await storageRuleRepo.GetByIdAsync(id);
-        if(rule == null) return new RequestResponse<bool>().SetIsNotFound().Failure("regel niet gevonden");
+        if (rule == null) return new RequestResponse<bool>().SetIsNotFound().Failure("regel niet gevonden");
         //2. delete the storageRule
         storageRuleRepo.Delete(rule);
         var result = await storageRuleRepo.SaveChangesAsync();
-        if(!result) return new RequestResponse<bool>().Failure("er gebeurde een fout");
+        if (!result) return new RequestResponse<bool>().Failure("er gebeurde een fout");
         return new RequestResponse<bool>().Ok(true);
     }
 
@@ -128,12 +139,12 @@ public class InventoryService(
     {
         //1.get the category
         var cat = await _catProdRepo.GetProductCategoryWithRulesByIdAsync(categotyId);
-        if(cat == null) return new RequestResponse<StorageRuleDto>().SetIsNotFound().Failure("categorie niet gevonden");
+        if (cat == null) return new RequestResponse<StorageRuleDto>().SetIsNotFound().Failure("categorie niet gevonden");
         //2. check if deviceType already exists within cat.storageRules.deviceTypeId
-        if(cat.StorageRules.Any(x=>x.DeviceTypeId == input.DeviceType)) return new RequestResponse<StorageRuleDto>().SetIsConflict().Failure("Regel bestaat al");
+        if (cat.StorageRules.Any(x => x.DeviceTypeId == input.DeviceType)) return new RequestResponse<StorageRuleDto>().SetIsConflict().Failure("Regel bestaat al");
         //get the device navigation property
         var dev = await devicetypeRepo.GetByIdAsync(input.DeviceType);
-        if(dev == null) return new RequestResponse<StorageRuleDto>().Failure("Type niet gevonden");
+        if (dev == null) return new RequestResponse<StorageRuleDto>().Failure("Type niet gevonden");
         //create the new rule
         var rule = storageRuleRepo.GetNewEmptyInstance();
         rule.DeviceTypeId = input.DeviceType;
@@ -142,30 +153,105 @@ public class InventoryService(
         await storageRuleRepo.AddAsync(rule);
         rule.DeviceType = dev;
         var success = await storageRuleRepo.SaveChangesAsync();
-        if(!success) return new RequestResponse<StorageRuleDto>().Failure("niet opgeslagen");
+        if (!success) return new RequestResponse<StorageRuleDto>().Failure("niet opgeslagen");
         return new RequestResponse<StorageRuleDto>().Ok(_map_storageRule.Map(rule));
     }
     // products
     public async Task<PagedResult<ProductDto>> GetPagedProductsAsync(int page, int pageSize, bool? isGlobal, int? categoryId)
     {
-        var (products, totalCount) = await _prodRepo.GetPagedProducsAsync(page,pageSize,isGlobal,categoryId);
-        var dtos = products.Select(p=>new ProductDto
+        var (products, totalCount) = await _prodRepo.GetPagedProducsAsync(page, pageSize, isGlobal, categoryId);
+        var dtos = products.Select(p => new ProductDto
         {
             Id = p.Id,
             ProductName = p.ProductName,
             DefaultUnit = p.DefaultUnit,
-            ShelfLifeClosedDays = p.ShelfLifeClosedDays,
-            ShelfLifeOpenedDays = p.ShelfLifeOpenedDays,
+            ShelfLifeClosedMinutes = p.ShelfLifeClosedMinutes,
+            ShelfLifeOpenedMinutes = p.ShelfLifeOpenedMinutes,
             IsGlobal = p.IsGlobal,
             HouseholdId = p.HouseholdId,
-            CategoryIds = [.. p.ProductCategories.Select(c=>c.Id)]
+            CategoryIds = [.. p.ProductCategories.Select(c => c.Id)]
         });
         return new PagedResult<ProductDto>
         {
-            Items=dtos,
+            Items = dtos,
             TotalCount = totalCount,
             PageNumber = page,
             PageSize = pageSize
         };
+    }
+
+    public async Task<Product?> CreateNewProductAsync(ProductCreationDto input)
+    {
+        //1. get categories from the id's in input.CategoryIds
+        Collection<ProductCategory> categories = [];
+        foreach (var item in input.CategoryIds)
+        {
+            var cat = await _catProdRepo.GetByIdAsync(item);
+            if (cat != null)
+            {
+                categories.Add(cat);
+            }
+        }
+        Household? household = null;
+        if (input.HouseholdId != null)
+        {
+            var h = await _hh_repo.GetByIdAsync(input.HouseholdId ?? 0);
+            if (h != null)
+            {
+                household = h;
+            }
+        }
+        //2. create a new product
+        Product prod = new()
+        {
+            ProductName = input.ProductName,
+            DefaultUnit = input.DefaultUnit,
+            ShelfLifeClosedMinutes = input.ShelfLifeClosedMinutes,
+            ShelfLifeOpenedMinutes = input.ShelfLifeOpenedMinutes,
+            IsGlobal = input.IsGlobal,
+            HouseholdId = input.HouseholdId,
+            Household = household,
+            ProductCategories = categories
+        };
+        //3. store the product in the database
+        await _prodRepo.AddAsync(prod);
+        var result = await _prodRepo.SaveChangesAsync();
+        if (result) return prod;
+        return null;
+
+    }
+
+    public async Task<bool> RemoveCategoryFromProductAsync(int pid, int cid, bool isAdmin)
+    {
+        // 1. get the product
+        var prod = await _prodRepo.GetProductWithCategoriesByIdAsync(pid);
+        if(prod == null) return false;
+        if(!prod.ProductCategories.Any(pc=>pc.Id == cid)) return false;
+        if(prod.IsGlobal && !isAdmin) return false;
+        //2. get the record in the mappingTable
+        var record = await _dbContext.ProductCategoryMappings.FirstOrDefaultAsync(pcm=>pcm.ProductCategoryId == cid && pcm.ProductId == pid);
+        if(record == null) return false;
+        _dbContext.Remove(record);
+        return await _dbContext.SaveChangesAsync()>0;
+    }
+
+    public async Task<bool> RemoveProduct(int pid, bool isAdmin)
+    {
+        //1. get the product
+        var prod = await _prodRepo.GetByIdAsync(pid);
+        if(prod == null) return false;
+        if(prod.IsGlobal && ! isAdmin) return false;
+        _prodRepo.Delete(prod);
+        return await _prodRepo.SaveChangesAsync();
+    }
+
+    public async Task<bool> AddCategoryToProduct(int pid, int cid, bool isAdmin)
+    {
+        //1. get the product
+        var prod = await _prodRepo.GetProductWithCategoriesByIdAsync(pid);
+        var cat = await _catProdRepo.GetByIdAsync(cid);
+        if(cat == null || prod==null || prod.IsGlobal && !isAdmin|| prod.ProductCategories.Any(x=>x.Id == cid)) return false;
+        prod.ProductCategories.Add(cat);
+        return await _prodRepo.SaveChangesAsync();
     }
 }

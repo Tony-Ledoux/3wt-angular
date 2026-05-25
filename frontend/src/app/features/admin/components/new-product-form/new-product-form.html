@@ -1,0 +1,38 @@
+<form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-2">
+    <app-labeled-input label="product" name="productNaam" formControlName="productName" required />
+    <div>
+        <!-- Chips-->
+        <app-section-card type="dashed">
+            <div class="-mt-3 text-sm text-start pb-2 font-bold italic">toegewezen categorieën</div>
+            <div class="flex justify-center gap-2 pb-2">
+                @for(cat of selectedCategories(); track cat.id){
+                <div
+                    class="bg-brand-primary text-brand-primary-light text-sm px-2 rounded-4xl border border-b-app-border-dark">
+                    {{cat.categorieName}} <span class="cursor-pointer"
+                        (click)="RemoveCategoryChip(cat.id)">&times;</span></div>
+                }@empty {
+                <div class="text-sm flex items-center italic">
+                    <i class="fa fa-exclamation"></i>
+                    <span>
+                        Er zijn nog geen categoriën toegewezen
+
+                    </span>
+
+                </div>
+                }
+            </div>
+
+            <app-autocomplete key="categorieName" label="Categorie" [options]="categories()"
+                (result)="addCategory($event)" />
+        </app-section-card>
+
+
+    </div>
+    <app-labeled-input label="eenheid" name="eenheid" formControlName="defaultUnit" />
+    <app-labeled-input label="houdbaarheid in minuten (gesloten)" type="positive-number" name="shelfLifeClosedMinuts"
+        formControlName="shelfLifeClosedMinutes" />
+    <app-labeled-input label="houdbaarheid in minuten (open)" type="positive-number" name="shelfLifeOpenedMinutes"
+        formControlName="shelfLifeOpenedMinutes" />
+
+    <app-button type="submit" [disabled]="!productForm.valid" >Aanmaken</app-button>
+</form>

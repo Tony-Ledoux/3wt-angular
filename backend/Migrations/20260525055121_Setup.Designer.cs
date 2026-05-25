@@ -12,7 +12,7 @@ using backend.Contexts;
 namespace backend.Migrations
 {
     [DbContext(typeof(KitchenDbContext))]
-    [Migration("20260523111826_Setup")]
+    [Migration("20260525055121_Setup")]
     partial class Setup
     {
         /// <inheritdoc />
@@ -251,13 +251,13 @@ namespace backend.Migrations
                         .HasColumnType("text")
                         .HasColumnName("product_name");
 
-                    b.Property<int?>("ShelfLifeClosedDays")
+                    b.Property<int?>("ShelfLifeClosedMinutes")
                         .HasColumnType("integer")
-                        .HasColumnName("shelf_life_closed_days");
+                        .HasColumnName("shelf_life_closed_minutes");
 
-                    b.Property<int?>("ShelfLifeOpenedDays")
+                    b.Property<int?>("ShelfLifeOpenedMinutes")
                         .HasColumnType("integer")
-                        .HasColumnName("shelf_life_opened_days");
+                        .HasColumnName("shelf_life_opened_minutes");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -310,12 +310,13 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Entities.ProductCategoryMapping", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("ProductId")
                         .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnName("product_id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<int>("ProductCategoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("product_category_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -325,33 +326,22 @@ namespace backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<int>("ProductCategoriesId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasColumnName("product_categories_id");
+                        .HasColumnName("id");
 
-                    b.Property<int>("ProductCategoryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("product_category_id");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer")
-                        .HasColumnName("product_id");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("Id")
+                    b.HasKey("ProductId", "ProductCategoryId")
                         .HasName("pk_product_category_mapping");
-
-                    b.HasIndex("ProductCategoriesId")
-                        .HasDatabaseName("ix_product_category_mapping_product_categories_id");
 
                     b.HasIndex("ProductCategoryId")
                         .HasDatabaseName("ix_product_category_mapping_product_category_id");
-
-                    b.HasIndex("ProductId")
-                        .HasDatabaseName("ix_product_category_mapping_product_id");
 
                     b.ToTable("product_category_mapping", (string)null);
                 });
@@ -442,12 +432,13 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Entities.RecipeCategoryMapping", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("RecipeId")
                         .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnName("recipe_id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<int>("RecipeCategoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("recipe_category_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -457,33 +448,22 @@ namespace backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<int>("RecipeCategoryId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasColumnName("recipe_category_id");
+                        .HasColumnName("id");
 
-                    b.Property<int>("RecipeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("recipe_id");
-
-                    b.Property<int>("RecipesId")
-                        .HasColumnType("integer")
-                        .HasColumnName("recipes_id");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("Id")
+                    b.HasKey("RecipeId", "RecipeCategoryId")
                         .HasName("pk_recipe_category_mapping");
 
                     b.HasIndex("RecipeCategoryId")
                         .HasDatabaseName("ix_recipe_category_mapping_recipe_category_id");
-
-                    b.HasIndex("RecipeId")
-                        .HasDatabaseName("ix_recipe_category_mapping_recipe_id");
-
-                    b.HasIndex("RecipesId")
-                        .HasDatabaseName("ix_recipe_category_mapping_recipes_id");
 
                     b.ToTable("recipe_category_mapping", (string)null);
                 });
@@ -829,25 +809,15 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Entities.ProductCategoryMapping", b =>
                 {
-                    b.HasOne("backend.Entities.ProductCategory", null)
-                        .WithMany()
-                        .HasForeignKey("ProductCategoriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_product_category_mapping_product_categories_product_categor");
-
                     b.HasOne("backend.Entities.ProductCategory", "ProductCategorie")
                         .WithMany()
                         .HasForeignKey("ProductCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_product_category_mapping_product_categories_product_categor1");
+                        .HasConstraintName("fk_product_category_mapping_product_categories_product_categor");
 
                     b.HasOne("backend.Entities.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
                         .HasConstraintName("fk_product_category_mapping_products_product_id");
 
                     b.Navigation("Product");
@@ -870,23 +840,13 @@ namespace backend.Migrations
                     b.HasOne("backend.Entities.RecipeCategory", "RecipeCategory")
                         .WithMany()
                         .HasForeignKey("RecipeCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
                         .HasConstraintName("fk_recipe_category_mapping_categories_recipe_category_id");
 
                     b.HasOne("backend.Entities.Recipe", "Recipe")
                         .WithMany()
                         .HasForeignKey("RecipeId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
                         .HasConstraintName("fk_recipe_category_mapping_recipes_recipe_id");
-
-                    b.HasOne("backend.Entities.Recipe", null)
-                        .WithMany()
-                        .HasForeignKey("RecipesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_recipe_category_mapping_recipes_recipes_id");
 
                     b.Navigation("Recipe");
 

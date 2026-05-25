@@ -2,8 +2,8 @@ export interface ProductDto {
     id: number;
     productName:string;
     defaultUnit?:string;
-    shelfLifeClosedDays?:number;
-    shelfLifeOpenedDays?:number;
+    shelfLifeClosedMinutes?:number;
+    shelfLifeOpenedMinutes?:number;
     isGlobal: boolean;
     householdId?:number;
     categoryIds:number[];

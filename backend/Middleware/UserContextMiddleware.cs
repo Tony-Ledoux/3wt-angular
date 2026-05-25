@@ -19,6 +19,7 @@ public class UserContextMiddleware(RequestDelegate next)
             userContext.UserId = userId;
             userContext.Email = email;
             userContext.HouseholdUsers = HouseholdUsers;
+            userContext.IsAdmin = context.User.IsInRole("Admin");
         }
         await _next(context);
     }

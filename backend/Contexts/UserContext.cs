@@ -7,6 +7,7 @@ public interface IUserContext
 {
     public string? UserId {get;set;}
     public string? Email {get;set;}
+    public bool IsAdmin {get;set;}
     public IEnumerable<HouseholdUserDto> HouseholdUsers {get;set;}
 
     public HouseholdUserDto? IsCurrentUserInHouseholdWithId(int id);
@@ -20,6 +21,7 @@ public class UserContext : IUserContext
     public string? UserId { get ; set; }
     public string? Email { get ; set; }
     public IEnumerable<HouseholdUserDto> HouseholdUsers { get; set ; }= [];
+    public bool IsAdmin { get; set; }
 
     public bool CurrentUserOwnsHousehold(int householdId)
     {

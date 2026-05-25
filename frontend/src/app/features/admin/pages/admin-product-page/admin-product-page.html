@@ -1,21 +1,85 @@
-<div class="p-6 max-w-5xl mx-auto">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-    <app-page-header title="Producten beheren" />
+<div class="p-4 md:p-6 max-w-7xl mx-auto space-y-6 bg-app-bg min-h-screen">
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <app-page-header title="Producten beheren" />
+        <app-button (click)="onProductCreateClick()" variant="success" icon="fa fa-plus"
+            class="whitespace-nowrap shadow-sm w-full md:w-auto">
+            Nieuw product
+        </app-button>
     </div>
-    <!-- Action Bar (Filters and new) -->
-    <app-section-card title="Filters">
-        <div class="flex items-center justify-between">
 
-            <app-labeled-selectbox label="categorie" [choices]="categorieOptions()" />
-            <app-checkbox label="Enkel Gepubliceerde" name="onlyPublished" [nullable]="true" (changed)="onFilterChange($event)" /> 
-            <app-button>Nieuw product</app-button>
+    <!-- Filter Bar -->
+    <app-section-card title="Filters">
+        <div class="flex flex-col md:flex-row md:items-end gap-4">
+            <div class="flex-1 w-full">
+                <app-labeled-selectbox label="Categorie" [choices]="categorieOptions()" 
+                    (changed)="onSelectFilterChange($event)" />
+            </div>
+
+            <div class="flex items-center gap-4 w-full md:w-auto">
+                <app-checkbox label="Enkel gepubliceerde" name="onlyPublished" [nullable]="true"
+                    (changed)="onFilterChange($event)" />
+            </div>
+            <div class="flex items-center gap-4 order-1 sm:order-2 w-full sm:w-auto">
+            <app-labeled-selectbox label="Aantal per pagina" [choices]="numPagesOptions()" [selected]="pageSize()"
+                (changed)="onNumPageChange($event)" class="w-full sm:w-48" />
         </div>
-        
+        </div>
     </app-section-card>
-    <app-section-card title="producten">
-        <app-labeled-selectbox label="aantal per pagina" [choices]="numberOfPages" />
+
+    <!-- Products Section -->
+    <app-section-card title="Productoverzicht">
+                <div card-header-action class="text-sm text-app-text-muted order-2 sm:order-1">
+            Toon <strong class="text-app-text-main">{{products().length}}</strong> producten
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            @for(product of productsWithCategories(); track product.id){
+            <app-section-card type="dashed" title="{{product.productName}}">
+                <div card-header-action class="flex gap-1">
+                    <app-button variant="ghost" icon="fa fa-edit" size="sm" (click)="onEditProductClick(product)"></app-button>
+                    <app-button variant="ghost" icon="fa fa-trash text-status-danger" size="sm"
+                        (click)="onProductRemoveClick(product)"></app-button>
+                </div>
+
+                <!-- Card Body: Grid of Details -->
+                <div class="grid grid-cols-2 gap-y-3 gap-x-2 text-sm">
+                    <div class="flex flex-col">
+                        <span class="text-app-text-light text-xs uppercase font-semibold">Houdb. Gesloten</span>
+                        <span class="text-app-text-body">{{product.shelfLifeClosedMinutes ?
+                            product.shelfLifeClosedMinutes + ' min' : '-'}}</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-app-text-light text-xs uppercase font-semibold">Houdb. Geopend</span>
+                        <span class="text-app-text-body">{{product.shelfLifeOpenedMinutes ?
+                            product.shelfLifeOpenedMinutes + ' min' : '-'}}</span>
+                    </div>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-app-text-light text-xs uppercase font-semibold">Eenheid</span>
+                    <span class="text-app-text-body">{{product.defaultUnit || '-'}}</span>
+                </div>
+
+                <div class="flex flex-col">
+                    <span class="text-app-text-light text-xs uppercase font-semibold flex justify-between">Categorieën
+                        <app-button variant="ghost" size="xs" icon="fa fa-plus" (click)="onCategoryAddClick(product)" /></span>
+                    <div class="flex flex-wrap gap-1 mt-1 items-center">
+                        @for(cat of product.categories; track cat?.id){
+                        <div
+                            class="px-2 py-0.5 bg-brand-primary-dark text-brand-primary-light text-xs rounded-full border border-brand-primary-light">
+                            <span>{{cat?.categorieName}}</span>
+                            <span class="ml-1 cursor-pointer hover:text-status-danger"
+                                (click)="onCategoryRemoveClick(cat!,product)">&times;</span>
+                        </div>
+                        } @empty {
+                        <span class="text-app-text-light text-xs">Geen</span>
+                        }
+
+                    </div>
+                </div>
+            </app-section-card>
+            } @empty {
+            <div class="py-12 text-center text-app-text-muted italic">Geen producten gevonden.</div>
+            }
+        </div>
     </app-section-card>
-    <pre>
-        {{products()|json}}
-    </pre>
 </div>

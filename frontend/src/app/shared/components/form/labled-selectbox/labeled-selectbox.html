@@ -1,14 +1,14 @@
 <div class="w-full group">
-    <!-- Label: slate-500 -> app-text-muted | indigo-600 -> brand-primary -->
     <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-1.5 ml-1 transition-colors group-focus-within:text-brand-primary">
         {{ label() }}
     </label>
 
     <div class="relative flex items-center">
         <select
-            [value]="value"
+            [value]="effectiveValue()" 
             (change)="onChangeEvent($event)"
             (blur)="onTouched()"
+            [disabled]="disabled()"
             [class.border-status-danger]="isError"
             [class.border-app-border]="!isError"
             class="block w-full pl-4 pr-10 py-2.5 bg-brand-primary-light border rounded-xl 
@@ -18,26 +18,23 @@
                    focus:bg-app-card focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary focus:outline-none
                    disabled:bg-app-border disabled:text-app-text-light disabled:cursor-not-allowed"
         >
-            <option value="" selected>Kies een optie ...</option>
-            @for (option of choices(); track option.value){
-                <!-- slate-800 -> app-text-main -->
-                <option [value]="option.value" class="text-app-text-main">{{option.label}}</option>
+            <option value="">Kies een optie ...</option>
+            @for (option of choices(); track option.value) {
+                <option [value]="option.value" class="text-app-text-main">
+                    {{ option.label }}
+                </option>
             }
         </select>
 
-        <!-- Chevron: slate-400 -> app-text-light | indigo-500 -> brand-primary -->
         <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-app-text-light group-focus-within:text-brand-primary transition-colors">
             <i class="fa fa-chevron-down transition-transform duration-200 group-focus-within:rotate-180"></i>
         </div>
     </div>
 
-    <!-- Error melding: status-danger blijft status-danger -->
     @if (isError) {
         <p class="text-status-danger text-xs mt-1 ml-1 font-medium animate-in fade-in slide-in-from-top-1 duration-200 flex gap-1 items-center">
             <i class="fa fa-circle-exclamation"></i>
-            <span>
-                {{ errorMessage }}
-            </span>
+            <span>{{ errorMessage }}</span>
         </p>
     }
 </div>

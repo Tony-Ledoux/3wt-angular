@@ -27,7 +27,7 @@ namespace backend.Controllers
             //get all the households
             var households = await _hh_srv.GetAllHouseholds();
             return Ok(households);
-            
+
         }
 
         [HttpDelete("households/{id:int}")]
@@ -35,7 +35,7 @@ namespace backend.Controllers
         {
             //ask service to delete
             var success = await _hh_srv.DeleteHouseholdWithAllUsersAsync(id);
-            if(!success) return BadRequest();
+            if (!success) return BadRequest();
             return NoContent();
 
         }
@@ -52,16 +52,16 @@ namespace backend.Controllers
         public async Task<ActionResult<ProductCategoryDto>> CreateNewProductCategoryAsync(CategoryCreationDto input)
         {
             var success = await _i_srv.CreateNewProductCategoryAsync(input);
-            if(success.Success) return Ok(success.Data);
-            if(success.IsConflict) return Conflict(success.ErrorMessage);
+            if (success.Success) return Ok(success.Data);
+            if (success.IsConflict) return Conflict(success.ErrorMessage);
             return BadRequest(success.ErrorMessage);
         }
         [HttpDelete("product-categories/{id:int}")]
         public async Task<IActionResult> DeleteProductCategoryWithAllStorageRules(int id)
         {
             var result = await _i_srv.DeleteCategoryWithRules(id);
-            if(result.Success) return NoContent();
-            if(result.IsNotFound) return NotFound(result.ErrorMessage);
+            if (result.Success) return NoContent();
+            if (result.IsNotFound) return NotFound(result.ErrorMessage);
             return BadRequest();
         }
 
@@ -69,27 +69,29 @@ namespace backend.Controllers
         public async Task<IActionResult> DeleteStorageRule(int id)
         {
             var result = await _i_srv.DeleteStorageRuleAsync(id);
-            if(result.Success) return NoContent();
-            if(result.IsNotFound) return NotFound(result.ErrorMessage);
+            if (result.Success) return NoContent();
+            if (result.IsNotFound) return NotFound(result.ErrorMessage);
             return BadRequest();
         }
 
         [HttpPost("storage-rule/{categotyId:int}")]
         public async Task<ActionResult<StorageRuleDto>> AddNewStorageRuleToCategory(int categotyId, StorageRuleCreationDto input)
         {
-            var result = await _i_srv.CreateNewStorageRuleinCategoryIdAsync(categotyId,input);
-            if(result.Success) return Ok(result.Data);
-            if(result.IsConflict) return Conflict(result.ErrorMessage);
+            var result = await _i_srv.CreateNewStorageRuleinCategoryIdAsync(categotyId, input);
+            if (result.Success) return Ok(result.Data);
+            if (result.IsConflict) return Conflict(result.ErrorMessage);
             return BadRequest(result.ErrorMessage);
         }
 
         //products
-
+        //producten opvragen
         [HttpGet("products")]
-        public async Task<ActionResult<PagedResult<ProductDto>>> GetAllProductsAsync(int page=1, int pageSize = 10, bool? isGlobal = null, int? categoryId = null)
+        public async Task<ActionResult<PagedResult<ProductDto>>> GetAllProductsAsync(int page = 1, int pageSize = 10, bool? isGlobal = null, int? categoryId = null)
         {
-            var result = await _i_srv.GetPagedProductsAsync(page,pageSize,isGlobal,categoryId);
+            var result = await _i_srv.GetPagedProductsAsync(page, pageSize, isGlobal, categoryId);
             return result;
         }
+        
+
     }
 }

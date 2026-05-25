@@ -10,9 +10,9 @@ public class Product: BaseEntity
   
     public string? DefaultUnit {get;set;}
    
-    public int? ShelfLifeClosedDays {get;set;}
+    public int? ShelfLifeClosedMinutes {get;set;}
    
-    public int? ShelfLifeOpenedDays {get;set;}
+    public int? ShelfLifeOpenedMinutes {get;set;}
   
     public bool IsGlobal {get;set;}
    

@@ -4,9 +4,8 @@
   class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-app-text-main/60 backdrop-blur-md animate-in fade-in duration-300"
   (click)="handleBackdropClick()">
 
-  <!-- WIJZIGING 1: Toegevoegd 'flex flex-col', 'max-h-[90vh]' en verwijderd 'overflow-y-auto' -->
   <div
-    class="bg-app-card rounded-3xl shadow-2xl w-full max-w-md flex flex-col max-h-[90vh] animate-in zoom-in-95 slide-in-from-bottom-4 duration-300"
+    class="bg-app-card rounded-3xl shadow-2xl w-full max-w-md flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-4 duration-300"
     role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
 
     <!-- Header: Blijft nu altijd bovenaan zichtbaar -->

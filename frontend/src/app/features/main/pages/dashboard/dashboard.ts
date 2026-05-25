@@ -8,10 +8,10 @@ import { HouseholdService } from '../../services/household-service';
   styleUrl: './dashboard.css',
 })
 export class Dashboard implements OnInit {
-  household_service = inject(HouseholdService)
+  householdSrv = inject(HouseholdService)
 
 
   ngOnInit(): void {
-    console.log(this.household_service.selected_household()); //returns true?
+    console.log(this.householdSrv.selected_household()); //returns true?
   }
 }

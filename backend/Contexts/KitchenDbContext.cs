@@ -8,21 +8,22 @@ namespace backend.Contexts;
 public class KitchenDbContext(DbContextOptions<KitchenDbContext> options) : DbContext(options)
 {
     public DbSet<Household> Households { get; set; }
-    public DbSet<HouseholdUser> HouseholdUsers {get;set;}
-    public DbSet<DeviceType> DeviceTypes {get;set;}
-    public DbSet<StorageLocation> StorageLocations {get;set;}
-    public DbSet<StorageRule> StorageRules {get;set;}
-    public DbSet<ProductCategory> ProductCategories {get;set;}
-    public DbSet<Product> Products {get;set;}
-    public DbSet<Inventory> Inventories {get;set;}
-    public DbSet<RecipeIngredient> RecipeIngredients {get;set;}
-    public DbSet<Recipe> Recipes {get;set;}
-    public DbSet<RecipeCategory> Categories {get;set;}
-    public DbSet<Weekmenu> Weekmenus {get;set;}
-    public DbSet<Shoppinglist> Shoppinglists {get;set;}
+    public DbSet<HouseholdUser> HouseholdUsers { get; set; }
+    public DbSet<DeviceType> DeviceTypes { get; set; }
+    public DbSet<StorageLocation> StorageLocations { get; set; }
+    public DbSet<StorageRule> StorageRules { get; set; }
+    public DbSet<ProductCategory> ProductCategories { get; set; }
+    public DbSet<Product> Products { get; set; }
+    public DbSet<ProductCategoryMapping> ProductCategoryMappings {get;set;}
+    public DbSet<Inventory> Inventories { get; set; }
+    public DbSet<RecipeIngredient> RecipeIngredients { get; set; }
+    public DbSet<Recipe> Recipes { get; set; }
+    public DbSet<RecipeCategory> Categories { get; set; }
+    public DbSet<Weekmenu> Weekmenus { get; set; }
+    public DbSet<Shoppinglist> Shoppinglists { get; set; }
 
-    public DbSet<SystemSetting> SystemSettings {get;set;}
-    
+    public DbSet<SystemSetting> SystemSettings { get; set; }
+
     // Automatic states for softDelete
     public override int SaveChanges()
     {
@@ -61,8 +62,30 @@ public class KitchenDbContext(DbContextOptions<KitchenDbContext> options) : DbCo
                 );
             }
         }
-        modelBuilder.Entity<ProductCategory>().HasMany(pc=>pc.Products).WithMany(p=>p.ProductCategories).UsingEntity<ProductCategoryMapping>();
-        modelBuilder.Entity<Recipe>().HasMany(r=>r.Categories).WithMany(c=>c.Recipes).UsingEntity<RecipeCategoryMapping>();
+        modelBuilder.Entity<Product>()
+            .HasMany(p => p.ProductCategories)
+            .WithMany(pc => pc.Products)
+            .UsingEntity<ProductCategoryMapping>(
+                l=>l.HasOne(pm=>pm.ProductCategorie).WithMany().HasForeignKey(pm=>pm.ProductCategoryId).IsRequired(false),
+                r=>r.HasOne(pm=>pm.Product).WithMany().HasForeignKey(pm=>pm.ProductId).IsRequired(false).OnDelete(DeleteBehavior.Cascade),
+                j =>
+                {
+                    j.HasKey(pm=>new {pm.ProductId, pm.ProductCategoryId});
+                    j.ToTable("product_category_mapping");
+                }
+            );
+        modelBuilder.Entity<Recipe>()
+            .HasMany(r => r.Categories)
+            .WithMany(c => c.Recipes)
+            .UsingEntity<RecipeCategoryMapping>(
+                l=>l.HasOne(rm=>rm.RecipeCategory).WithMany().HasForeignKey(rm=>rm.RecipeCategoryId).IsRequired(false),
+                r=>r.HasOne(rm=>rm.Recipe).WithMany().HasForeignKey(rm=>rm.RecipeId).IsRequired(false).OnDelete(DeleteBehavior.Cascade),
+                j =>
+                {
+                    j.HasKey(rm=>new {rm.RecipeId, rm.RecipeCategoryId});
+                    j.ToTable("recipe_category_mapping");
+                }
+            );
 
     }
 

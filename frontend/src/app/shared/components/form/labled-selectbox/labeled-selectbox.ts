@@ -1,4 +1,4 @@
-import { Component, forwardRef, inject, input } from '@angular/core';
+import { Component, computed, forwardRef, inject, input, output, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl, ReactiveFormsModule } from '@angular/forms';
 
 export interface SelectOptions {
@@ -15,12 +15,20 @@ export interface SelectOptions {
 })
 export class LabeledSelectbox implements ControlValueAccessor {
   private ngControl = inject(NgControl, { self: true, optional: true })
+
   choices = input.required<SelectOptions[]>();
   label = input.required<string>();
-  
-  value: any;
-  disabled = false;
-  onChange: any = () => {};
+  selected = input<string|number|null>(null);
+
+  changed = output<string|number>();
+
+  private _internalValue = signal<any>(null);
+  disabled = signal(false);
+
+  effectiveValue = computed(()=> {
+    return this._internalValue()??this.selected();
+  })
+  onChange: (value:any) => void = () => {};
   onTouched: any = () => {};
 
   constructor() {
@@ -30,7 +38,7 @@ export class LabeledSelectbox implements ControlValueAccessor {
   }
   // interface
   writeValue(obj: any): void {
-    this.value = obj
+    this._internalValue.set(obj);
   }
   registerOnChange(fn: any): void {
     this.onChange = fn;
@@ -39,13 +47,16 @@ export class LabeledSelectbox implements ControlValueAccessor {
     this.onTouched = fn;
   }
   setDisabledState?(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.disabled.set(isDisabled);
   }
 
    onChangeEvent(event: Event) {
     const target = event.target as HTMLSelectElement;
-    this.value = target.value;
-    this.onChange(this.value);
+    const newValue = target.value;
+    const finalValue= (typeof this.selected() ==='number' || typeof this._internalValue() === 'number')?Number(newValue): newValue;
+    this._internalValue.set(finalValue);
+    this.onChange(finalValue);
+    this.changed.emit(finalValue)
   }
   //helper getters
   get isError(): boolean {

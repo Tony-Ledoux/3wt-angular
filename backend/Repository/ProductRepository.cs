@@ -8,13 +8,14 @@ namespace backend.Repository;
 public interface IProductRespository: IGeneric<Product>
 {
     Task<(IEnumerable<Product> Items, int TotalCount)> GetPagedProducsAsync(int page, int pageSize, bool? isGlobel, int? categoryId);
+    Task<Product?> GetProductWithCategoriesByIdAsync(int pid);
     }
 
 public class ProductRepository(KitchenDbContext db) : Generic<Product>(db), IProductRespository
 {
     public async Task<(IEnumerable<Product> Items, int TotalCount)> GetPagedProducsAsync(int page, int pageSize, bool? isGlobel, int? categoryId)
     {
-        var query = _dbSet.AsQueryable();
+        var query = _dbSet.Include(x=>x.ProductCategories).AsQueryable();
         if (isGlobel.HasValue)
         {
             query = query.Where(p=>p.IsGlobal == isGlobel.Value);
@@ -30,5 +31,9 @@ public class ProductRepository(KitchenDbContext db) : Generic<Product>(db), IPro
             .ToListAsync();
         
         return (items, totalCount);
+    }
+    public async Task<Product?> GetProductWithCategoriesByIdAsync(int pid)
+    {
+        return await _dbSet.Include(p=>p.ProductCategories).FirstOrDefaultAsync(p=>p.Id == pid);
     }
 }

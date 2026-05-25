@@ -130,8 +130,8 @@ namespace backend.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     product_name = table.Column<string>(type: "text", nullable: false),
                     default_unit = table.Column<string>(type: "text", nullable: true),
-                    shelf_life_closed_days = table.Column<int>(type: "integer", nullable: true),
-                    shelf_life_opened_days = table.Column<int>(type: "integer", nullable: true),
+                    shelf_life_closed_minutes = table.Column<int>(type: "integer", nullable: true),
+                    shelf_life_opened_minutes = table.Column<int>(type: "integer", nullable: true),
                     is_global = table.Column<bool>(type: "boolean", nullable: false),
                     household_id = table.Column<int>(type: "integer", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -237,30 +237,22 @@ namespace backend.Migrations
                 name: "product_category_mapping",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     product_category_id = table.Column<int>(type: "integer", nullable: false),
                     product_id = table.Column<int>(type: "integer", nullable: false),
-                    product_categories_id = table.Column<int>(type: "integer", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_product_category_mapping", x => x.id);
+                    table.PrimaryKey("pk_product_category_mapping", x => new { x.product_id, x.product_category_id });
                     table.ForeignKey(
                         name: "fk_product_category_mapping_product_categories_product_categor",
-                        column: x => x.product_categories_id,
-                        principalTable: "product_categories",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "fk_product_category_mapping_product_categories_product_categor1",
                         column: x => x.product_category_id,
                         principalTable: "product_categories",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "id");
                     table.ForeignKey(
                         name: "fk_product_category_mapping_products_product_id",
                         column: x => x.product_id,
@@ -311,33 +303,25 @@ namespace backend.Migrations
                 name: "recipe_category_mapping",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     recipe_id = table.Column<int>(type: "integer", nullable: false),
                     recipe_category_id = table.Column<int>(type: "integer", nullable: false),
-                    recipes_id = table.Column<int>(type: "integer", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_recipe_category_mapping", x => x.id);
+                    table.PrimaryKey("pk_recipe_category_mapping", x => new { x.recipe_id, x.recipe_category_id });
                     table.ForeignKey(
                         name: "fk_recipe_category_mapping_categories_recipe_category_id",
                         column: x => x.recipe_category_id,
                         principalTable: "categories",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "id");
                     table.ForeignKey(
                         name: "fk_recipe_category_mapping_recipes_recipe_id",
                         column: x => x.recipe_id,
-                        principalTable: "recipes",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "fk_recipe_category_mapping_recipes_recipes_id",
-                        column: x => x.recipes_id,
                         principalTable: "recipes",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -470,19 +454,9 @@ namespace backend.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "ix_product_category_mapping_product_categories_id",
-                table: "product_category_mapping",
-                column: "product_categories_id");
-
-            migrationBuilder.CreateIndex(
                 name: "ix_product_category_mapping_product_category_id",
                 table: "product_category_mapping",
                 column: "product_category_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_product_category_mapping_product_id",
-                table: "product_category_mapping",
-                column: "product_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_products_household_id",
@@ -493,16 +467,6 @@ namespace backend.Migrations
                 name: "ix_recipe_category_mapping_recipe_category_id",
                 table: "recipe_category_mapping",
                 column: "recipe_category_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_recipe_category_mapping_recipe_id",
-                table: "recipe_category_mapping",
-                column: "recipe_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_recipe_category_mapping_recipes_id",
-                table: "recipe_category_mapping",
-                column: "recipes_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_recipe_ingredients_product_id",
