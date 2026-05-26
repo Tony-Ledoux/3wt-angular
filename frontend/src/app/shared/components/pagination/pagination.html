@@ -1,0 +1,74 @@
+@if (pages().length > 0) {
+  <nav class="flex items-center justify-between flex-wrap gap-3 py-2" aria-label="Paginatie">
+    <!-- Pagina navigatie -->
+    <div class="flex items-center gap-1.5 bg-app-card border border-app-border rounded-lg px-2 py-1.5 shadow-sm">
+      <!-- Vorige knop -->
+      <button
+        type="button"
+        [disabled]="isFirstPage()"
+        (click)="onPageClick(currentPage() - 1)"
+        [attr.aria-label]="'Vorige pagina'"
+        [attr.aria-disabled]="isFirstPage()"
+        class="px-2 py-1.5 rounded-md border border-transparent bg-transparent text-app-text-muted hover:text-brand-secondary hover:bg-brand-primary-light active:bg-brand-primary active:text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent focus:outline-none focus:ring-2 focus:ring-brand-secondary focus:ring-offset-1"
+      >
+        <i class="fa fa-chevron-left text-lg leading-none"></i>
+      </button>
+
+      <!-- Pagina items -->
+      @for (page of pages(); track page.type === 'page' ? page.page : 'ellipsis') {
+        @if (page.type === 'page') {
+          <button
+            type="button"
+            [class.bg-brand-primary]="page.page === currentPage()"
+            [class.text-white]="page.page === currentPage()"
+            [class.border-brand-primary]="page.page === currentPage()"
+            [class.font-semibold]="page.page === currentPage()"
+            [class.bg-app-card]="page.page !== currentPage()"
+            [class.text-app-text-muted]="page.page !== currentPage()"
+            [class.border-transparent]="page.page !== currentPage()"
+            (click)="onPageClick(page.page)"
+            (keydown)="onPageKeyDown($event, page)"
+            [attr.aria-label]="'Ga naar pagina ' + page.page"
+            [attr.aria-current]="page.page === currentPage() ? 'page' : false"
+            class="px-3 py-1.5 rounded-md border bg-app-card text-app-text-muted hover:text-brand-secondary hover:bg-brand-primary-light focus:outline-none focus:ring-2 focus:ring-brand-secondary focus:ring-offset-1 text-sm font-medium transition-all duration-200 min-w-[2.5rem] text-center disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {{ page.page }}
+          </button>
+        } @else {
+          <span class="px-2 py-1.5 text-app-text-light select-none" aria-hidden="true">...</span>
+        }
+      }
+
+      <!-- Volgende knop -->
+      <button
+        type="button"
+        [disabled]="isLastPage()"
+        (click)="onPageClick(currentPage() + 1)"
+        [attr.aria-label]="'Volgende pagina'"
+        [attr.aria-disabled]="isLastPage()"
+        class="px-2 py-1.5 rounded-md border border-transparent bg-transparent text-app-text-muted hover:text-brand-secondary hover:bg-brand-primary-light active:bg-brand-primary active:text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent focus:outline-none focus:ring-2 focus:ring-brand-secondary focus:ring-offset-1"
+      >
+        <i class="fa fa-chevron-right text-lg leading-none"></i>
+      </button>
+    </div>
+
+    <!-- pageSize selector (indien beschikbaar) -->
+    @if (pageSizes()) {
+      <div class="flex items-center gap-2.5 pl-3 border-l border-app-border">
+        <label for="pageSize" class="text-sm text-app-text-muted font-medium">
+          Toon per pagina:
+        </label>
+        <select
+          id="pageSize"
+          [value]="pageSize()"
+          (change)="onPageSizeChange($event)"
+          class="appearance-none bg-app-card border border-app-border rounded-md px-3 py-1.5 pr-8 text-sm text-app-text-body cursor-pointer focus:ring-2 focus:ring-brand-secondary focus:border-brand-secondary outline-none transition-shadow"
+        >
+          @for (size of pageSizes(); track size) {
+            <option [value]="size" class="px-2 py-1">{{ size }}</option>
+          }
+        </select>
+      </div>
+    }
+  </nav>
+}

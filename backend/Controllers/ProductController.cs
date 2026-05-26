@@ -59,5 +59,11 @@ namespace backend.Controllers
         {
             throw new NotImplementedException();
         }
+        [HttpPut("{pid:int}")]
+        public async Task<IActionResult> UpdateProductAsync(int pid, ProductCreationDto input)
+        {
+            
+            return Ok(input);
+        }
     }
 }

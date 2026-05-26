@@ -19,6 +19,7 @@ export class LabeledSelectbox implements ControlValueAccessor {
   choices = input.required<SelectOptions[]>();
   label = input.required<string>();
   selected = input<string|number|null>(null);
+  includeNullOption =input<boolean>(true);
 
   changed = output<string|number>();
 

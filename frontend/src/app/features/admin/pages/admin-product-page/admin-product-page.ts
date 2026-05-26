@@ -3,20 +3,21 @@ import { ApiService } from '@app/core/services/api/api-service';
 import { ProductCategory } from '@app/core/types/productCategories';
 import { PagedResult, ProductDto } from '@app/core/types/products';
 import { PageHeader } from '@app/shared/components/page-header/page-header';
-import { LabeledSelectbox, SelectOptions } from "@app/shared/components/form/labled-selectbox/labeled-selectbox";
+import { LabeledSelectbox } from "@app/shared/components/form/labled-selectbox/labeled-selectbox";
 import { SectionCard } from "@app/shared/components/section-card/section-card";
 import { Checkbox, CheckboxChanged } from "@app/shared/components/form/checkbox/checkbox";
 import { ButtonComponent } from '@app/shared/components/button/button';
-import { JsonPipe } from '@angular/common';
 import { ModalService } from '@app/core/services/modal/modal-service';
 import { NewProductForm } from '../../components/new-product-form/new-product-form';
 import { SectionCardHeader } from "@app/shared/directives/section-card-header";
 import { NotifyService } from '@app/core/services/notify/notify-service';
 import { ModalSelectboxWrapper } from '@app/shared/components/wrappers/modal-selectbox-wrapper/modal-selectbox-wrapper';
+import { EditProductForm } from '../../components/edit-product-form/edit-product-form';
+import { Pagination } from '@app/shared/components/pagination/pagination';
 
 @Component({
   selector: 'app-admin-product-page',
-  imports: [PageHeader, LabeledSelectbox, SectionCard, Checkbox, ButtonComponent, JsonPipe, SectionCardHeader],
+  imports: [PageHeader, LabeledSelectbox, SectionCard, Checkbox, ButtonComponent, SectionCardHeader, Pagination],
   templateUrl: './admin-product-page.html',
   styleUrl: './admin-product-page.css',
 })
@@ -30,10 +31,10 @@ export class AdminProductPage implements OnInit {
   pageResults = signal<PagedResult<ProductDto> | null>(null);
   isLoading = signal(false);
   isSaving = signal(false);
-  numberOfPages = signal([10, 25, 50, 100]);
+  pageSizes = signal([9, 18, 36, 72,144,288]);
 
   currentPage = signal(1);
-  pageSize = signal(25);
+  pageSize = signal(9);
 
 
   filterIsGlobal = signal<boolean | null>(null);
@@ -54,15 +55,23 @@ export class AdminProductPage implements OnInit {
       categories: p.categoryIds.map(id => cats.find(c => c.id === id))
     }))
   });
-  numPagesOptions = computed(() => {
-    const numbers = this.numberOfPages();
-    return numbers.map(x => ({ value: x, label: x.toString() } as SelectOptions))
-  })
+
 
   ngOnInit(): void {
     this.loadProducts();
     this.loadCategories();
   }
+
+  onPageChange(page: number): void {
+  this.currentPage.set(page);
+  this.loadProducts();
+}
+
+onPageSizeChange(size: number): void {
+  this.pageSize.set(size);
+  this.currentPage.set(1); // Reset naar eerste pagina bij pageSize wijziging
+  this.loadProducts();
+}
 
   loadCategories() {
     this.apiSrv.get<ProductCategory[]>('/admin/product-categories').subscribe({
@@ -130,10 +139,6 @@ export class AdminProductPage implements OnInit {
       .show()
   }
 
-  onNumPageChange(event: any) {
-    this.pageSize.set(event)
-    this.loadProducts();
-  }
 
   onCategoryRemoveClick(cat: ProductCategory, product: ProductDto) {
     const question = `Wil jij categorie <br> <strong>${cat.categorieName}</strong> <br> ontkoppelen van product <br> <strong>${product.productName}</strong>?`;
@@ -229,6 +234,14 @@ export class AdminProductPage implements OnInit {
 
   onEditProductClick(product: ProductDto) {
     console.log(product);
+    this.modalSrv.open(`Bewerk ${product.productName}`,EditProductForm)
+    .setData({
+      product:product,
+      categories:this.categories
+    })
+    .setCloseBackdropClick(false)
+    .setShowActionButton(false)
+    .show();
   }
 
 }

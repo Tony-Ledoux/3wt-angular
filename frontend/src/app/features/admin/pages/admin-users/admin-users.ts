@@ -1,4 +1,3 @@
-import { JsonPipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { ModalService } from '@app/core/services/modal/modal-service';
 import { ApiService } from '@app/core/services/api/api-service';
@@ -7,7 +6,7 @@ import { ButtonComponent } from '@app/shared/components/button/button';
 
 @Component({
   selector: 'app-admin-users',
-  imports: [JsonPipe, ButtonComponent],
+  imports: [ButtonComponent],
   templateUrl: './admin-users.html',
   styleUrl: './admin-users.css',
 })

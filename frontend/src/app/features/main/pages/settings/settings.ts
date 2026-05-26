@@ -1,21 +1,19 @@
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { HouseholdService } from '../../services/household-service';
 import { ApiService } from '@app/core/services/api/api-service';
 import { Household, HouseholdUserType, HouseholdWithUsersType } from '@app/core/types/householdUserType';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Spinner } from '@app/shared/components/spinner/spinner';
 import { untracked } from '@angular/core/primitives/signals';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Checkbox } from '@app/shared/components/form/checkbox/checkbox';
 import { LabeledInput } from "@app/shared/components/form/labeled-input/labeled-input";
 import { ButtonComponent } from "@app/shared/components/button/button";
-import { JsonPipe } from '@angular/common';
 import { ModalService } from '@app/core/services/modal/modal-service';
 import { NotifyService } from '@app/core/services/notify/notify-service';
 import { Router } from '@angular/router';
 import { PageHeader } from "../../../../shared/components/page-header/page-header";
 import { SectionCard } from "@app/shared/components/section-card/section-card";
-import { PillComponent } from "@app/shared/components/pill-component/pill-component";
 import { SectionCardHeader } from '@app/shared/directives/section-card-header';
 // TODO Add polling in the future for members of a household
 @Component({
@@ -123,7 +121,7 @@ console.log('submitted', this.householdForm.value, this.detailsS());
 
 
 onRecycleClick() {
-  this.modalSrv.open("Code vernieuwen", `<p>Wil je de inviteercode vernieuwen?</p><p class="text-red-500"> Je kan de huidige code dan <strong>niet</strong> meer gebruiken</p>`)
+  this.modalSrv.open("Code vernieuwen", `<p>Wil je de inviteercode vernieuwen?</p><p class="text-status-danger"> Je kan de huidige code dan <strong>niet</strong> meer gebruiken</p>`)
     .setIcon('fa fa-question')
     .setConfirmCallback(() => this.handleRecycleConfirm())
     .show();

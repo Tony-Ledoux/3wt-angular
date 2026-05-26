@@ -69,6 +69,10 @@ public static class Seeder
             new(){ProductName="Allesreiniger", IsGlobal=false, ProductCategories=GetCategories("Schoonmaak")},
             new(){ProductName="Gehakt", IsGlobal=true, ProductCategories=GetCategories("Vlees")},
         };
+        for (int i = 0; i < 2000; i++)
+        {
+            products.Add(new Product{ProductName=$"product{i}", IsGlobal=true});
+        }
         context.Products.AddRange(products);
         await context.SaveChangesAsync();
     }

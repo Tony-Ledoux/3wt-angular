@@ -1,12 +1,10 @@
-import { AsyncPipe, JsonPipe } from '@angular/common';
 import { Component, input, model, output, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { errorInterceptor } from '@app/core/interceptors/error.interceptor';
 import { debounceTime, distinctUntilChanged, map, tap } from 'rxjs';
 
 @Component({
   selector: 'app-autocomplete',
-  imports: [JsonPipe],
+  imports: [],
   templateUrl: './autocomplete.html',
   styleUrl: './autocomplete.css',
 })

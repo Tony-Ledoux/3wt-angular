@@ -1,0 +1,13 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-2">
+    <app-labeled-input label="Naam" name="productName" formControlName="productName" />
+    <app-labeled-input label="Unit" name="" formControlName="defaultUnit" />
+    <div class="border rounded-xl border-app-border-dark p-1 mt-2">
+        <div class="text-sm font-bold bg-app-bg text-app-text-muted text-start ms-2 px-1 -mt-3.5 w-fit">houdbaarheid in minuten</div>
+        <div class="flex gap-1">
+            <app-labeled-input type="positive-number" label="gesloten" name="" formControlName="shelfLifeClosedMinutes" />
+            <app-labeled-input type="positive-number" label="open" name="" formControlName="shelfLifeOpenedMinutes" />
+        </div>
+    </div>
+    <app-button type="submit" [disabled]="!form.valid">Aanpassen</app-button>
+</form>
+

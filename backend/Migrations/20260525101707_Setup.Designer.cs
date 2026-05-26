@@ -12,7 +12,7 @@ using backend.Contexts;
 namespace backend.Migrations
 {
     [DbContext(typeof(KitchenDbContext))]
-    [Migration("20260525055121_Setup")]
+    [Migration("20260525101707_Setup")]
     partial class Setup
     {
         /// <inheritdoc />

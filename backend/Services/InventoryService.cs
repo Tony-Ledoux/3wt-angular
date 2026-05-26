@@ -32,6 +32,7 @@ public interface IInventoryService
     Task<bool> AddCategoryToProduct(int pid, int cid, bool isAdmin);
     Task<bool> RemoveCategoryFromProductAsync(int pid,int cid, bool isAdmin);
     Task <bool> RemoveProduct(int pid, bool isAdmin);
+    Task<RequestResponse<ProductDto>> UpdateProductAsync(int pid, bool isAdmin, int? );
     // Inventory
 
 }
