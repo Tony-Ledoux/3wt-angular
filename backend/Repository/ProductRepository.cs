@@ -9,6 +9,7 @@ public interface IProductRespository: IGeneric<Product>
 {
     Task<(IEnumerable<Product> Items, int TotalCount)> GetPagedProducsAsync(int page, int pageSize, bool? isGlobel, int? categoryId);
     Task<Product?> GetProductWithCategoriesByIdAsync(int pid);
+    Task<IEnumerable<Product>> GetProductsWithCategoriesByHouseholdId(int householdId);
     }
 
 public class ProductRepository(KitchenDbContext db) : Generic<Product>(db), IProductRespository
@@ -32,6 +33,12 @@ public class ProductRepository(KitchenDbContext db) : Generic<Product>(db), IPro
         
         return (items, totalCount);
     }
+
+    public async Task<IEnumerable<Product>> GetProductsWithCategoriesByHouseholdId(int householdId)
+    {
+         return await _dbSet.Include(p=>p.ProductCategories).Where(x=>x.HouseholdId == householdId || x.IsGlobal == true).ToListAsync();
+    }
+
     public async Task<Product?> GetProductWithCategoriesByIdAsync(int pid)
     {
         return await _dbSet.Include(p=>p.ProductCategories).FirstOrDefaultAsync(p=>p.Id == pid);

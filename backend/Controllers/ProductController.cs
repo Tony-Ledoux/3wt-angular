@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using backend.Contexts;
 using backend.Models.Create;
 using backend.Models.Update;
@@ -70,6 +71,14 @@ namespace backend.Controllers
             var result = await _srv.UpdateProductAsync(pid,_user.IsAdmin,input);
             if(!result.Success) return BadRequest();
             return Ok(result.Data);
+        }
+
+        [HttpGet("/houshold/{householdId:int}")]
+        public async Task<IActionResult> GetProductsForAHousehold(int householdId)
+        {
+            if(!_user.HouseholdUsers.Any(hh=> hh.HouseholdId == householdId) && !_user.IsAdmin) return Forbid();
+            // get all global products and products
+            var result = _srv.GetProductsByHouseholdId(householdId);
         }
     }
 }

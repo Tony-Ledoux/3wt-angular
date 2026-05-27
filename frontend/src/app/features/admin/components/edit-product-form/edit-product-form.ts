@@ -41,11 +41,11 @@ export class EditProductForm {
       next:(data)=>{
         data.id = this.product()!.id;
         this.productUpdated.emit(data);
-        this.notifySrv.success(`${data.productName}is aangepast`)
+        this.notifySrv.success(`${data.productName} is aangepast`)
       },
       error:(err)=>{
         console.error(err);
-        this.notifySrv.error(`${this.product()} kon niet aangepast worden`)
+        this.notifySrv.error(`${this.product()?.productName} kon niet aangepast worden`)
       }
     });
   }

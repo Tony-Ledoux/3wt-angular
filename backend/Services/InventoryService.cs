@@ -29,6 +29,7 @@ public interface IInventoryService
     Task<IEnumerable<StorageLocation>> GetStoragelocationsOfHouseholdsAsync(int householdId);
     // Products
     Task<PagedResult<ProductDto>> GetPagedProductsAsync(int page, int pageSize, bool? isGlobal, int? categoryId);
+    Task<IEnumerable<ProductDto>> GetProductsByHouseholdId(int householdId);
     Task<Product?> CreateNewProductAsync(ProductCreationDto input);
     Task<bool> AddCategoryToProduct(int pid, int cid, bool isAdmin);
     Task<bool> RemoveCategoryFromProductAsync(int pid,int cid, bool isAdmin);
@@ -265,10 +266,12 @@ public class InventoryService(
         {
             input.HouseholdId = null;
         }
+        // cleanup input
+        var DefaultUnit = 
         product.ProductName = input.ProductName;
         product.DefaultUnit = string.IsNullOrEmpty(input.DefaultUnit) ? null : input.DefaultUnit;
-        product.ShelfLifeClosedMinutes = string.IsNullOrEmpty(input.ShelfLifeClosedMinutes)? null : int.Parse(input.ShelfLifeClosedMinutes);
-        product.ShelfLifeOpenedMinutes = string.IsNullOrEmpty(input.ShelfLifeOpenedMinutes) ? null :int.Parse(input.ShelfLifeOpenedMinutes);
+        product.ShelfLifeClosedMinutes =input.ShelfLifeClosedMinutes;
+        product.ShelfLifeOpenedMinutes = input.ShelfLifeOpenedMinutes;
         product.IsGlobal = isAdmin;
         product.HouseholdId = input.HouseholdId;
 
@@ -287,5 +290,11 @@ public class InventoryService(
         };
         return new RequestResponse<ProductDto>().Ok(returnable);
         
+    }
+
+    public Task<IEnumerable<ProductDto>> GetProductsByHouseholdId(int householdId)
+    {
+       var result = _prodRepo.GetProductsWithCategoriesByHouseholdId(householdId);
+       
     }
 }
