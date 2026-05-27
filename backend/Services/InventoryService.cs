@@ -6,6 +6,7 @@ using backend.Entities;
 using backend.Mappers;
 using backend.Models;
 using backend.Models.Create;
+using backend.Models.Update;
 using backend.Repository;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,7 +33,7 @@ public interface IInventoryService
     Task<bool> AddCategoryToProduct(int pid, int cid, bool isAdmin);
     Task<bool> RemoveCategoryFromProductAsync(int pid,int cid, bool isAdmin);
     Task <bool> RemoveProduct(int pid, bool isAdmin);
-    Task<RequestResponse<ProductDto>> UpdateProductAsync(int pid, bool isAdmin, int? );
+    Task<RequestResponse<ProductDto>> UpdateProductAsync(int pid, bool isAdmin, ProductUpdateDto product);
     // Inventory
 
 }
@@ -254,5 +255,37 @@ public class InventoryService(
         if(cat == null || prod==null || prod.IsGlobal && !isAdmin|| prod.ProductCategories.Any(x=>x.Id == cid)) return false;
         prod.ProductCategories.Add(cat);
         return await _prodRepo.SaveChangesAsync();
+    }
+
+    public async Task<RequestResponse<ProductDto>> UpdateProductAsync(int pid, bool isAdmin, ProductUpdateDto input)
+    {
+        var product = await _prodRepo.GetProductWithCategoriesByIdAsync(pid);
+        if(product == null) return new RequestResponse<ProductDto>().Failure("Niet gevonden").SetIsNotFound();
+        if (isAdmin)
+        {
+            input.HouseholdId = null;
+        }
+        product.ProductName = input.ProductName;
+        product.DefaultUnit = string.IsNullOrEmpty(input.DefaultUnit) ? null : input.DefaultUnit;
+        product.ShelfLifeClosedMinutes = string.IsNullOrEmpty(input.ShelfLifeClosedMinutes)? null : int.Parse(input.ShelfLifeClosedMinutes);
+        product.ShelfLifeOpenedMinutes = string.IsNullOrEmpty(input.ShelfLifeOpenedMinutes) ? null :int.Parse(input.ShelfLifeOpenedMinutes);
+        product.IsGlobal = isAdmin;
+        product.HouseholdId = input.HouseholdId;
+
+        var success = await _prodRepo.SaveChangesAsync();
+        if(!success) return new RequestResponse<ProductDto>().Failure("Error saving data");
+        ProductDto returnable = new()
+        {
+            ProductName =product.ProductName,
+            DefaultUnit = product.DefaultUnit,
+            ShelfLifeClosedMinutes = product.ShelfLifeClosedMinutes,
+            ShelfLifeOpenedMinutes = product.ShelfLifeOpenedMinutes,
+            IsGlobal = product.IsGlobal,
+            HouseholdId = product.HouseholdId,
+            CategoryIds = [.. product.ProductCategories.Select(c => c.Id)]
+
+        };
+        return new RequestResponse<ProductDto>().Ok(returnable);
+        
     }
 }

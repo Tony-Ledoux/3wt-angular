@@ -1,9 +1,11 @@
 using backend.Contexts;
 using backend.Models.Create;
+using backend.Models.Update;
 using backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace backend.Controllers
 {
@@ -60,10 +62,14 @@ namespace backend.Controllers
             throw new NotImplementedException();
         }
         [HttpPut("{pid:int}")]
-        public async Task<IActionResult> UpdateProductAsync(int pid, ProductCreationDto input)
+        public async Task<IActionResult> UpdateProductAsync(int pid, ProductUpdateDto input)
         {
+            if (!_user.IsAdmin && input.HouseholdId == null) return BadRequest();
+            if(!_user.IsAdmin && !_user.HouseholdUsers.Any(x=>x.HouseholdId == input.HouseholdId)) return BadRequest();
             
-            return Ok(input);
+            var result = await _srv.UpdateProductAsync(pid,_user.IsAdmin,input);
+            if(!result.Success) return BadRequest();
+            return Ok(result.Data);
         }
     }
 }

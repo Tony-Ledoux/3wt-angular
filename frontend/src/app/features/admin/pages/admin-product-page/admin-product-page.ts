@@ -31,7 +31,7 @@ export class AdminProductPage implements OnInit {
   pageResults = signal<PagedResult<ProductDto> | null>(null);
   isLoading = signal(false);
   isSaving = signal(false);
-  pageSizes = signal([9, 18, 36, 72,144,288]);
+  pageSizes = signal([9, 18, 36, 72, 144, 288]);
 
   currentPage = signal(1);
   pageSize = signal(9);
@@ -63,15 +63,15 @@ export class AdminProductPage implements OnInit {
   }
 
   onPageChange(page: number): void {
-  this.currentPage.set(page);
-  this.loadProducts();
-}
+    this.currentPage.set(page);
+    this.loadProducts();
+  }
 
-onPageSizeChange(size: number): void {
-  this.pageSize.set(size);
-  this.currentPage.set(1); // Reset naar eerste pagina bij pageSize wijziging
-  this.loadProducts();
-}
+  onPageSizeChange(size: number): void {
+    this.pageSize.set(size);
+    this.currentPage.set(1); // Reset naar eerste pagina bij pageSize wijziging
+    this.loadProducts();
+  }
 
   loadCategories() {
     this.apiSrv.get<ProductCategory[]>('/admin/product-categories').subscribe({
@@ -234,14 +234,27 @@ onPageSizeChange(size: number): void {
 
   onEditProductClick(product: ProductDto) {
     console.log(product);
-    this.modalSrv.open(`Bewerk ${product.productName}`,EditProductForm)
-    .setData({
-      product:product,
-      categories:this.categories
-    })
-    .setCloseBackdropClick(false)
-    .setShowActionButton(false)
-    .show();
+    this.modalSrv.open(`Bewerk ${product.productName}`, EditProductForm)
+      .setData({
+        product: product,
+        categories: this.categories
+      })
+      .setEventCallback((name, data) => {
+        console.log('returned from form', data);
+        if (name === 'productUpdated') {
+          this.products.update(p => p.map(p => {
+            if (p.id === data.id) {
+              return data;
+            } else {
+              return p;
+            }
+          }))
+        }
+        this.modalSrv.close();
+      })
+      .setCloseBackdropClick(false)
+      .setShowActionButton(false)
+      .show();
   }
 
 }

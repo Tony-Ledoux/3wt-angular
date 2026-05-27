@@ -2,8 +2,9 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ProductDto } from '@app/core/types/products';
 import { LabeledInput } from '@app/shared/components/form/labeled-input/labeled-input';
 import { ButtonComponent } from "@app/shared/components/button/button";
-import { afterNextRender, Component, computed, inject, input } from '@angular/core';
+import { afterNextRender, Component, computed, inject, input, output } from '@angular/core';
 import { ApiService } from '@app/core/services/api/api-service';
+import { NotifyService } from '@app/core/services/notify/notify-service';
 
 export interface UpdateFormOptions {
   product: ProductDto
@@ -19,10 +20,12 @@ export class EditProductForm {
 
   private fb = inject(FormBuilder);
   private apiSrv = inject(ApiService);
+  private notifySrv = inject(NotifyService);
 
   data = input<UpdateFormOptions>();
   product = computed(()=>this.data()?.product??null);
   private _updateForm!:FormGroup;
+  productUpdated = output<ProductDto>();
 
   constructor(){
     afterNextRender(()=>{
@@ -31,12 +34,18 @@ export class EditProductForm {
   }
 
   onSubmit(){
-    this.apiSrv.put<ProductDto>(`/products/${this.product()?.id}`,this._updateForm.value).subscribe({
+    const formData = this._updateForm.value;
+    console.log('on submit', formData);
+    
+    this.apiSrv.put<ProductDto>(`/products/${this.product()?.id}`,formData).subscribe({
       next:(data)=>{
-        console.log(data);
+        data.id = this.product()!.id;
+        this.productUpdated.emit(data);
+        this.notifySrv.success(`${data.productName}is aangepast`)
       },
       error:(err)=>{
         console.error(err);
+        this.notifySrv.error(`${this.product()} kon niet aangepast worden`)
       }
     });
   }
