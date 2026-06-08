@@ -29,7 +29,7 @@ public interface IInventoryService
     Task<IEnumerable<StorageLocation>> GetStoragelocationsOfHouseholdsAsync(int householdId);
     // Products
     Task<PagedResult<ProductDto>> GetPagedProductsAsync(int page, int pageSize, bool? isGlobal, int? categoryId);
-    Task<IEnumerable<ProductDto>> GetProductsByHouseholdId(int householdId);
+    Task <IEnumerable<ProductDto>> GetAllProductsForHouseholdId(int householdId);
     Task<Product?> CreateNewProductAsync(ProductCreationDto input);
     Task<bool> AddCategoryToProduct(int pid, int cid, bool isAdmin);
     Task<bool> RemoveCategoryFromProductAsync(int pid,int cid, bool isAdmin);
@@ -292,9 +292,26 @@ public class InventoryService(
         
     }
 
-    public Task<IEnumerable<ProductDto>> GetProductsByHouseholdId(int householdId)
+    /// <summary>
+    /// Get all products for a household,
+    /// these include the global ones and the ones corresponding to the household id
+    /// </summary>
+    /// <param name="householdId">integer</param>
+    /// <returns>A list of productDto</returns>
+    public async Task<IEnumerable<ProductDto>> GetAllProductsForHouseholdId(int householdId)
     {
-       var result = _prodRepo.GetProductsWithCategoriesByHouseholdId(householdId);
-       
+      
+        var result = await _prodRepo.GetProductsWithCategoriesByHouseholdId(householdId);
+        var dtos = result.Select(p=> new ProductDto{ 
+            Id = p.Id,
+            ProductName = p.ProductName,
+            DefaultUnit = p.DefaultUnit,
+            ShelfLifeClosedMinutes = p.ShelfLifeClosedMinutes,
+            ShelfLifeOpenedMinutes = p.ShelfLifeOpenedMinutes,
+            IsGlobal = p.IsGlobal,
+            HouseholdId = p.HouseholdId,
+            CategoryIds = [.. p.ProductCategories.Select(c => c.Id)]}
+            );
+        return dtos;
     }
 }

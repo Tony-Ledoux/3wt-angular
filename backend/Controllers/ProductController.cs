@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using backend.Contexts;
+using backend.Models;
 using backend.Models.Create;
 using backend.Models.Update;
 using backend.Services;
@@ -74,11 +75,12 @@ namespace backend.Controllers
         }
 
         [HttpGet("/houshold/{householdId:int}")]
-        public async Task<IActionResult> GetProductsForAHousehold(int householdId)
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsForAHousehold(int householdId)
         {
             if(!_user.HouseholdUsers.Any(hh=> hh.HouseholdId == householdId) && !_user.IsAdmin) return Forbid();
             // get all global products and products
-            var result = _srv.GetProductsByHouseholdId(householdId);
+            var result =  await _srv.GetAllProductsForHouseholdId(householdId);
+            return Ok(result);
         }
     }
 }
