@@ -3,7 +3,11 @@
   [class.opacity-50]="isDisabled()" 
   [class.cursor-not-allowed]="isDisabled()" 
   [class.cursor-pointer]="!isDisabled()">
-  
+  @if(left_label()){
+    <span class="text-sm font-medium ps-2 text-app-text-body">
+      {{ left_label() }}
+    </span>
+  }
   <div class="relative inline-flex items-center">
     <!-- Native checkbox voor accessibility en form integration -->
     <input 

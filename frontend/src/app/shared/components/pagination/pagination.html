@@ -30,7 +30,7 @@
             (keydown)="onPageKeyDown($event, page)"
             [attr.aria-label]="'Ga naar pagina ' + page.page"
             [attr.aria-current]="page.page === currentPage() ? 'page' : false"
-            class="px-3 py-1.5 rounded-md border bg-app-card text-app-text-muted hover:text-brand-secondary hover:bg-brand-primary-light focus:outline-none focus:ring-2 focus:ring-brand-secondary focus:ring-offset-1 text-sm font-medium transition-all duration-200 min-w-[2.5rem] text-center disabled:opacity-40 disabled:cursor-not-allowed"
+            class="px-3 py-1.5 rounded-md border bg-app-card text-app-text-muted hover:text-brand-secondary hover:bg-brand-primary-light focus:outline-none focus:ring-2 focus:ring-brand-secondary focus:ring-offset-1 text-sm font-medium transition-all duration-200 min-w-10 text-center disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {{ page.page }}
           </button>

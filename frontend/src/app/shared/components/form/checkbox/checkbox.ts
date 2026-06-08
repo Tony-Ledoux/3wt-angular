@@ -20,6 +20,7 @@ export interface CheckboxChanged {
 })
 export class Checkbox implements ControlValueAccessor {
   label = input<string>();
+  left_label = input<string>();
   name = input<string>();
   nullable = input<boolean>(false);
   changed = output<CheckboxChanged>();

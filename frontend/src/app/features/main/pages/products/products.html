@@ -1,1 +1,12 @@
-<p>products works!</p>
+<app-section-card title="Producten" icon="fa fa-drumstick-bite">
+    <app-section-card type="dashed">
+        <app-pagination [currentPage]="current_page()" [totalItems]="totalProducts()" [totalPages]="totalPages()" [pageSize]="page_size()" [pageSizes]="pageSizes" (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)" />
+        <app-labeled-input label="Zoek op naam" name="filter" />
+        <app-checkbox [nullable]="true" label="Enkel persoonlijke" left_label="Enkel globale" (changed)="onSectorChange($event)" />
+    </app-section-card>
+
+
+</app-section-card>
+<pre>
+    {{pagedProducts()|json}}
+</pre>

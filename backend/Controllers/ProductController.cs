@@ -74,7 +74,7 @@ namespace backend.Controllers
             return Ok(result.Data);
         }
 
-        [HttpGet("/houshold/{householdId:int}")]
+        [HttpGet("houshold/{householdId:int}")]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsForAHousehold(int householdId)
         {
             if(!_user.HouseholdUsers.Any(hh=> hh.HouseholdId == householdId) && !_user.IsAdmin) return Forbid();
