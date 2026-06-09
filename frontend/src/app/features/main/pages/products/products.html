@@ -1,8 +1,12 @@
 <app-section-card title="Producten" icon="fa fa-drumstick-bite">
     <app-section-card type="dashed">
-        <app-pagination [currentPage]="current_page()" [totalItems]="totalProducts()" [totalPages]="totalPages()" [pageSize]="page_size()" [pageSizes]="pageSizes" (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)" />
-        <app-labeled-input label="Zoek op naam" name="filter" />
-        <app-checkbox [nullable]="true" label="Enkel persoonlijke" left_label="Enkel globale" (changed)="onSectorChange($event)" />
+        <div class="flex flex-col md:flex-row gap-1">
+            <app-pagination [currentPage]="current_page()" [totalItems]="totalProducts()" [totalPages]="totalPages()" [pageSize]="page_size()" [pageSizes]="pageSizes" (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)" />
+            <div class="flex flex-col md:flex-row">
+                <app-labeled-input label="Zoek op naam" name="filter" (valueChange)="onFilterChange($event)" />
+                <app-checkbox [nullable]="true" label="Enkel globale" left_label="Enkel persoonlijke" (changed)="onSectorChange($event)" />
+            </div>
+        </div>
     </app-section-card>
 
 

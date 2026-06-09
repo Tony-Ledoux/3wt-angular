@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, model, signal } from '@angular/core';
 import { ApiService } from '@app/core/services/api/api-service';
 import { HouseholdService } from '../../services/household-service';
 import { SectionCard } from "@app/shared/components/section-card/section-card";
@@ -6,6 +6,7 @@ import { Pagination } from "@app/shared/components/pagination/pagination";
 import { JsonPipe } from '@angular/common';
 import { Checkbox } from "@app/shared/components/form/checkbox/checkbox";
 import { LabeledInput } from "@app/shared/components/form/labeled-input/labeled-input";
+import { ProductDto } from '@app/core/types/products';
 
 @Component({
   selector: 'app-products',
@@ -16,17 +17,29 @@ import { LabeledInput } from "@app/shared/components/form/labeled-input/labeled-
 export class Products {
   private readonly apiSrv = inject(ApiService);
   private readonly householdSrv = inject(HouseholdService)
-  products = signal<any[]>([]);
-  filterQuery = signal<string>('')
+  products = signal<ProductDto[]>([]);
+  // Filter
+  filterQuery = signal<string>('');
+  filterToggles = signal<boolean|null>(null);
+  filteredProducts = computed(() => {
+    let products = this.products();
+    const query = this.filterQuery().toLowerCase();
+    const onlySelf = this.filterToggles();
+    if(onlySelf !== null){
+      products = products.filter(x =>x.isGlobal === onlySelf)
+    }
+    if(query){
+      products = products.filter(x=>x.productName.toLowerCase().includes(query));
+    }
+    return products;
+  });
+
 
   current_page = signal(1);
   page_size = signal(10);
   pageSizes = [10, 20, 30, 40, 50, 100]
 
-  filteredProducts = computed(() => {
-    const query = this.filterQuery().toLowerCase();
-    return this.products().filter(p => p.productName.toLowerCase().includes(query));
-  });
+
   pagedProducts = computed(() => {
     const startIndex = (this.current_page() - 1) * this.page_size();
     const endIndex = startIndex + this.page_size();
@@ -34,7 +47,7 @@ export class Products {
   });
 
   totalProducts = computed(() => this.products().length);
-  totalPages = computed(() => Math.ceil(this.totalProducts() / this.page_size()));
+  totalPages = computed(() => Math.ceil(this.filteredProducts().length / this.page_size()));
 
   constructor() {
     this.load_data();
@@ -56,12 +69,14 @@ export class Products {
   }
   onPageSizeChange(event: any) {
     this.page_size.set(event);
+    this.current_page.set(1)
   }
 
   onSectorChange(event: any) {
-    console.log(event);
+    this.filterToggles.set(event.checked)
+    this.current_page.set(1)
   }
   onFilterChange(event:any){
-    console.log(event);
+    this.filterQuery.set(event);
   }
 }

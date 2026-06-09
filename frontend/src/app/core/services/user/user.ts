@@ -40,8 +40,13 @@ export class UserService {
   }
 
   logoff() {
+    const redirectUri = `${window.location.origin}/logout`;
+
+    console.log('Length:', redirectUri.length);
+    console.log('Last char code:', redirectUri.charCodeAt(redirectUri.length - 1));
     // clear the local storage
-    this.auth.logout();
+    console.log('Auth0 redirect target:', redirectUri);
+    this.auth.logout({logoutParams:{ returnTo: redirectUri }});
     localStorage.clear();
   }
 

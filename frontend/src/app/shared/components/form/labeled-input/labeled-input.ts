@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { ControlValueAccessor, NgControl, ReactiveFormsModule } from '@angular/forms';
 
 export type InputType = 'text' | 'number' | 'positive-number' | 'decimal' | 'positive-decimal' | 'password' | 'email' | 'date';
@@ -19,6 +19,7 @@ export class LabeledInput implements ControlValueAccessor {
   placeholder = input<string>('');
   type = input<InputType>('text');
   name = input.required<string>();
+  valueChange = output<any>();
 
   // CVA State
   value: any = '';
@@ -102,5 +103,6 @@ export class LabeledInput implements ControlValueAccessor {
 
     this.value = val;
     this.onChange(val);
+    this.valueChange.emit(val)
   }
 }

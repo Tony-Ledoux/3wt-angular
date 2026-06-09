@@ -4,17 +4,29 @@ services:
     environment:
       POSTGRES_DB: MyKitchen
       POSTGRES_USER: HungryClient
-      POSTGRES_PASSWORD: ChowingF00d!
+      POSTGRES_PASSWORD: "ChowingF00d!"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U HungryClient -d MyKitchen"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
+    networks:
+      - kitchen_network
+
+  db-migrations:
+    build:
+      context: ./backend
+      dockerfile: .dockerfile
+      target: migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: dotnet ef database update --connection "Host=postgres;Port=5432;Database=MyKitchen;Username=HungryClient;Password=ChowingF00d!;"
     networks:
       - kitchen_network
 
@@ -26,14 +38,16 @@ services:
     ports:
       - "5197:8080"
     environment:
-      - ASPNETCORE_ENVIROMENT=Production
-      - ConnectionStrings__Default=Host=postgres;Database=MyKitchen;Username=HungryClient;Password=ChowingF00d!
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Default: "Host=postgres;Port=5432;Database=MyKitchen;Username=HungryClient;Password=ChowingF00d!;"
     depends_on:
       postgres:
-          condition: service_healthy
+        condition: service_healthy
+      db-migrations:
+        condition: service_completed_successfully
     networks:
       - kitchen_network
-  
+
   frontend:
     build:
       context: ./frontend
@@ -42,12 +56,14 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_started
     networks:
       - kitchen_network
-    
+
 volumes:
   postgres_data:
+
 networks:
   kitchen_network:
     driver: bridge

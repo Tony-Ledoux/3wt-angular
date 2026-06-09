@@ -1,0 +1,13 @@
+# Exclude everything except what's needed for build/migration
+**/bin
+**/obj
+**/.git
+**/node_modules
+**/*.user
+**/*.suo
+.env
+docker-compose*.yml
+Dockerfile*
+*.md
+.vscode/
+.gitignore
