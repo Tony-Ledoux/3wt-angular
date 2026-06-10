@@ -11,6 +11,7 @@ namespace backend.Controllers
     public class DeviceController(IInventoryService inventoryService) : ControllerBase
     {
         private readonly IInventoryService _srv= inventoryService;
+        
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DeviceTypeDto>>> GetDevices()
         {

@@ -10,34 +10,46 @@ import { ProductDto } from '@app/core/types/products';
 import { ButtonComponent } from '@app/shared/components/button/button';
 import { SectionCardHeader } from "@app/shared/directives/section-card-header";
 import { PillComponent } from '@app/shared/components/pill-component/pill-component';
+import { InventoryService } from '../../services/inventory-service';
+import { LabeledSelectbox, SelectOptions } from '@app/shared/components/form/labled-selectbox/labeled-selectbox';
 
 @Component({
   selector: 'app-products',
-  imports: [SectionCard, Pagination, JsonPipe, Checkbox, LabeledInput, ButtonComponent,PillComponent, SectionCardHeader],
+  imports: [SectionCard, Pagination, JsonPipe, Checkbox, LabeledInput, ButtonComponent, PillComponent, SectionCardHeader, LabeledSelectbox],
   templateUrl: './products.html',
   styleUrl: './products.css',
 })
 export class Products {
   private readonly apiSrv = inject(ApiService);
+  private inventorySrv = inject(InventoryService);
   readonly householdSrv = inject(HouseholdService)
-  products = signal<ProductDto[]>([]);
-  selected_household = computed(()=>this.householdSrv.selected_household())
+  //products = signal<ProductDto[]>([]);
+  products = computed(() => this.inventorySrv.products())
+  categories = computed(() => this.inventorySrv.categories())
+  categoriesOptions = computed<SelectOptions[]>(() => this.categories().map((x) => ({ label: x.categorieName, value: x.id })).sort((a, b) => a.label.localeCompare(b.label)));
+  selected_household = computed(() => this.householdSrv.selected_household())
+
   // Filter
   filterQuery = signal<string>('');
-  filterToggles = signal<boolean|null>(null);
+  filterCategorie = signal<number | null>(null);
+  filterToggles = signal<boolean | null>(null);
   filteredProducts = computed(() => {
     let products = this.products();
+    const categorie = this.filterCategorie();
     const query = this.filterQuery().toLowerCase();
     const onlySelf = this.filterToggles();
-    if(onlySelf !== null){
-      products = products.filter(x =>x.isGlobal === onlySelf)
+    if (categorie !== null) {
+      products = products.filter(x => x.categoryIds.includes(categorie));
     }
-    if(query){
-      products = products.filter(x=>x.productName.toLowerCase().includes(query));
+    if (onlySelf !== null) {
+      products = products.filter(x => x.isGlobal === onlySelf)
+    }
+    if (query) {
+      products = products.filter(x => x.productName.toLowerCase().includes(query));
     }
     return products;
   });
-  
+
 
   current_page = signal(1);
   page_size = signal(10);
@@ -53,21 +65,6 @@ export class Products {
   totalProducts = computed(() => this.products().length);
   totalPages = computed(() => Math.ceil(this.filteredProducts().length / this.page_size()));
 
-  constructor() {
-    this.load_data();
-  }
-
-  private load_data() {
-    this.apiSrv.get<any[]>(`/products/houshold/${this.householdSrv.selected_household()?.householdId!}`).subscribe({
-      next: (data) => {
-        this.products.set(data);
-      },
-      error: (err) => {
-        console.error(err)
-      }
-    });
-  }
-
   onPageChange(event: any) {
     this.current_page.set(event);
   }
@@ -80,7 +77,15 @@ export class Products {
     this.filterToggles.set(event.checked)
     this.current_page.set(1)
   }
-  onFilterChange(event:any){
+  onFilterChange(event: any) {
     this.filterQuery.set(event);
+    this.current_page.set(1)
+  }
+  onFilterCategorieChange(event: any) {
+    if (event === "") {
+      event = null;
+    }
+    this.filterCategorie.set(event);
+    this.current_page.set(1)
   }
 }

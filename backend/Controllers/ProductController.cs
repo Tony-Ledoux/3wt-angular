@@ -82,5 +82,11 @@ namespace backend.Controllers
             var result =  await _srv.GetAllProductsForHouseholdId(householdId);
             return Ok(result);
         }
+
+        [HttpGet("categories")]
+        public async Task<ActionResult<IEnumerable<ProductCategoryDto>>> GetproductCaterories(){
+            var cat = await _srv.GetAllProductCategorieWithStorageRulessAsync();
+            return Ok(cat);
+        }
     }
 }
