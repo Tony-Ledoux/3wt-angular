@@ -4,5 +4,6 @@ export interface deviceDTO {
 }
 
 export interface deviceWithInventory {
-
+    id: number;
+    name: string
 }

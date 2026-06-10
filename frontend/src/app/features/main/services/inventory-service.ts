@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, signal } from "@angular/core";
+import { computed, effect, inject, Injectable, signal } from "@angular/core";
 import { ApiService } from "@app/core/services/api/api-service";
 import { HouseholdService } from "./household-service";
 import { ProductDto } from "@app/core/types/products";
@@ -16,14 +16,22 @@ export class InventoryService {
     inventory = signal<deviceWithInventory[]>([]);
     products = signal<ProductDto[]>([]);
 
-    private readonly household_id = computed(() => this.householdSrv.selected_household()?.householdId);
-
+    private readonly household_id = computed(() => {
+        const hh = this.householdSrv.selected_household();
+        return hh ? hh.householdId : null;
+    });
+    isowner = computed(() => this.householdSrv.selected_household()?.isowner ?? false)
     constructor() {
-        this.load_data();
+
+        effect(() => {
+            if (this.household_id() != null) {
+                this.load_data(this.household_id()!);
+            }
+        });
     }
 
-    private load_data() {
-        const household_id = this.household_id() ?? 0;
+    private load_data(household_id: number) {
+
         // get devicetypes
         this.apiSrv.get<deviceDTO[]>("/devicetypes").subscribe({
             next: (data) => {
@@ -60,6 +68,7 @@ export class InventoryService {
                 console.error(err)
             }
         });
+
     }
 
 }

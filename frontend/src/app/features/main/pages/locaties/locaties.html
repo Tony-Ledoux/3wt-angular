@@ -1,2 +1,12 @@
-<p>locaties works!</p>
-{{inventorySrv.devices()|json}}
+<app-page-header title="Locaties" subtitle="Beheer opslaglocaties" />
+@if(inventorySrv.isowner()){
+    hello
+}
+
+@for(d of devices();track d.id){
+    <app-section-card title="{{d.name}}">
+    
+    </app-section-card>
+    }@empty {
+        
+    }

@@ -1,4 +1,5 @@
 using backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,6 +7,7 @@ namespace backend.Controllers
 {
     [Route("api/storagelocations")]
     [ApiController]
+    [Authorize]
     public class StoragelocationController(IInventoryService inventoryService) : ControllerBase
     {
         public readonly IInventoryService _is = inventoryService;
