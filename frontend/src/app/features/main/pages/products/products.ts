@@ -7,17 +7,21 @@ import { JsonPipe } from '@angular/common';
 import { Checkbox } from "@app/shared/components/form/checkbox/checkbox";
 import { LabeledInput } from "@app/shared/components/form/labeled-input/labeled-input";
 import { ProductDto } from '@app/core/types/products';
+import { ButtonComponent } from '@app/shared/components/button/button';
+import { SectionCardHeader } from "@app/shared/directives/section-card-header";
+import { PillComponent } from '@app/shared/components/pill-component/pill-component';
 
 @Component({
   selector: 'app-products',
-  imports: [SectionCard, Pagination, JsonPipe, Checkbox, LabeledInput],
+  imports: [SectionCard, Pagination, JsonPipe, Checkbox, LabeledInput, ButtonComponent,PillComponent, SectionCardHeader],
   templateUrl: './products.html',
   styleUrl: './products.css',
 })
 export class Products {
   private readonly apiSrv = inject(ApiService);
-  private readonly householdSrv = inject(HouseholdService)
+  readonly householdSrv = inject(HouseholdService)
   products = signal<ProductDto[]>([]);
+  selected_household = computed(()=>this.householdSrv.selected_household())
   // Filter
   filterQuery = signal<string>('');
   filterToggles = signal<boolean|null>(null);
@@ -33,7 +37,7 @@ export class Products {
     }
     return products;
   });
-
+  
 
   current_page = signal(1);
   page_size = signal(10);

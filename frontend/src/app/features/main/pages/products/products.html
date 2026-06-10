@@ -1,16 +1,46 @@
 <app-section-card title="Producten" icon="fa fa-drumstick-bite">
-    <app-section-card type="dashed">
-        <div class="flex flex-col md:flex-row gap-1">
-            <app-pagination [currentPage]="current_page()" [totalItems]="totalProducts()" [totalPages]="totalPages()" [pageSize]="page_size()" [pageSizes]="pageSizes" (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)" />
-            <div class="flex flex-col md:flex-row">
-                <app-labeled-input label="Zoek op naam" name="filter" (valueChange)="onFilterChange($event)" />
-                <app-checkbox [nullable]="true" label="Enkel globale" left_label="Enkel persoonlijke" (changed)="onSectorChange($event)" />
+    <div card-header-action class="flex">
+        <app-pill-component label="aantal producten" [value]="products().length" type="pill" variant="slate" />
+        @if(householdSrv.selected_household()?.isowner){
+        <app-button icon="fa fa-plus" variant="success">product toevoegen</app-button>
+        }
+    </div>
+    <div class="flex flex-col md:flex-row justify-center justify-items-center">
+        <app-labeled-input label="Zoek op naam" name="filter" (valueChange)="onFilterChange($event)" />
+        <app-checkbox [nullable]="true" label="Enkel globale" left_label="Enkel persoonlijke"
+            (changed)="onSectorChange($event)" />
+    </div>
+    <app-pagination [currentPage]="current_page()" [totalItems]="totalProducts()" [totalPages]="totalPages()"
+        [pageSize]="page_size()" [pageSizes]="pageSizes" (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)" />
+    <div class="space-y-2">
+
+        @for(p of pagedProducts(); track p.id){
+        <div class="flex justify-between gap-2">
+
+            <span>
+                {{p.productName}}
+            </span>
+            <span>
+                {{p.defaultUnit}}
+            </span>
+            <div class="flex gap-2">
+                <app-button icon="fa fa-plus">voeg toe aan inventaris</app-button>
+                @if(householdSrv.selected_household()?.isowner){
+                <app-button icon="fa fa-trash" variant="danger"
+                    [disabled]="p.householdId != selected_household()?.householdId">verwijder</app-button>
+                }
             </div>
         </div>
-    </app-section-card>
-
-
+        }@empty {
+        <div class="col-span-1 md:col-span-2 lg:col-end-3 mx-auto">
+            <app-section-card>
+                Er zijn geen producten
+            </app-section-card>
+        </div>
+        }
+    </div>
+    <app-pagination [currentPage]="current_page()" [totalItems]="totalProducts()" [totalPages]="totalPages()"
+        [pageSize]="page_size()" [pageSizes]="pageSizes" (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)" />
 </app-section-card>
-<pre>
-    {{pagedProducts()|json}}
-</pre>
