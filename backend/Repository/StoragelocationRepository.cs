@@ -13,6 +13,6 @@ public class StoragelocationRepository(KitchenDbContext db) : Generic<StorageLoc
 {
     public async Task<IEnumerable<StorageLocation>> GetStorageLocationsByHouseholdIdAsync(int householdId)
     {
-        return await _dbSet.Where(sl=>sl.HouseholdId == householdId).Include(sl=>sl.DeviceType).ToListAsync();
+        return await _dbSet.Where(sl=>sl.HouseholdId == householdId).Include(sl=>sl.DeviceType).Include(x=>x.InventoryItems).ToListAsync();
     }
 }

@@ -3,7 +3,10 @@ export interface deviceDTO {
     type: string;
 }
 
-export interface deviceWithInventory {
+export interface storageDevice {
     id: number;
     name: string
+    deviceTypeId:number;
+    deviceType:string;
+    numberOfItemsInInventory:number;
 }

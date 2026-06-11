@@ -1,12 +1,13 @@
 import { Component, inject, input, output, signal } from '@angular/core';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { uniqueDeviceTypeValidator } from '../../validators/storagerule-list-validator';
+
 import { ApiService } from '@app/core/services/api/api-service';
 import { NotifyService } from '@app/core/services/notify/notify-service';
 import { LabeledSelectbox } from '@app/shared/components/form/labled-selectbox/labeled-selectbox';
 import { LabeledInput } from '@app/shared/components/form/labeled-input/labeled-input';
 import { ButtonComponent } from "@app/shared/components/button/button";
 import { HttpErrorResponse } from '@angular/common/http';
+import { uniqueDeviceTypeValidator } from '@app/core/validators/storage-rules-list/storagerule-list-validator';
 
 
 @Component({

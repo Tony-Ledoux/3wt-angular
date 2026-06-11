@@ -1,12 +1,32 @@
-<app-page-header title="Locaties" subtitle="Beheer opslaglocaties" />
-@if(inventorySrv.isowner()){
-    hello
-}
+<div class="p-4 md:p-6 max-w-7xl mx-auto space-y-6 bg-app-bg min-h-screen">
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <app-page-header title="Locaties" subtitle="Beheer opslaglocaties" />
+    @if(inventorySrv.isowner()){
+        <app-button variant="success" icon="fa fa-plus"
+            class="whitespace-nowrap shadow-sm w-full md:w-auto" (click)="handleNewStorageLocationClick()">
+            Nieuwe locatie
+        </app-button>
+    }
+    </div>
 
-@for(d of devices();track d.id){
-    <app-section-card title="{{d.name}}">
-    
+    @for(d of devices();track d.id){
+    <app-section-card title="{{d.name}}" [icon]="get_icon(d.deviceTypeId)">
+        <app-pill-component card-header-action label="inventory" [value]="d.numberOfItemsInInventory" type="pill"
+            variant="slate" />
+        <span>type: {{d.deviceType}}</span>
     </app-section-card>
     }@empty {
-        
+    <app-section-card>
+        <div class="text-2xl text-status-danger flex flex-col gap-2 text-center">
+            <h2>
+                Nog geen opslaglocaties
+            </h2>
+            @if(!inventorySrv.isowner()){
+                <span class="text-xl italic">Vraag de eigenaar om een opslaglocatie toe te voegen.</span>
+            }
+            <app-no-device-found class="mx-auto"/>
+        </div>
+    </app-section-card>
     }
+</div>

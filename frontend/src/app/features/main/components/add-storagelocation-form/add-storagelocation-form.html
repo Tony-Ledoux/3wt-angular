@@ -1,0 +1,6 @@
+<form [formGroup]="storageLocationForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-2">
+    <app-labeled-input label="naam" name="naam" formControlName="naam" required />
+    <app-labeled-selectbox [choices]="data().choices" label="toestel type" formControlName="type" required />
+    <app-button type="submit" [disabled]="!storageLocationForm.valid" >Aanmaken</app-button>
+</form>
+{{existing_storagelocations_names()|json}}

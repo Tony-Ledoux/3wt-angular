@@ -69,6 +69,7 @@ export class LabeledInput implements ControlValueAccessor {
     if (errors['min']) return `${this.label()} mag niet lager zijn dan ${errors['min'].min}`;
     if (errors['minlength']) return `Minimaal ${errors['minlength'].requiredLength} tekens nodig`;
     if (errors['maxlength']) return `Maximaal ${errors['maxlength'].requiredLength} tekens toegestaan`;
+    if (errors['unique']) return `${this.label()} bestaat al`;
 
     return `${this.label()} is ongeldig`;
   }

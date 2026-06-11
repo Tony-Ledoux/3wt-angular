@@ -7,7 +7,8 @@ public class StoragelocationDto
 {
     public int Id {get;set;}
     public string Name {get;set;}
+    public int DeviceTypeId {get;set;}
     public string DeviceType {get;set;}
-    public IEnumerable<object> Storagerules {get;set;}
+    public int NumberOfItemsInInventory {get;set;} = 0;
 
 }

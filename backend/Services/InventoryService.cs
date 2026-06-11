@@ -26,7 +26,7 @@ public interface IInventoryService
     Task<RequestResponse<bool>> DeleteStorageRuleAsync(int id);
     Task<RequestResponse<StorageRuleDto>> CreateNewStorageRuleinCategoryIdAsync(int categotyId, StorageRuleCreationDto input);
     // StorageLocations
-    Task<IEnumerable<StorageLocation>> GetStoragelocationsOfHouseholdsAsync(int householdId);
+    Task<IEnumerable<StoragelocationDto>> GetStoragelocationsOfHouseholdsAsync(int householdId);
     // Products
     Task<PagedResult<ProductDto>> GetPagedProductsAsync(int page, int pageSize, bool? isGlobal, int? categoryId);
     Task <IEnumerable<ProductDto>> GetAllProductsForHouseholdId(int householdId);
@@ -104,9 +104,19 @@ public class InventoryService(
         return _Map_product.MapList(data);
     }
 
-    public async Task<IEnumerable<StorageLocation>> GetStoragelocationsOfHouseholdsAsync(int householdId)
+    public async Task<IEnumerable<StoragelocationDto>> GetStoragelocationsOfHouseholdsAsync(int householdId)
     {
-        return await storagelocation.GetStorageLocationsByHouseholdIdAsync(householdId);
+
+        var locations = await storagelocation.GetStorageLocationsByHouseholdIdAsync(householdId);
+        return locations.Select(x=> new StoragelocationDto
+        {
+            Id = x.Id,
+            Name = x.Name,
+            DeviceTypeId = x.DeviceTypeId,
+            DeviceType = x.DeviceType.Type,
+            NumberOfItemsInInventory = x.InventoryItems.Count
+        });
+
     }
 
     public async Task<RequestResponse<bool>> DeleteCategoryWithRules(int id)

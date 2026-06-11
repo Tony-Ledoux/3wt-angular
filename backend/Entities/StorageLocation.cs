@@ -18,4 +18,5 @@ public class StorageLocation : BaseEntity
     public DeviceType DeviceType {get;set;}
     [ForeignKey(nameof(HouseholdId))]
     public Household Household {get;set;}
+    public ICollection<Inventory> InventoryItems {get;set;}= [];
 }
