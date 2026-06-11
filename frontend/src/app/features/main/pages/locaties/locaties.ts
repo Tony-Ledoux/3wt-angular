@@ -9,6 +9,8 @@ import { ButtonComponent } from '@app/shared/components/button/button';
 import { NoDeviceFound } from "@app/shared/images/no-device-found/no-device-found";
 import { ModalService } from '@app/core/services/modal/modal-service';
 import { AddStoragelocationForm } from '../../components/add-storagelocation-form/add-storagelocation-form';
+import { storageDevice } from '@app/core/types/device';
+import { NotifyService } from '@app/core/services/notify/notify-service';
 
 @Component({
   selector: 'app-locaties',
@@ -19,9 +21,10 @@ import { AddStoragelocationForm } from '../../components/add-storagelocation-for
 export class Locaties {
   inventorySrv = inject(InventoryService);
   devices = computed(() => this.inventorySrv.household_devices());
+  private notifySrv = inject(NotifyService);
   private modalSrv = inject(ModalService)
-  get_icon(deviceType:number):string{
-    switch(deviceType) {
+  get_icon(deviceType: number): string {
+    switch (deviceType) {
       case 1:
         return 'fa fa-icicles text-brand-primary';
       case 2:
@@ -31,11 +34,27 @@ export class Locaties {
     }
   }
 
-  handleNewStorageLocationClick(){
+  handleNewStorageLocationClick() {
     this.modalSrv.open("Oplaglocatie toevoegen", AddStoragelocationForm)
-    .setCloseBackdropClick(false)
-    .setShowActionButton(false)
-    .setData({choices:this.inventorySrv.deviceOptionList, exitsting:this.devices()})
-    .show()
+      .setCloseBackdropClick(false)
+      .setShowActionButton(false)
+      .setData(
+        {
+          choices: this.inventorySrv.deviceOptionList,
+          exitsting: this.devices(),
+          household_id: this.inventorySrv.hh_id
+        })
+      .setEventCallback((eventName, data: storageDevice) => {
+        if (eventName === "submitted") {
+          // update the devicelist
+          this.inventorySrv.addStorageDevice(data);
+          // send notification
+          this.notifySrv.success(`${data.name} is toegevoegd`)
+          //close modal
+          this.modalSrv.close();
+          console.log("from callback", data)
+        }
+      })
+      .show()
   }
 }

@@ -22,13 +22,13 @@ export class InventoryService {
         return hh ? hh.householdId : null;
     });
     isowner = computed(() => this.householdSrv.selected_household()?.isowner ?? false)
-    
-    
-    public get deviceOptionList() : SelectOptions[] {
-        return this.devices().map(x=>({label:x.type,value:x.id})).sort((a,b)=>a.label.localeCompare(b.label));
+
+
+    public get deviceOptionList(): SelectOptions[] {
+        return this.devices().map(x => ({ label: x.type, value: x.id })).sort((a, b) => a.label.localeCompare(b.label));
     }
-    
-    
+
+
     constructor() {
 
         effect(() => {
@@ -36,6 +36,10 @@ export class InventoryService {
                 this.load_data(this.household_id()!);
             }
         });
+    }
+
+    public get hh_id(): number {
+        return this.household_id() ?? 0;
     }
 
     private load_data(household_id: number) {
@@ -94,6 +98,10 @@ export class InventoryService {
                 console.error(err)
             }
         });
+    }
+
+    addStorageDevice(dev: storageDevice) {
+        this.household_devices.update(p => [...p, dev]);
     }
 
 }

@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 
 
+
 namespace backend.Services;
 
 public interface IInventoryService
@@ -27,13 +28,14 @@ public interface IInventoryService
     Task<RequestResponse<StorageRuleDto>> CreateNewStorageRuleinCategoryIdAsync(int categotyId, StorageRuleCreationDto input);
     // StorageLocations
     Task<IEnumerable<StoragelocationDto>> GetStoragelocationsOfHouseholdsAsync(int householdId);
+    Task<StoragelocationDto?> CreateStorageLocationForHousehold(int id, StorageLocationCreateDto input);
     // Products
     Task<PagedResult<ProductDto>> GetPagedProductsAsync(int page, int pageSize, bool? isGlobal, int? categoryId);
-    Task <IEnumerable<ProductDto>> GetAllProductsForHouseholdId(int householdId);
+    Task<IEnumerable<ProductDto>> GetAllProductsForHouseholdId(int householdId);
     Task<Product?> CreateNewProductAsync(ProductCreationDto input);
     Task<bool> AddCategoryToProduct(int pid, int cid, bool isAdmin);
-    Task<bool> RemoveCategoryFromProductAsync(int pid,int cid, bool isAdmin);
-    Task <bool> RemoveProduct(int pid, bool isAdmin);
+    Task<bool> RemoveCategoryFromProductAsync(int pid, int cid, bool isAdmin);
+    Task<bool> RemoveProduct(int pid, bool isAdmin);
     Task<RequestResponse<ProductDto>> UpdateProductAsync(int pid, bool isAdmin, ProductUpdateDto product);
     // Inventory
 
@@ -58,7 +60,7 @@ public class InventoryService(
     private readonly IGeneric<StorageRule> storageRuleRepo = srr;
     private readonly IProductCategoryRepository _catProdRepo = prodcatrepo;
     private readonly IProductRespository _prodRepo = product_repo;
-    private readonly IStoragelocationRepository storagelocation = stg;
+    private readonly IStoragelocationRepository _storagelocationRepo = stg;
     private readonly IMapper<DeviceType, DeviceTypeDto> _deviceMapper = devmap;
     private readonly IMapper<ProductCategory, ProductCategoryDto> _Map_product = mapper_pc;
     private readonly IMapper<StorageRule, StorageRuleDto> _map_storageRule = mapper_storageRule;
@@ -107,8 +109,8 @@ public class InventoryService(
     public async Task<IEnumerable<StoragelocationDto>> GetStoragelocationsOfHouseholdsAsync(int householdId)
     {
 
-        var locations = await storagelocation.GetStorageLocationsByHouseholdIdAsync(householdId);
-        return locations.Select(x=> new StoragelocationDto
+        var locations = await _storagelocationRepo.GetStorageLocationsByHouseholdIdAsync(householdId);
+        return locations.Select(x => new StoragelocationDto
         {
             Id = x.Id,
             Name = x.Name,
@@ -238,22 +240,22 @@ public class InventoryService(
     {
         // 1. get the product
         var prod = await _prodRepo.GetProductWithCategoriesByIdAsync(pid);
-        if(prod == null) return false;
-        if(!prod.ProductCategories.Any(pc=>pc.Id == cid)) return false;
-        if(prod.IsGlobal && !isAdmin) return false;
+        if (prod == null) return false;
+        if (!prod.ProductCategories.Any(pc => pc.Id == cid)) return false;
+        if (prod.IsGlobal && !isAdmin) return false;
         //2. get the record in the mappingTable
-        var record = await _dbContext.ProductCategoryMappings.FirstOrDefaultAsync(pcm=>pcm.ProductCategoryId == cid && pcm.ProductId == pid);
-        if(record == null) return false;
+        var record = await _dbContext.ProductCategoryMappings.FirstOrDefaultAsync(pcm => pcm.ProductCategoryId == cid && pcm.ProductId == pid);
+        if (record == null) return false;
         _dbContext.Remove(record);
-        return await _dbContext.SaveChangesAsync()>0;
+        return await _dbContext.SaveChangesAsync() > 0;
     }
 
     public async Task<bool> RemoveProduct(int pid, bool isAdmin)
     {
         //1. get the product
         var prod = await _prodRepo.GetByIdAsync(pid);
-        if(prod == null) return false;
-        if(prod.IsGlobal && ! isAdmin) return false;
+        if (prod == null) return false;
+        if (prod.IsGlobal && !isAdmin) return false;
         _prodRepo.Delete(prod);
         return await _prodRepo.SaveChangesAsync();
     }
@@ -263,7 +265,7 @@ public class InventoryService(
         //1. get the product
         var prod = await _prodRepo.GetProductWithCategoriesByIdAsync(pid);
         var cat = await _catProdRepo.GetByIdAsync(cid);
-        if(cat == null || prod==null || prod.IsGlobal && !isAdmin|| prod.ProductCategories.Any(x=>x.Id == cid)) return false;
+        if (cat == null || prod == null || prod.IsGlobal && !isAdmin || prod.ProductCategories.Any(x => x.Id == cid)) return false;
         prod.ProductCategories.Add(cat);
         return await _prodRepo.SaveChangesAsync();
     }
@@ -271,25 +273,25 @@ public class InventoryService(
     public async Task<RequestResponse<ProductDto>> UpdateProductAsync(int pid, bool isAdmin, ProductUpdateDto input)
     {
         var product = await _prodRepo.GetProductWithCategoriesByIdAsync(pid);
-        if(product == null) return new RequestResponse<ProductDto>().Failure("Niet gevonden").SetIsNotFound();
+        if (product == null) return new RequestResponse<ProductDto>().Failure("Niet gevonden").SetIsNotFound();
         if (isAdmin)
         {
             input.HouseholdId = null;
         }
         // cleanup input
-        var DefaultUnit = 
+        var DefaultUnit =
         product.ProductName = input.ProductName;
         product.DefaultUnit = string.IsNullOrEmpty(input.DefaultUnit) ? null : input.DefaultUnit;
-        product.ShelfLifeClosedMinutes =input.ShelfLifeClosedMinutes;
+        product.ShelfLifeClosedMinutes = input.ShelfLifeClosedMinutes;
         product.ShelfLifeOpenedMinutes = input.ShelfLifeOpenedMinutes;
         product.IsGlobal = isAdmin;
         product.HouseholdId = input.HouseholdId;
 
         var success = await _prodRepo.SaveChangesAsync();
-        if(!success) return new RequestResponse<ProductDto>().Failure("Error saving data");
+        if (!success) return new RequestResponse<ProductDto>().Failure("Error saving data");
         ProductDto returnable = new()
         {
-            ProductName =product.ProductName,
+            ProductName = product.ProductName,
             DefaultUnit = product.DefaultUnit,
             ShelfLifeClosedMinutes = product.ShelfLifeClosedMinutes,
             ShelfLifeOpenedMinutes = product.ShelfLifeOpenedMinutes,
@@ -299,7 +301,7 @@ public class InventoryService(
 
         };
         return new RequestResponse<ProductDto>().Ok(returnable);
-        
+
     }
 
     /// <summary>
@@ -310,9 +312,10 @@ public class InventoryService(
     /// <returns>A list of productDto</returns>
     public async Task<IEnumerable<ProductDto>> GetAllProductsForHouseholdId(int householdId)
     {
-      
+
         var result = await _prodRepo.GetProductsWithCategoriesByHouseholdId(householdId);
-        var dtos = result.Select(p=> new ProductDto{ 
+        var dtos = result.Select(p => new ProductDto
+        {
             Id = p.Id,
             ProductName = p.ProductName,
             DefaultUnit = p.DefaultUnit,
@@ -320,8 +323,38 @@ public class InventoryService(
             ShelfLifeOpenedMinutes = p.ShelfLifeOpenedMinutes,
             IsGlobal = p.IsGlobal,
             HouseholdId = p.HouseholdId,
-            CategoryIds = [.. p.ProductCategories.Select(c => c.Id)]}
+            CategoryIds = [.. p.ProductCategories.Select(c => c.Id)]
+        }
             );
         return dtos;
+    }
+
+    public async Task<StoragelocationDto?> CreateStorageLocationForHousehold(int id, StorageLocationCreateDto input)
+    {
+        var _household = await _hh_repo.GetByIdAsync(id);
+        if (_household == null) return null;
+        if (await _storagelocationRepo.DoesStorageLocationExists(id, input.Naam)) return null;
+        StorageLocation sd = new()
+        {
+            Name = input.Naam,
+            HouseholdId = id,
+            DeviceTypeId = input.DeviceType
+        };
+        await _storagelocationRepo.AddAsync(sd);
+        var saveSuccessfull = await _storagelocationRepo.SaveChangesAsync();
+        if (!saveSuccessfull) return null;
+        // load the deviceType item of sd
+        var all = await _storagelocationRepo.GetStorageLocationsByHouseholdIdAsync(id);
+        var r = all.FirstOrDefault(sl => sl.Id == sd.Id);
+
+        return new StoragelocationDto
+        {
+            Id = r.Id,
+            Name = r.Name,
+            DeviceTypeId = r.DeviceTypeId,
+            DeviceType = r.DeviceType.Type,
+            NumberOfItemsInInventory = 0
+        };
+
     }
 }
