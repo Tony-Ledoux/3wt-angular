@@ -5,6 +5,7 @@ import { ProductDto } from "@app/core/types/products";
 import { ProductCategory } from "@app/core/types/productCategories";
 import { deviceDTO, storageDevice } from "@app/core/types/device";
 import { SelectOptions } from "@app/shared/components/form/labled-selectbox/labeled-selectbox";
+import { NotifyService } from "@app/core/services/notify/notify-service";
 
 @Injectable({
     providedIn: 'root',
@@ -12,6 +13,7 @@ import { SelectOptions } from "@app/shared/components/form/labled-selectbox/labe
 export class InventoryService {
     private readonly apiSrv = inject(ApiService);
     private readonly householdSrv = inject(HouseholdService);
+    private readonly notifySrv = inject(NotifyService);
     private devices = signal<deviceDTO[]>([]);
     categories = signal<ProductCategory[]>([]);
     household_devices = signal<storageDevice[]>([]);
@@ -102,6 +104,19 @@ export class InventoryService {
 
     addStorageDevice(dev: storageDevice) {
         this.household_devices.update(p => [...p, dev]);
+    }
+    removeStorageDevice(dev: storageDevice){
+        this.apiSrv.delete(`/`).subscribe({
+            next:()=>{
+                this.household_devices.update(p=>p.filter(x=>x.id !== dev.id));
+                this.notifySrv.success(`${dev.name} is verwijderd`);
+            },
+            error:(err)=>{
+                this.notifySrv.error(`${dev.name} kon niet verwijderd worden`);
+            }
+        });
+
+       
     }
 
 }

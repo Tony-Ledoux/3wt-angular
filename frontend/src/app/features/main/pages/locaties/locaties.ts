@@ -48,13 +48,22 @@ export class Locaties {
         if (eventName === "submitted") {
           // update the devicelist
           this.inventorySrv.addStorageDevice(data);
-          // send notification
-          this.notifySrv.success(`${data.name} is toegevoegd`)
           //close modal
           this.modalSrv.close();
-          console.log("from callback", data)
         }
       })
       .show()
+  }
+
+  handleStorageLocationRemoveClick(id:number){
+    const device = this.devices().find(x=>x.id ===id)!;
+    this.modalSrv.open("opslaglocatie verwijderen?",`Ben je zeker dat je <strong>${device?.name}</strong> wil verwijderen?`)
+      .setType('danger')
+      .setIcon('fa fa-dumpster-fire')
+      .setConfirmText(`Ja, ${device?.name} verwijderen`)
+      .setConfirmCallback(()=>{
+        this.inventorySrv.removeStorageDevice(device);
+      })
+      .show();
   }
 }

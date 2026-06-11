@@ -14,7 +14,12 @@
     <app-section-card title="{{d.name}}" [icon]="get_icon(d.deviceTypeId)">
         <app-pill-component card-header-action label="inventory" [value]="d.numberOfItemsInInventory" type="pill"
             variant="slate" />
-        <span>type: {{d.deviceType}}</span>
+        <div>type: {{d.deviceType}}</div>
+        @if(inventorySrv.isowner() && d.numberOfItemsInInventory == 0){
+        <div class="text-right">
+            <app-button icon="fa fa-trash" variant="danger" (click)="handleStorageLocationRemoveClick(d.id)" />
+        </div>
+        }
     </app-section-card>
     }@empty {
     <app-section-card>

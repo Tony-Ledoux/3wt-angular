@@ -2,6 +2,7 @@ import { JsonPipe } from '@angular/common';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ApiService } from '@app/core/services/api/api-service';
+import { NotifyService } from '@app/core/services/notify/notify-service';
 import { storageDevice } from '@app/core/types/device';
 import { NoDuplicateValidator } from '@app/core/validators/no-duplicate-validator/no-dubplicate-validator';
 import { ButtonComponent } from '@app/shared/components/button/button';
@@ -17,6 +18,7 @@ import { LabeledSelectbox } from '@app/shared/components/form/labled-selectbox/l
 export class AddStoragelocationForm {
   private fb = inject(FormBuilder);
   private apiSrv = inject(ApiService)
+  private notifySrv = inject(NotifyService);
   data = input<any>();
   submitted = output<storageDevice>();
   private existing_storagelocations = computed<storageDevice[]>(() => this.data()?.exitsting ?? [])
@@ -35,9 +37,11 @@ export class AddStoragelocationForm {
     this.apiSrv.post<storageDevice>(`/storagelocations/household/${this.household_id()}`, body).subscribe({
       next: (data) => {
         console.log(data);
+        this.notifySrv.success(`${data.name} werd toegevoegd`)
         this.submitted.emit(data);
       },
       error: (err) => {
+        this.notifySrv.error("Er liep iets mis, pobeer opnieuw")
         console.error(err)
       }
     });

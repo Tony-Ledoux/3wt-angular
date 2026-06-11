@@ -31,5 +31,14 @@ namespace backend.Controllers
             if (result == null) return BadRequest();
             return Ok(result);
         }
+        [HttpDelete("household/{id:int}")]
+        public async Task<IActionResult> DeleteStorageLocation(int id)
+        {
+            if (!_user.CurrentUserOwnsHousehold(id)) return Forbid();
+            var result = await _is.DeleteStorageLocationForHousehold(id);
+            if(!result) return BadRequest();
+            return NoContent();
+        }
+
     }
 }

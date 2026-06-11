@@ -1,6 +1,5 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from "@angular/forms";
 
-// Use generic <T> to allow checking uniqueness for strings, numbers, or objects
 export function NoDuplicateValidator<T>(itemsAccessor: () => T[]): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
         const value = control.value;
@@ -15,12 +14,17 @@ export function NoDuplicateValidator<T>(itemsAccessor: () => T[]): ValidatorFn {
 
         // 3. Wait for data to load before validating
         if (!items?.length) {
-            return null; // Validation passes until data arrives
+            return null; 
         }
 
-        // 4. Check for duplicates using strict equality
-        // For complex objects, your 'itemsAccessor' should map to a unique property (e.g., x => x.id)
-        if (items.includes(value as T)) {
+        // 4. Normalize value: lowercase it if it's a string
+        const normalizedValue = typeof value === 'string' ? value.toLowerCase() : value as T;
+
+        // 5. Check for duplicates (case-insensitive for strings)
+        if (items.some(item => {
+            const normalizedItem = typeof item === 'string' ? item.toLowerCase() : item;
+            return normalizedItem === normalizedValue;
+        })) {
             console.log("Duplicate found:", value);
             return { unique: true };
         }

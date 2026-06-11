@@ -29,6 +29,7 @@ public interface IInventoryService
     // StorageLocations
     Task<IEnumerable<StoragelocationDto>> GetStoragelocationsOfHouseholdsAsync(int householdId);
     Task<StoragelocationDto?> CreateStorageLocationForHousehold(int id, StorageLocationCreateDto input);
+    Task<bool> DeleteStorageLocationForHousehold(int id);
     // Products
     Task<PagedResult<ProductDto>> GetPagedProductsAsync(int page, int pageSize, bool? isGlobal, int? categoryId);
     Task<IEnumerable<ProductDto>> GetAllProductsForHouseholdId(int householdId);
@@ -334,27 +335,36 @@ public class InventoryService(
         var _household = await _hh_repo.GetByIdAsync(id);
         if (_household == null) return null;
         if (await _storagelocationRepo.DoesStorageLocationExists(id, input.Naam)) return null;
+        var device = await devicetypeRepo.GetByIdAsync(input.DeviceType);
+        if (device == null) return null;
         StorageLocation sd = new()
         {
             Name = input.Naam,
             HouseholdId = id,
-            DeviceTypeId = input.DeviceType
+            DeviceType = device,
+            
         };
         await _storagelocationRepo.AddAsync(sd);
         var saveSuccessfull = await _storagelocationRepo.SaveChangesAsync();
         if (!saveSuccessfull) return null;
-        // load the deviceType item of sd
-        var all = await _storagelocationRepo.GetStorageLocationsByHouseholdIdAsync(id);
-        var r = all.FirstOrDefault(sl => sl.Id == sd.Id);
 
         return new StoragelocationDto
         {
-            Id = r.Id,
-            Name = r.Name,
-            DeviceTypeId = r.DeviceTypeId,
-            DeviceType = r.DeviceType.Type,
+            Id = sd.Id,
+            Name = sd.Name,
+            DeviceTypeId = sd.DeviceTypeId,
+            DeviceType = sd.DeviceType.Type,
             NumberOfItemsInInventory = 0
         };
 
+    }
+
+    public async Task<bool> DeleteStorageLocationForHousehold(int id)
+    {
+        var sl = await _storagelocationRepo.GetByIdAsync(id);
+        if(sl == null) return false;
+        _storagelocationRepo.Delete(sl);
+        return await _storagelocationRepo.SaveChangesAsync();
+        
     }
 }
