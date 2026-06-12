@@ -12,8 +12,10 @@
 
     @for(d of devices();track d.id){
     <app-section-card title="{{d.name}}" [icon]="get_icon(d.deviceTypeId)">
-        <app-pill-component card-header-action label="inventory" [value]="d.numberOfItemsInInventory" type="pill"
+        <div card-header-action class="cursor-pointer" (click)="handleClickOnInventory()">
+            <app-pill-component  label="inventory" [value]="d.numberOfItemsInInventory" type="pill"
             variant="slate" />
+        </div>
         <div>type: {{d.deviceType}}</div>
         @if(inventorySrv.isowner() && d.numberOfItemsInInventory == 0){
         <div class="text-right">

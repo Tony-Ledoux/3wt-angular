@@ -20,7 +20,7 @@
     <div class="space-y-2">
 
         @for(p of pagedProducts(); track p.id){
-        <div class="flex justify-between gap-2">
+        <div class="flex justify-between gap-2 flex-wrap">
 
             <span>
                 {{p.productName}}
@@ -29,7 +29,7 @@
                 {{p.defaultUnit}}
             </span>
             <div class="flex gap-2">
-                <app-button icon="fa fa-plus">voeg toe aan inventaris</app-button>
+                <app-button [disabled]="!devices_available()" variant="success" icon="fa fa-plus" (click)="handleClickAddToInventory(p)">inventaris</app-button>
                 @if(householdSrv.selected_household()?.isowner){
                 <app-button icon="fa fa-trash" variant="danger"
                     [disabled]="p.householdId != selected_household()?.householdId">verwijder</app-button>

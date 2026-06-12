@@ -16,6 +16,8 @@ public interface IGeneric<T> where T : class, new()
     void Update(T entity);
     void Delete(T entity);
     Task<bool> SaveChangesAsync();
+
+    DbSet<T> GetSet();
 }
 
 public class Generic<T>(KitchenDbContext db) : IGeneric<T> where T : class, new()
@@ -36,4 +38,9 @@ public class Generic<T>(KitchenDbContext db) : IGeneric<T> where T : class, new(
     public async Task<bool> SaveChangesAsync() => await _db.SaveChangesAsync() > 0;
 
     public T GetNewEmptyInstance() => new();
+
+    public DbSet<T> GetSet()
+    {
+       return _dbSet;
+    }
 }

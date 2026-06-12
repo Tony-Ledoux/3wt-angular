@@ -11,6 +11,7 @@ import { ModalService } from '@app/core/services/modal/modal-service';
 import { AddStoragelocationForm } from '../../components/add-storagelocation-form/add-storagelocation-form';
 import { storageDevice } from '@app/core/types/device';
 import { NotifyService } from '@app/core/services/notify/notify-service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-locaties',
@@ -19,6 +20,7 @@ import { NotifyService } from '@app/core/services/notify/notify-service';
   styleUrl: './locaties.css',
 })
 export class Locaties {
+  private routerSrv = inject(Router);
   inventorySrv = inject(InventoryService);
   devices = computed(() => this.inventorySrv.household_devices());
   private notifySrv = inject(NotifyService);
@@ -65,5 +67,12 @@ export class Locaties {
         this.inventorySrv.removeStorageDevice(device);
       })
       .show();
+  }
+  handleClickOnInventory(){
+    this.modalSrv.open("Naar inventaris?","Wil je naar de inventaris?")
+    .setConfirmCallback(()=>{
+      this.routerSrv.navigate(['app','inventory']);
+    })
+    .show();
   }
 }

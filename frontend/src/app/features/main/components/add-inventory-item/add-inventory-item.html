@@ -1,0 +1,10 @@
+<form class="space-y-2" [formGroup]="inventoryForm">
+    <h2 class="text-2xl font-bold">{{product().productName}}</h2>
+    <app-labeled-selectbox label="opslaglocatie" [choices]="deviceOptionsList" formControlName="StorageLocationId" />
+    <app-labeled-input label="Hoeveelheid" name="Hoeveelheid" formControlName="Quantity" type="positive-decimal" />
+    <app-labeled-input label="Eenheid" name="unit" formControlName="Unit" />
+    <app-labeled-input label="Vervaldatum" name="unit" formControlName="ExpiryDate" type="date" />
+</form>
+{{devices()|json}}
+<hr>
+{{categories()|json}}

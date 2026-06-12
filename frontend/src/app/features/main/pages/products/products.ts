@@ -12,6 +12,8 @@ import { SectionCardHeader } from "@app/shared/directives/section-card-header";
 import { PillComponent } from '@app/shared/components/pill-component/pill-component';
 import { InventoryService } from '../../services/inventory-service';
 import { LabeledSelectbox, SelectOptions } from '@app/shared/components/form/labled-selectbox/labeled-selectbox';
+import { ModalService } from '@app/core/services/modal/modal-service';
+import { AddInventoryItem } from '../../components/add-inventory-item/add-inventory-item';
 
 @Component({
   selector: 'app-products',
@@ -23,12 +25,16 @@ export class Products {
   private readonly apiSrv = inject(ApiService);
   private inventorySrv = inject(InventoryService);
   readonly householdSrv = inject(HouseholdService)
+  private modalSrv = inject(ModalService);
   //products = signal<ProductDto[]>([]);
   products = computed(() => this.inventorySrv.products())
   categories = computed(() => this.inventorySrv.categories())
   categoriesOptions = computed<SelectOptions[]>(() => this.categories().map((x) => ({ label: x.categorieName, value: x.id })).sort((a, b) => a.label.localeCompare(b.label)));
   selected_household = computed(() => this.householdSrv.selected_household())
-
+  devices_available = computed<boolean>(()=>{
+    const devices = this.inventorySrv.household_devices();
+    return !!devices && devices.length > 0;
+  });
   // Filter
   filterQuery = signal<string>('');
   filterCategorie = signal<number | null>(null);
@@ -87,5 +93,17 @@ export class Products {
     }
     this.filterCategorie.set(event);
     this.current_page.set(1)
+  }
+  handleClickAddToInventory(product: ProductDto){
+    this.modalSrv.open("Toevoegen aan inventaris", AddInventoryItem)
+    .setData({
+      product,
+      categories: this.categories().filter(x=>product.categoryIds.includes(x.id)),
+      devices:this.inventorySrv.household_devices()
+    })
+    .setShowActionButton(false)
+    .setCloseBackdropClick(false)
+    .show()
+    console.log(product);
   }
 }

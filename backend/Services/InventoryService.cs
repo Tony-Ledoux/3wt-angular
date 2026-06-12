@@ -39,15 +39,18 @@ public interface IInventoryService
     Task<bool> RemoveProduct(int pid, bool isAdmin);
     Task<RequestResponse<ProductDto>> UpdateProductAsync(int pid, bool isAdmin, ProductUpdateDto product);
     // Inventory
+    Task<IEnumerable<Inventory>> GetInventoryItemsForHousehold(int householdId);
 
 }
 
 public class InventoryService(
     KitchenDbContext dbcontext,
     IGeneric<DeviceType> dev,
+    IGeneric<Inventory> repoInv,
     IProductCategoryRepository prodcatrepo,
     IProductRespository product_repo,
     IStoragelocationRepository stg,
+
     IMapper<DeviceType, DeviceTypeDto> devmap,
     IGeneric<StorageRule> srr,
     IMapper<ProductCategory, ProductCategoryDto> mapper_pc,
@@ -59,6 +62,7 @@ public class InventoryService(
     private readonly IHouseholdRepository _hh_repo = householdRepo;
     private readonly IGeneric<DeviceType> devicetypeRepo = dev;
     private readonly IGeneric<StorageRule> storageRuleRepo = srr;
+    private readonly IGeneric<Inventory> _inventoryRepo = repoInv;
     private readonly IProductCategoryRepository _catProdRepo = prodcatrepo;
     private readonly IProductRespository _prodRepo = product_repo;
     private readonly IStoragelocationRepository _storagelocationRepo = stg;
@@ -366,5 +370,10 @@ public class InventoryService(
         _storagelocationRepo.Delete(sl);
         return await _storagelocationRepo.SaveChangesAsync();
         
+    }
+
+    public async Task<IEnumerable<Inventory>> GetInventoryItemsForHousehold(int householdId)
+    {
+        return await _inventoryRepo.GetSet().Include(i=>i.StorageLocation).Where(i => i.StorageLocation.HouseholdId == householdId).ToListAsync();
     }
 }

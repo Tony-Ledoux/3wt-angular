@@ -9,6 +9,7 @@ import { Recipes } from "./pages/recipes/recipes";
 import { Shoppinglist } from "./pages/shoppinglist/shoppinglist";
 import { WeekMenu } from "./pages/week-menu/week-menu";
 import { Locaties } from "./pages/locaties/locaties";
+import { Inventory } from "./pages/inventory/inventory";
 
 
 export const MAIN_ROUTES: Routes = [
@@ -19,6 +20,7 @@ export const MAIN_ROUTES: Routes = [
             { path: 'dashboard', component: Dashboard },
             { path: 'locaties', component: Locaties },
             { path: 'profile', component: Profile },
+            { path: 'inventory', component: Inventory },
             { path: 'producten', component: Products },
             { path: 'recepten', component: Recipes },
             { path: 'menu', component: WeekMenu },
