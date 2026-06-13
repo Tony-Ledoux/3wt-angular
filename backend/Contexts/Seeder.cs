@@ -58,9 +58,7 @@ public static class Seeder
         // We gebruiken een List om de koppelingen veilig op te bouwen
         List<ProductCategory> GetCategories(params string[] names)
         {
-            return categories
-                .Where(c => names.Contains(c.Category))
-                .ToList();
+            return [.. categories.Where(c => names.Contains(c.Category))];
         }
         var products = new List<Product>
         {
@@ -69,10 +67,7 @@ public static class Seeder
             new(){ProductName="Allesreiniger", IsGlobal=false, ProductCategories=GetCategories("Schoonmaak")},
             new(){ProductName="Gehakt", IsGlobal=true, ProductCategories=GetCategories("Vlees")},
         };
-        for (int i = 0; i < 2000; i++)
-        {
-            products.Add(new Product{ProductName=$"product{i}", IsGlobal=true});
-        }
+        
         context.Products.AddRange(products);
         await context.SaveChangesAsync();
     }
