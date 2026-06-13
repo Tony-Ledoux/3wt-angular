@@ -1,17 +1,15 @@
 @if(storageAdvice()){
     <span class="flex items-center gap-2 text-amber-700 text-xl"><i class="fa fa-triangle-exclamation"></i>{{storageAdvice()}}</span>
 }
-{{storageLocationId()}}
+{{multiplier()}} | {{expiryDate()|json}}
+{{product()|json}}
 <form class="space-y-2" [formGroup]="inventoryForm" (ngSubmit)="onSubmit()" >
     <h2 class="text-2xl font-bold">{{product().productName}}</h2>
     <app-labeled-selectbox label="opslaglocatie" [choices]="deviceOptionsList" formControlName="StorageLocationId" />
     <app-labeled-input label="Hoeveelheid" name="Hoeveelheid" formControlName="Quantity" type="positive-decimal" />
     <app-labeled-input label="Eenheid" name="unit" formControlName="Unit" />
-    <app-labeled-input label="Vervaldatum" name="unit" formControlName="ExpiryDate" type="date" (valueChange)="onExpiryDateChange($event)" />
+    <app-labeled-input label="Vervaldatum" name="unit" formControlName="ExpiryDate" type="date" />
     <div class="mt-2">
         <app-button type="submit" [disabled]="!inventoryForm.valid">aanmaken</app-button>
     </div>
 </form>
-{{devices()|json}}
-<hr>
-{{categories()|json}}
