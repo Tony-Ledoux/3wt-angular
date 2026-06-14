@@ -25,6 +25,7 @@ export class Locaties {
   devices = computed(() => this.inventorySrv.household_devices());
   private notifySrv = inject(NotifyService);
   private modalSrv = inject(ModalService)
+  
   get_icon(deviceType: number): string {
     switch (deviceType) {
       case 1:
@@ -34,6 +35,11 @@ export class Locaties {
       default:
         return 'fa fa-jar text-brand-primary'
     }
+  }
+
+  get_inventory_count(dev:storageDevice){
+    const inventory = this.inventorySrv.inventory().filter(x=>x.storagelocation.id === dev.id);
+    return inventory.length;
   }
 
   handleNewStorageLocationClick() {

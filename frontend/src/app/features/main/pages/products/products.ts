@@ -14,20 +14,22 @@ import { InventoryService } from '../../services/inventory-service';
 import { LabeledSelectbox, SelectOptions } from '@app/shared/components/form/labled-selectbox/labeled-selectbox';
 import { ModalService } from '@app/core/services/modal/modal-service';
 import { AddInventoryItem } from '../../components/add-inventory-item/add-inventory-item';
+import { InventoryItem } from '@app/core/types/inventory-item';
+import { PageHeader } from '@app/shared/components/page-header/page-header';
 
 @Component({
   selector: 'app-products',
-  imports: [SectionCard, Pagination, JsonPipe, Checkbox, LabeledInput, ButtonComponent, PillComponent, SectionCardHeader, LabeledSelectbox],
+  imports: [SectionCard, Pagination, JsonPipe, Checkbox, LabeledInput, ButtonComponent, PillComponent, SectionCardHeader, LabeledSelectbox, PageHeader],
   templateUrl: './products.html',
   styleUrl: './products.css',
 })
 export class Products {
   private readonly apiSrv = inject(ApiService);
-  private inventorySrv = inject(InventoryService);
+  inventorySrv = inject(InventoryService);
   readonly householdSrv = inject(HouseholdService)
   private modalSrv = inject(ModalService);
-  //products = signal<ProductDto[]>([]);
   products = computed(() => this.inventorySrv.products())
+  inventory = computed<InventoryItem[]>(()=>this.inventorySrv.inventory())
   categories = computed(() => this.inventorySrv.categories())
   categoriesOptions = computed<SelectOptions[]>(() => this.categories().map((x) => ({ label: x.categorieName, value: x.id })).sort((a, b) => a.label.localeCompare(b.label)));
   selected_household = computed(() => this.householdSrv.selected_household())
@@ -39,6 +41,7 @@ export class Products {
   filterQuery = signal<string>('');
   filterCategorie = signal<number | null>(null);
   filterToggles = signal<boolean | null>(null);
+  
   filteredProducts = computed(() => {
     let products = this.products();
     const categorie = this.filterCategorie();
@@ -102,9 +105,19 @@ export class Products {
       devices:this.inventorySrv.household_devices(),
       household_id: this.selected_household()?.householdId!
     })
+    .setEventCallback((name,data)=>{
+      if(name ==="submitted"){
+        this.inventorySrv.addInventoryItem(data);
+        this.modalSrv.close();
+      }
+    })
     .setShowActionButton(false)
     .setCloseBackdropClick(false)
     .show()
     console.log(product);
+  }
+  inInventory(product:ProductDto): boolean{
+    const exists = this.inventory().filter(x=>x.product.productName === product.productName);
+    return exists.length > 0
   }
 }

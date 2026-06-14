@@ -6,6 +6,8 @@ import { ProductCategory } from "@app/core/types/productCategories";
 import { deviceDTO, storageDevice } from "@app/core/types/device";
 import { SelectOptions } from "@app/shared/components/form/labled-selectbox/labeled-selectbox";
 import { NotifyService } from "@app/core/services/notify/notify-service";
+import { InventoryItem } from "@app/core/types/inventory-item";
+
 
 @Injectable({
     providedIn: 'root',
@@ -18,7 +20,7 @@ export class InventoryService {
     categories = signal<ProductCategory[]>([]);
     household_devices = signal<storageDevice[]>([]);
     products = signal<ProductDto[]>([]);
-    inventory = signal<any[]>([]);
+    inventory = signal<InventoryItem[]>([]);
 
     private readonly household_id = computed(() => {
         const hh = this.householdSrv.selected_household();
@@ -105,17 +107,20 @@ export class InventoryService {
     }
 
     private load_inventory(household_id:number){
-        this.apiSrv.get<any[]>(`/inventory/household/${household_id}`).subscribe({
+    
+        this.apiSrv.get<InventoryItem[]>(`/inventory/household/${household_id}`).subscribe({
             next:(data)=> {
                 console.log("inventory", data);
                 this.inventory.set(data);
             }
         });
+
     }
 
     addStorageDevice(dev: storageDevice) {
         this.household_devices.update(p => [...p, dev]);
     }
+
     removeStorageDevice(dev: storageDevice){
         const devId = dev.id;
         const houseId = this.household_id()??0;
@@ -130,6 +135,9 @@ export class InventoryService {
         });
 
        
+    }
+    addInventoryItem(item: InventoryItem){
+        this.inventory.update(p=> [...p,item]);
     }
 
 }

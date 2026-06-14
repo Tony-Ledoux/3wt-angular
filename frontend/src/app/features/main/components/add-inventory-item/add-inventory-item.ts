@@ -1,9 +1,11 @@
 import { JsonPipe } from '@angular/common';
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiService } from '@app/core/services/api/api-service';
+import { NotifyService } from '@app/core/services/notify/notify-service';
 import { storageDevice } from '@app/core/types/device';
+import { InventoryItem } from '@app/core/types/inventory-item';
 import { ProductCategory, StorageRule } from '@app/core/types/productCategories';
 import { ProductDto } from '@app/core/types/products';
 import { DateNotInPastValidator } from '@app/core/validators/date-not-in-past/date-not-in-past';
@@ -21,6 +23,7 @@ import { startWith } from 'rxjs';
 export class AddInventoryItem {
   private fb = inject(FormBuilder)
   private apiSrv = inject(ApiService);
+  private toastSrv = inject(NotifyService);
 
   inventoryForm = this.fb.group({
     StorageLocationId: ['', Validators.required],
@@ -31,6 +34,7 @@ export class AddInventoryItem {
   });
   
   data = input<any>();
+  submitted = output<InventoryItem>();
   
   household_id = computed<number>(()=>this.data()?.household_id ?? 0);
   product = computed<ProductDto>(() => this.data()?.product)
@@ -121,9 +125,10 @@ export class AddInventoryItem {
   onSubmit() {
     const hh_id = this.household_id();
     if(this.inventoryForm.valid){
-      this.apiSrv.post(`/inventory/household/${hh_id}`, this.inventoryForm.value).subscribe({
+      this.apiSrv.post<InventoryItem>(`/inventory/household/${hh_id}`, this.inventoryForm.value).subscribe({
         next:(data)=>{
-          console.log('from API:', data);
+          this.toastSrv.success(`${data.product.productName} is toegevoegd aan de inventaris`);
+          this.submitted.emit(data);
         },
         error:(err)=>{
           console.error(err);
