@@ -1,4 +1,5 @@
 using backend.Contexts;
+using backend.Models.Create;
 using backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -22,6 +23,16 @@ namespace backend.Controllers
             var result = await _srv.GetInventoryItemsForHousehold(householdId);
             return Ok(result);
         }
+
+        [HttpPost("household/{householdId:int}")]
+        public async Task<IActionResult> CreateNewInventoryItemForHousehold(int householdId, InventoryCreateItemDto input)
+        {
+             if (!_user.HouseholdUsers.Any(hh => hh.HouseholdId == householdId)) return Forbid();
+             var result = await _srv.CreateInventoryItem(input);
+             if(result == null) return BadRequest();
+            return Ok(result);
+        }
+
         
     }
 }

@@ -39,7 +39,8 @@ public interface IInventoryService
     Task<bool> RemoveProduct(int pid, bool isAdmin);
     Task<RequestResponse<ProductDto>> UpdateProductAsync(int pid, bool isAdmin, ProductUpdateDto product);
     // Inventory
-    Task<IEnumerable<Inventory>> GetInventoryItemsForHousehold(int householdId);
+    Task<IEnumerable<InventoryItemDto>> GetInventoryItemsForHousehold(int householdId);
+    Task<InventoryItemDto?> CreateInventoryItem(InventoryCreateItemDto input);
 
 }
 
@@ -346,7 +347,7 @@ public class InventoryService(
             Name = input.Naam,
             HouseholdId = id,
             DeviceType = device,
-            
+
         };
         await _storagelocationRepo.AddAsync(sd);
         var saveSuccessfull = await _storagelocationRepo.SaveChangesAsync();
@@ -366,14 +367,88 @@ public class InventoryService(
     public async Task<bool> DeleteStorageLocationForHousehold(int id)
     {
         var sl = await _storagelocationRepo.GetByIdAsync(id);
-        if(sl == null) return false;
+        if (sl == null) return false;
         _storagelocationRepo.Delete(sl);
         return await _storagelocationRepo.SaveChangesAsync();
-        
+
     }
 
-    public async Task<IEnumerable<Inventory>> GetInventoryItemsForHousehold(int householdId)
+public async Task<IEnumerable<InventoryItemDto>> GetInventoryItemsForHousehold(int householdId)
+{
+    var source = await _inventoryRepo.GetSet()
+        .Include(i => i.StorageLocation)
+        .Include(i => i.Product) // Include Product to avoid lazy loading
+        .Where(i => i.StorageLocation.HouseholdId == householdId)
+        .AsNoTracking() // Add this for read-only queries to improve performance
+        .ToListAsync();
+        
+    return source.Select(x => new InventoryItemDto()
     {
-        return await _inventoryRepo.GetSet().Include(i=>i.StorageLocation).Where(i => i.StorageLocation.HouseholdId == householdId).ToListAsync();
+        Id = x.Id,
+        Product = new ProductMinimalDto
+        {
+            Id = x.Product.Id,
+            ProductName = x.Product.ProductName
+        },
+        Storagelocation = new StorageLocationMinimal
+        {
+            Id = x.StorageLocation.Id,
+            Name = x.StorageLocation.Name
+        },
+        Quantity = x.Quantity,
+        Unit = x.Unit,
+        ExpiryDate = x.ExpiryDate // This will be null if not set
+    });
+}
+
+    public async Task<InventoryItemDto?> CreateInventoryItem(InventoryCreateItemDto input)
+    {
+        var storagelocation = await _storagelocationRepo.GetByIdAsync(input.StorageLocationId);
+        if (storagelocation == null) return null;
+        var product = await _prodRepo.GetByIdAsync(input.ProductId);
+        if (product == null) return null;
+        //cleanup possible emptystrings to null
+        var unit = string.IsNullOrEmpty(input.Unit) ? null : input.Unit;
+        DateOnly? expiryDate = null;
+        if (!string.IsNullOrEmpty(input.ExpiryDate))
+        {
+            // Convert string to DateOnly
+            if (DateOnly.TryParse(input.ExpiryDate, out DateOnly parsedDate))
+            {
+                expiryDate = parsedDate;
+            }
+        }
+        var result = _inventoryRepo.GetNewEmptyInstance();
+        result.Product = product;
+        result.StorageLocation = storagelocation;
+        result.Quantity = input.Quantity;
+        result.Unit = unit;
+        result.ExpiryDate = expiryDate;
+        result.DateIn = DateTime.UtcNow;
+
+        // Save the new inventory item to the database
+        await _inventoryRepo.AddAsync(result);
+        await _inventoryRepo.SaveChangesAsync();
+
+        var r = new InventoryItemDto
+        {
+            Id = result.Id,
+            Product = new()
+            {
+                Id =result.Product.Id,
+                ProductName = result.Product.ProductName
+            },
+            Storagelocation = new()
+            {
+                Id= storagelocation.Id,
+                Name = storagelocation.Name
+            },
+            Quantity = result.Quantity,
+            Unit = result.Unit,
+            ExpiryDate = result.ExpiryDate
+            
+        };
+        return r;
+
     }
 }

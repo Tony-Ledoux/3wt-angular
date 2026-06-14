@@ -99,7 +99,8 @@ export class Products {
     .setData({
       product,
       categories: this.categories().filter(x=>product.categoryIds.includes(x.id)),
-      devices:this.inventorySrv.household_devices()
+      devices:this.inventorySrv.household_devices(),
+      household_id: this.selected_household()?.householdId!
     })
     .setShowActionButton(false)
     .setCloseBackdropClick(false)

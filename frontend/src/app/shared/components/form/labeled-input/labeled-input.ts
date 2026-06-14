@@ -70,6 +70,7 @@ export class LabeledInput implements ControlValueAccessor {
     if (errors['minlength']) return `Minimaal ${errors['minlength'].requiredLength} tekens nodig`;
     if (errors['maxlength']) return `Maximaal ${errors['maxlength'].requiredLength} tekens toegestaan`;
     if (errors['unique']) return `${this.label()} bestaat al`;
+    if (errors['DateInPast']) return `${this.label()} mag niet in het verleden liggen`;
 
     return `${this.label()} is ongeldig`;
   }

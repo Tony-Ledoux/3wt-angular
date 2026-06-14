@@ -2,9 +2,11 @@ import { JsonPipe } from '@angular/common';
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ApiService } from '@app/core/services/api/api-service';
 import { storageDevice } from '@app/core/types/device';
 import { ProductCategory, StorageRule } from '@app/core/types/productCategories';
 import { ProductDto } from '@app/core/types/products';
+import { DateNotInPastValidator } from '@app/core/validators/date-not-in-past/date-not-in-past';
 import { ButtonComponent } from '@app/shared/components/button/button';
 import { LabeledInput } from '@app/shared/components/form/labeled-input/labeled-input';
 import { SelectOptions, LabeledSelectbox } from '@app/shared/components/form/labled-selectbox/labeled-selectbox';
@@ -18,13 +20,19 @@ import { startWith } from 'rxjs';
 })
 export class AddInventoryItem {
   private fb = inject(FormBuilder)
+  private apiSrv = inject(ApiService);
+
   inventoryForm = this.fb.group({
     StorageLocationId: ['', Validators.required],
+    ProductId: [0],
     Quantity: ['', [Validators.required, Validators.min(0.01)]],
     Unit: [''],
-    ExpiryDate: ['']
+    ExpiryDate: ['',DateNotInPastValidator]
   });
+  
   data = input<any>();
+  
+  household_id = computed<number>(()=>this.data()?.household_id ?? 0);
   product = computed<ProductDto>(() => this.data()?.product)
   categories = computed<ProductCategory[]>(() => this.data().categories)
   devices = computed<storageDevice[]>(() => this.data().devices)
@@ -99,7 +107,7 @@ export class AddInventoryItem {
       const currentData = this.data();
       const exp = this.expiryDate();
       if (!currentData.product) return
-
+      this.inventoryForm.get('ProductId')?.patchValue(this.product().id, { emitEvent: false });
       this.inventoryForm.get('Unit')?.patchValue(this.defaultUnit(), { emitEvent: false });
       if(exp >= new Date().toISOString()){
         this.inventoryForm.get('ExpiryDate')?.patchValue(this.expiryDate(),{emitEvent:false});
@@ -111,6 +119,17 @@ export class AddInventoryItem {
 
 
   onSubmit() {
+    const hh_id = this.household_id();
+    if(this.inventoryForm.valid){
+      this.apiSrv.post(`/inventory/household/${hh_id}`, this.inventoryForm.value).subscribe({
+        next:(data)=>{
+          console.log('from API:', data);
+        },
+        error:(err)=>{
+          console.error(err);
+        }
+      });
+    }
     console.log(this.inventoryForm.value);
   }
 }
