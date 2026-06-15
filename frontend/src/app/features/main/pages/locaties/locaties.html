@@ -20,6 +20,9 @@
         <div>type: {{d.deviceType}}</div>
         @if(inventorySrv.isowner()){
         <div class="text-right">
+            @if(inventoryCount > 0 ){
+                <span class="text-sm text-status-danger me-2">Maak de inventory leeg om dit toestel te verwijderen</span>
+            }
             <app-button icon="fa fa-trash" variant="danger" [disabled]="inventoryCount != 0" (click)="inventoryCount == 0 && handleStorageLocationRemoveClick(d.id)" />
         </div>
         }

@@ -8,7 +8,7 @@ import { SectionCard } from "@app/shared/components/section-card/section-card";
 import { Checkbox, CheckboxChanged } from "@app/shared/components/form/checkbox/checkbox";
 import { ButtonComponent } from '@app/shared/components/button/button';
 import { ModalService } from '@app/core/services/modal/modal-service';
-import { NewProductForm } from '../../components/new-product-form/new-product-form';
+import { NewProductForm } from '../../../../shared/components/new-product-form/new-product-form';
 import { SectionCardHeader } from "@app/shared/directives/section-card-header";
 import { NotifyService } from '@app/core/services/notify/notify-service';
 import { ModalSelectboxWrapper } from '@app/shared/components/wrappers/modal-selectbox-wrapper/modal-selectbox-wrapper';

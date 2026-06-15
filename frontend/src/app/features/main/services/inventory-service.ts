@@ -47,6 +47,10 @@ export class InventoryService {
         return this.household_id() ?? 0;
     }
 
+    public addToShoppingList(prod: ProductDto) {
+        alert(`In een volgende versie zal je ${prod.productName} kunnen toevoegen aan de winkellijst`);
+    }
+
     private load_data(household_id: number) {
 
         // get devicetypes
@@ -106,10 +110,10 @@ export class InventoryService {
         });
     }
 
-    private load_inventory(household_id:number){
-    
+    private load_inventory(household_id: number) {
+
         this.apiSrv.get<InventoryItem[]>(`/inventory/household/${household_id}`).subscribe({
-            next:(data)=> {
+            next: (data) => {
                 console.log("inventory", data);
                 this.inventory.set(data);
             }
@@ -121,23 +125,30 @@ export class InventoryService {
         this.household_devices.update(p => [...p, dev]);
     }
 
-    removeStorageDevice(dev: storageDevice){
+    removeStorageDevice(dev: storageDevice) {
         const devId = dev.id;
-        const houseId = this.household_id()??0;
+        const houseId = this.household_id() ?? 0;
         this.apiSrv.delete(`/storagelocations/${devId}/household/${houseId}`).subscribe({
-            next:()=>{
-                this.household_devices.update(p=>p.filter(x=>x.id !== dev.id));
+            next: () => {
+                this.household_devices.update(p => p.filter(x => x.id !== dev.id));
                 this.notifySrv.success(`${dev.name} is verwijderd`);
             },
-            error:(err)=>{
+            error: (err) => {
                 this.notifySrv.error(`${dev.name} kon niet verwijderd worden`);
             }
         });
 
-       
+
     }
-    addInventoryItem(item: InventoryItem){
-        this.inventory.update(p=> [...p,item]);
+    addInventoryItem(item: InventoryItem) {
+        this.inventory.update(p => [...p, item]);
+    }
+
+    addProduct(prod: ProductDto) {
+        this.products.update(p => [...p, prod])
+    }
+    removeProduct(prod: ProductDto) {
+        this.products.update(p => p.filter(x => x.id !== prod.id));
     }
 
 }

@@ -1,9 +1,10 @@
+<!--products.html-->
 <div class="p-4 md:p-6 max-w-7xl mx-auto space-y-6 bg-app-bg min-h-screen">
   <!-- Header Section -->
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
     <app-page-header title="producten" subtitle="Beheer producten" />
     @if(inventorySrv.isowner()){
-    <app-button variant="success" icon="fa fa-plus" class="whitespace-nowrap shadow-sm w-full md:w-auto">
+    <app-button variant="success" icon="fa fa-plus" class="whitespace-nowrap shadow-sm w-full md:w-auto" (click)="handleNewProductClick()">
       Nieuw Product
     </app-button>
     }
@@ -32,6 +33,7 @@
     <div class="space-y-2 mt-4">
       @for(p of pagedProducts(); track p.id){
       @let isGlobalProduct = p.isGlobal;
+      @let isInInventory = inInventory(p);
       <div
         class="flex items-center justify-between gap-2 flex-wrap p-3 bg-brand-secondary/60 border border-slate-200 dark:border-slate-700 rounded-lg hover:shadow-lg transition-shadow">
         <!-- left: icon + text -->
@@ -53,7 +55,7 @@
 
         <!-- right: inventory pill + actions -->
         <div class="flex items-center gap-2">
-          @if(inInventory(p)){
+          @if(isInInventory){
           <span
             class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-sm font-semibold cursor-pointer"
             (click)="handleInventoryClick()">
@@ -65,10 +67,12 @@
 
             <app-button [fullWidth]="true" [disabled]="!devices_available()" variant="success" icon="fa fa-plus"
               (click)="handleClickAddToInventory(p)">inventaris</app-button>
+            <app-button [fullWidth]="true" [disabled]="!devices_available()" variant="primary" icon="fa fa-plus"
+              (click)="handleAddShoppinglistClick(p)">Winkellijst</app-button>
 
             @if(householdSrv.selected_household()?.isowner){
-            <app-button icon="fa fa-trash" variant="danger" [fullWidth]="true" [disabled]="isGlobalProduct"
-              (click)="!isGlobalProduct && handleProductDeleteClick(p)">verwijder</app-button>
+            <app-button icon="fa fa-trash" variant="danger" [fullWidth]="true" [disabled]="isGlobalProduct || isInInventory"
+              (click)="!isGlobalProduct && !isInInventory && handleProductDeleteClick(p)">verwijder</app-button>
             }
           </app-menu>
         </div>

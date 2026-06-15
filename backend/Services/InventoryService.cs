@@ -33,7 +33,7 @@ public interface IInventoryService
     // Products
     Task<PagedResult<ProductDto>> GetPagedProductsAsync(int page, int pageSize, bool? isGlobal, int? categoryId);
     Task<IEnumerable<ProductDto>> GetAllProductsForHouseholdId(int householdId);
-    Task<Product?> CreateNewProductAsync(ProductCreationDto input);
+    Task<ProductDto?> CreateNewProductAsync(ProductCreationDto input);
     Task<bool> AddCategoryToProduct(int pid, int cid, bool isAdmin);
     Task<bool> RemoveCategoryFromProductAsync(int pid, int cid, bool isAdmin);
     Task<bool> RemoveProduct(int pid, bool isAdmin);
@@ -201,7 +201,7 @@ public class InventoryService(
         };
     }
 
-    public async Task<Product?> CreateNewProductAsync(ProductCreationDto input)
+    public async Task<ProductDto?> CreateNewProductAsync(ProductCreationDto input)
     {
         //1. get categories from the id's in input.CategoryIds
         Collection<ProductCategory> categories = [];
@@ -237,7 +237,18 @@ public class InventoryService(
         //3. store the product in the database
         await _prodRepo.AddAsync(prod);
         var result = await _prodRepo.SaveChangesAsync();
-        if (result) return prod;
+        if (result) return new ProductDto
+        {
+            Id = prod.Id,
+            ProductName = prod.ProductName,
+            DefaultUnit = prod.DefaultUnit,
+            ShelfLifeClosedMinutes = prod.ShelfLifeClosedMinutes,
+            ShelfLifeOpenedMinutes = prod.ShelfLifeOpenedMinutes,
+            IsGlobal = prod.IsGlobal,
+            HouseholdId = prod.HouseholdId,
+            CategoryIds = [.. prod.ProductCategories.Select(x => x.Id)]
+
+        };
         return null;
 
     }
@@ -373,33 +384,33 @@ public class InventoryService(
 
     }
 
-public async Task<IEnumerable<InventoryItemDto>> GetInventoryItemsForHousehold(int householdId)
-{
-    var source = await _inventoryRepo.GetSet()
-        .Include(i => i.StorageLocation)
-        .Include(i => i.Product) // Include Product to avoid lazy loading
-        .Where(i => i.StorageLocation.HouseholdId == householdId)
-        .AsNoTracking() // Add this for read-only queries to improve performance
-        .ToListAsync();
-        
-    return source.Select(x => new InventoryItemDto()
+    public async Task<IEnumerable<InventoryItemDto>> GetInventoryItemsForHousehold(int householdId)
     {
-        Id = x.Id,
-        Product = new ProductMinimalDto
+        var source = await _inventoryRepo.GetSet()
+            .Include(i => i.StorageLocation)
+            .Include(i => i.Product) // Include Product to avoid lazy loading
+            .Where(i => i.StorageLocation.HouseholdId == householdId)
+            .AsNoTracking() // Add this for read-only queries to improve performance
+            .ToListAsync();
+
+        return source.Select(x => new InventoryItemDto()
         {
-            Id = x.Product.Id,
-            ProductName = x.Product.ProductName
-        },
-        Storagelocation = new StorageLocationMinimal
-        {
-            Id = x.StorageLocation.Id,
-            Name = x.StorageLocation.Name
-        },
-        Quantity = x.Quantity,
-        Unit = x.Unit,
-        ExpiryDate = x.ExpiryDate // This will be null if not set
-    });
-}
+            Id = x.Id,
+            Product = new ProductMinimalDto
+            {
+                Id = x.Product.Id,
+                ProductName = x.Product.ProductName
+            },
+            Storagelocation = new StorageLocationMinimal
+            {
+                Id = x.StorageLocation.Id,
+                Name = x.StorageLocation.Name
+            },
+            Quantity = x.Quantity,
+            Unit = x.Unit,
+            ExpiryDate = x.ExpiryDate // This will be null if not set
+        });
+    }
 
     public async Task<InventoryItemDto?> CreateInventoryItem(InventoryCreateItemDto input)
     {
@@ -435,18 +446,18 @@ public async Task<IEnumerable<InventoryItemDto>> GetInventoryItemsForHousehold(i
             Id = result.Id,
             Product = new()
             {
-                Id =result.Product.Id,
+                Id = result.Product.Id,
                 ProductName = result.Product.ProductName
             },
             Storagelocation = new()
             {
-                Id= storagelocation.Id,
+                Id = storagelocation.Id,
                 Name = storagelocation.Name
             },
             Quantity = result.Quantity,
             Unit = result.Unit,
             ExpiryDate = result.ExpiryDate
-            
+
         };
         return r;
 

@@ -18,10 +18,12 @@ import { InventoryItem } from '@app/core/types/inventory-item';
 import { PageHeader } from '@app/shared/components/page-header/page-header';
 import { Router } from '@angular/router';
 import { Menu } from '@app/shared/components/wrappers/menu/menu';
+import { NewProductForm } from '@app/shared/components/new-product-form/new-product-form';
+import { NotifyService } from '@app/core/services/notify/notify-service';
 
 @Component({
   selector: 'app-products',
-  imports: [Menu,SectionCard, Pagination, JsonPipe, Checkbox, LabeledInput, ButtonComponent, PillComponent, SectionCardHeader, LabeledSelectbox, PageHeader],
+  imports: [Menu, SectionCard, Pagination, JsonPipe, Checkbox, LabeledInput, ButtonComponent, PillComponent, SectionCardHeader, LabeledSelectbox, PageHeader],
   templateUrl: './products.html',
   styleUrl: './products.css',
 })
@@ -31,6 +33,7 @@ export class Products {
   router = inject(Router);
   readonly householdSrv = inject(HouseholdService)
   private modalSrv = inject(ModalService);
+  private toastSrv = inject(NotifyService);
   products = computed(() => this.inventorySrv.products())
   inventory = computed<InventoryItem[]>(() => this.inventorySrv.inventory())
   categories = computed(() => this.inventorySrv.categories())
@@ -48,13 +51,13 @@ export class Products {
   filteredProducts = computed(() => {
     let products = this.products();
     const categorie = this.filterCategorie();
-    console.log('selected_categorie', categorie)
+
     const query = this.filterQuery().toLowerCase();
     const onlySelf = this.filterToggles();
     if (categorie) {
-      console.log('categoriefilter run')
+
       products = products.filter(x => x.categoryIds.includes(categorie));
-      console.log(products)
+
     }
     if (onlySelf !== null) {
       products = products.filter(x => x.isGlobal === onlySelf)
@@ -114,6 +117,7 @@ export class Products {
         if (name === "submitted") {
           this.inventorySrv.addInventoryItem(data);
           this.modalSrv.close();
+          Menu.closeAllMenus();
         }
       })
       .setShowActionButton(false)
@@ -126,10 +130,45 @@ export class Products {
     return exists.length > 0
   }
   handleProductDeleteClick(prod: ProductDto) {
-    alert('clicked_delete');
+    this.modalSrv.open(`${prod.productName} verwijderen?`, `Ben je zeker dat je ${prod.productName} wil verwijderen?`)
+      .setType("danger")
+      .setConfirmCallback(() => {
+        this.apiSrv.delete(`/products/${prod.id}`).subscribe({
+          next: () => {
+            this.toastSrv.success(`${prod.productName} is verwijderd`);
+            this.inventorySrv.removeProduct(prod);
+          },
+          error: (err) => {
+            console.error(err);
+            this.toastSrv.error(`${prod.productName} kon niet verwijderd worden`)
+          }
+        });
+      })
+      .show();
   }
   handleInventoryClick() {
     this.router.navigate(['app', 'inventory']);
+  }
+
+  handleAddShoppinglistClick(prod: ProductDto) {
+    this.inventorySrv.addToShoppingList(prod);
+  }
+
+  handleNewProductClick() {
+    this.modalSrv.open("Product toevoegen", NewProductForm)
+
+      .setData({
+        categories: this.inventorySrv.categories(),
+        household_id: this.inventorySrv.hh_id
+      })
+      .setEventCallback((name, data) => {
+        if (name === "created") {
+          this.inventorySrv.addProduct(data);
+          console.log(data);
+          this.modalSrv.close();
+        }
+      })
+      .show();
   }
 
   get_category_from_id(id: number) {

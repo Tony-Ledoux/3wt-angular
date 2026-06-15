@@ -22,61 +22,66 @@ export class NewProductForm {
   private apiSrv = inject(ApiService);
   private readonly notifySrv = inject(NotifyService)
   readonly data = input.required<any>();
-  readonly householdId = input<number|null>(null);
+
   created = output<ProductDto>();
 
-  readonly categories = computed<ProductCategory[]>(()=> this.data()?.categories || []);
+  readonly categories = computed<ProductCategory[]>(() => this.data()?.categories || []);
   // state for the chips
   selectedCategories = signal<ProductCategory[]>([]);
-  selectionCount = computed(()=> this.selectedCategories().length);
+  selectionCount = computed(() => this.selectedCategories().length);
+
+  private householdId = computed(() => {
+    const data = this.data()
+    return data?.household_id ?? null
+  })
 
 
   productForm = this.fb.group({
     productName: ['', Validators.required],
-    defaultUnit:[null as string |null],
-    shelfLifeClosedMinutes:[null as number |null],
-    shelfLifeOpenedMinutes:[null as number |null],
-    householdId:[null as number|null],
-    isGlobal:[false],
+    defaultUnit: [null as string | null],
+    shelfLifeClosedMinutes: [null as number | null],
+    shelfLifeOpenedMinutes: [null as number | null],
+    householdId: [null as number | null],
+    isGlobal: [false],
     categoryIds: [[] as number[]],
   });
 
-  addCategory(event:ProductCategory){
-    if(!this.selectedCategories().some(x=>x.id === event.id)){
-      this.selectedCategories.update(p=>[...p, event])
+  addCategory(event: ProductCategory) {
+    if (!this.selectedCategories().some(x => x.id === event.id)) {
+      this.selectedCategories.update(p => [...p, event])
     }
     this.syncCategoryIds();
   }
 
 
-  RemoveCategoryChip(id:number){
-    this.selectedCategories.update(p=> p.filter(x=>x.id !== id));
+  RemoveCategoryChip(id: number) {
+    this.selectedCategories.update(p => p.filter(x => x.id !== id));
     this.syncCategoryIds()
   }
 
-  onSubmit(){
+  onSubmit() {
     // set the global and household flags if needed
-    if(this.householdId() === null){
-      this.productForm.patchValue({isGlobal:true, householdId:null})
-    }else {
+    if (this.householdId() === null) {
+      this.productForm.patchValue({ isGlobal: true, householdId: null })
+    } else {
       const hId = this.householdId()!
-      this.productForm.patchValue({isGlobal:false, householdId:hId})
+      this.productForm.patchValue({ isGlobal: false, householdId: hId })
     }
-    this.apiSrv.post<ProductDto>('/products',this.productForm.value).subscribe({
-      next: (data)=>{
+    this.apiSrv.post<ProductDto>('/products', this.productForm.value).subscribe({
+      next: (data) => {
         console.log(data)
         this.created.emit(data);
         this.notifySrv.success(`${data.productName} is toegvoegd`);
       },
-      error: (err)=> {
+      error: (err) => {
         console.error(err)
       }
     });
   }
 
-  private syncCategoryIds(){
+  private syncCategoryIds() {
     const ids = this.selectedCategories().map(cat => cat.id);
-    this.productForm.patchValue({categoryIds:ids});
+    this.productForm.patchValue({ categoryIds: ids });
   }
- 
+
 }
