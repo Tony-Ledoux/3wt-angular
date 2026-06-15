@@ -1,36 +1,37 @@
 <div class="p-4 md:p-6 max-w-7xl mx-auto space-y-6 bg-app-bg min-h-screen">
-    <!-- Header Section -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <app-page-header title="producten" subtitle="Beheer producten" />
+  <!-- Header Section -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <app-page-header title="producten" subtitle="Beheer producten" />
     @if(inventorySrv.isowner()){
-        <app-button variant="success" icon="fa fa-plus"
-            class="whitespace-nowrap shadow-sm w-full md:w-auto" >
-            Nieuw Product
-        </app-button>
+    <app-button variant="success" icon="fa fa-plus" class="whitespace-nowrap shadow-sm w-full md:w-auto">
+      Nieuw Product
+    </app-button>
     }
-    </div>
-
-<app-section-card title="Producten" icon="fa fa-drumstick-bite">
-  <div card-header-action class="flex gap-2 items-center">
-    <app-pill-component label="aantal producten" [value]="products().length" type="pill" variant="slate" />
   </div>
 
-  <app-section-card type="dashed" class="mt-3">
-    <div class="flex flex-col md:flex-row justify-between items-center gap-2">
-      <app-labeled-selectbox label="Categorie" [choices]="categoriesOptions()" (changed)="onFilterCategorieChange($event)" />
-      <app-labeled-input label="Zoek op naam" name="filter" (valueChange)="onFilterChange($event)" />
-      <app-checkbox [nullable]="true" label="Enkel globale" left_label="Enkel persoonlijke"
-        (changed)="onSectorChange($event)" />
-      <app-pill-component variant="slate" [value]="filteredProducts().length" label="aantal na filter" />
+  <app-section-card title="Producten" icon="fa fa-drumstick-bite">
+    <div card-header-action class="flex gap-2 items-center">
+      <app-pill-component label="aantal producten" [value]="products().length" type="pill" variant="slate" />
     </div>
-  </app-section-card>
 
-  <app-pagination [currentPage]="current_page()" [totalItems]="totalProducts()" [totalPages]="totalPages()"
-    [pageSize]="page_size()" [pageSizes]="pageSizes" (pageChange)="onPageChange($event)"
-    (pageSizeChange)="onPageSizeChange($event)" />
+    <app-section-card type="dashed" class="mt-3">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-2">
+        <app-labeled-selectbox label="Categorie" [choices]="categoriesOptions()"
+          (changed)="onFilterCategorieChange($event)" />
+        <app-labeled-input label="Zoek op naam" name="filter" (valueChange)="onFilterChange($event)" />
+        <app-checkbox [nullable]="true" label="Enkel globale" left_label="Enkel persoonlijke"
+          (changed)="onSectorChange($event)" />
+        <app-pill-component variant="slate" [value]="filteredProducts().length" label="aantal na filter" />
+      </div>
+    </app-section-card>
 
-  <div class="space-y-2 mt-4">
-    @for(p of pagedProducts(); track p.id){
+    <app-pagination [currentPage]="current_page()" [totalItems]="totalProducts()" [totalPages]="totalPages()"
+      [pageSize]="page_size()" [pageSizes]="pageSizes" (pageChange)="onPageChange($event)"
+      (pageSizeChange)="onPageSizeChange($event)" />
+
+    <div class="space-y-2 mt-4">
+      @for(p of pagedProducts(); track p.id){
+      @let isGlobalProduct = p.isGlobal;
       <div
         class="flex items-center justify-between gap-2 flex-wrap p-3 bg-brand-secondary/60 border border-slate-200 dark:border-slate-700 rounded-lg hover:shadow-lg transition-shadow">
         <!-- left: icon + text -->
@@ -39,36 +40,49 @@
             <div class="font-medium text-app-text-body truncate">{{p.productName}}</div>
             <div class="text-sm text-app-text-muted truncate">{{p.defaultUnit}}</div>
           </div>
+          <div>
+            @for(c of p.categoryIds; track $index){
+            @let category = get_category_from_id(c);
+            @if(category){
+            <app-pill-component type="pill" [value]="category.categorieName" label="" variant="amber" />
+
+            }
+            }
+          </div>
         </div>
 
         <!-- right: inventory pill + actions -->
         <div class="flex items-center gap-2">
           @if(inInventory(p)){
-            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-sm font-semibold">
-              <i class="fa fa-check"></i>
-              In inventaris
-            </span>
+          <span
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-sm font-semibold cursor-pointer"
+            (click)="handleInventoryClick()">
+            <i class="fa fa-check"></i>
+            In inventaris
+          </span>
           }
+          <app-menu>
 
-          <app-button [disabled]="!devices_available()" variant="success" icon="fa fa-plus"
-            (click)="handleClickAddToInventory(p)">inventaris</app-button>
+            <app-button [fullWidth]="true" [disabled]="!devices_available()" variant="success" icon="fa fa-plus"
+              (click)="handleClickAddToInventory(p)">inventaris</app-button>
 
-          @if(householdSrv.selected_household()?.isowner){
-            <app-button icon="fa fa-trash" variant="danger"
-              [disabled]="p.householdId != selected_household()?.householdId">verwijder</app-button>
-          }
+            @if(householdSrv.selected_household()?.isowner){
+            <app-button icon="fa fa-trash" variant="danger" [fullWidth]="true" [disabled]="isGlobalProduct"
+              (click)="!isGlobalProduct && handleProductDeleteClick(p)">verwijder</app-button>
+            }
+          </app-menu>
         </div>
       </div>
-    }@empty {
+      }@empty {
       <div class="col-span-1 md:col-span-2 lg:col-end-3 mx-auto">
         <app-section-card>
           Er zijn geen producten
         </app-section-card>
       </div>
-    }
-  </div>
+      }
+    </div>
 
-  <app-pagination [currentPage]="current_page()" [totalItems]="totalProducts()" [totalPages]="totalPages()"
-    [pageSize]="page_size()" [pageSizes]="pageSizes" (pageChange)="onPageChange($event)"
-    (pageSizeChange)="onPageSizeChange($event)" />
-</app-section-card>
+    <app-pagination [currentPage]="current_page()" [totalItems]="totalProducts()" [totalPages]="totalPages()"
+      [pageSize]="page_size()" [pageSizes]="pageSizes" (pageChange)="onPageChange($event)"
+      (pageSizeChange)="onPageSizeChange($event)" />
+  </app-section-card>

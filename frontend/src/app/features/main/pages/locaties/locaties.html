@@ -11,15 +11,16 @@
     </div>
 
     @for(d of devices();track d.id){
+        @let inventoryCount = get_inventory_count(d);
     <app-section-card title="{{d.name}}" [icon]="get_icon(d.deviceTypeId)">
         <div card-header-action class="cursor-pointer" (click)="handleClickOnInventory()">
-            <app-pill-component  label="inventory" [value]="get_inventory_count(d)" type="pill"
-            variant="slate" />
+            <app-pill-component  label="inventory" [value]="inventoryCount" type="pill"
+            variant="slate"  />
         </div>
         <div>type: {{d.deviceType}}</div>
-        @if(inventorySrv.isowner() && get_inventory_count(d) == 0){
+        @if(inventorySrv.isowner()){
         <div class="text-right">
-            <app-button icon="fa fa-trash" variant="danger" (click)="handleStorageLocationRemoveClick(d.id)" />
+            <app-button icon="fa fa-trash" variant="danger" [disabled]="inventoryCount != 0" (click)="inventoryCount == 0 && handleStorageLocationRemoveClick(d.id)" />
         </div>
         }
     </app-section-card>

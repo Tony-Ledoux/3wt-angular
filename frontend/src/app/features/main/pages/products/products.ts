@@ -16,24 +16,27 @@ import { ModalService } from '@app/core/services/modal/modal-service';
 import { AddInventoryItem } from '../../components/add-inventory-item/add-inventory-item';
 import { InventoryItem } from '@app/core/types/inventory-item';
 import { PageHeader } from '@app/shared/components/page-header/page-header';
+import { Router } from '@angular/router';
+import { Menu } from '@app/shared/components/wrappers/menu/menu';
 
 @Component({
   selector: 'app-products',
-  imports: [SectionCard, Pagination, JsonPipe, Checkbox, LabeledInput, ButtonComponent, PillComponent, SectionCardHeader, LabeledSelectbox, PageHeader],
+  imports: [Menu,SectionCard, Pagination, JsonPipe, Checkbox, LabeledInput, ButtonComponent, PillComponent, SectionCardHeader, LabeledSelectbox, PageHeader],
   templateUrl: './products.html',
   styleUrl: './products.css',
 })
 export class Products {
   private readonly apiSrv = inject(ApiService);
   inventorySrv = inject(InventoryService);
+  router = inject(Router);
   readonly householdSrv = inject(HouseholdService)
   private modalSrv = inject(ModalService);
   products = computed(() => this.inventorySrv.products())
-  inventory = computed<InventoryItem[]>(()=>this.inventorySrv.inventory())
+  inventory = computed<InventoryItem[]>(() => this.inventorySrv.inventory())
   categories = computed(() => this.inventorySrv.categories())
   categoriesOptions = computed<SelectOptions[]>(() => this.categories().map((x) => ({ label: x.categorieName, value: x.id })).sort((a, b) => a.label.localeCompare(b.label)));
   selected_household = computed(() => this.householdSrv.selected_household())
-  devices_available = computed<boolean>(()=>{
+  devices_available = computed<boolean>(() => {
     const devices = this.inventorySrv.household_devices();
     return !!devices && devices.length > 0;
   });
@@ -41,14 +44,17 @@ export class Products {
   filterQuery = signal<string>('');
   filterCategorie = signal<number | null>(null);
   filterToggles = signal<boolean | null>(null);
-  
+
   filteredProducts = computed(() => {
     let products = this.products();
     const categorie = this.filterCategorie();
+    console.log('selected_categorie', categorie)
     const query = this.filterQuery().toLowerCase();
     const onlySelf = this.filterToggles();
-    if (categorie !== null) {
+    if (categorie) {
+      console.log('categoriefilter run')
       products = products.filter(x => x.categoryIds.includes(categorie));
+      console.log(products)
     }
     if (onlySelf !== null) {
       products = products.filter(x => x.isGlobal === onlySelf)
@@ -91,33 +97,42 @@ export class Products {
     this.current_page.set(1)
   }
   onFilterCategorieChange(event: any) {
-    if (event === "") {
-      event = null;
-    }
-    this.filterCategorie.set(event);
-    this.current_page.set(1)
+    // Convert to number, but keep null for empty/unselected states
+    const value = event === "" || event === null ? null : Number(event);
+    this.filterCategorie.set(value);
+    this.current_page.set(1);
   }
-  handleClickAddToInventory(product: ProductDto){
+  handleClickAddToInventory(product: ProductDto) {
     this.modalSrv.open("Toevoegen aan inventaris", AddInventoryItem)
-    .setData({
-      product,
-      categories: this.categories().filter(x=>product.categoryIds.includes(x.id)),
-      devices:this.inventorySrv.household_devices(),
-      household_id: this.selected_household()?.householdId!
-    })
-    .setEventCallback((name,data)=>{
-      if(name ==="submitted"){
-        this.inventorySrv.addInventoryItem(data);
-        this.modalSrv.close();
-      }
-    })
-    .setShowActionButton(false)
-    .setCloseBackdropClick(false)
-    .show()
+      .setData({
+        product,
+        categories: this.categories().filter(x => product.categoryIds.includes(x.id)),
+        devices: this.inventorySrv.household_devices(),
+        household_id: this.selected_household()?.householdId!
+      })
+      .setEventCallback((name, data) => {
+        if (name === "submitted") {
+          this.inventorySrv.addInventoryItem(data);
+          this.modalSrv.close();
+        }
+      })
+      .setShowActionButton(false)
+      .setCloseBackdropClick(false)
+      .show()
     console.log(product);
   }
-  inInventory(product:ProductDto): boolean{
-    const exists = this.inventory().filter(x=>x.product.productName === product.productName);
+  inInventory(product: ProductDto): boolean {
+    const exists = this.inventory().filter(x => x.product.productName === product.productName);
     return exists.length > 0
+  }
+  handleProductDeleteClick(prod: ProductDto) {
+    alert('clicked_delete');
+  }
+  handleInventoryClick() {
+    this.router.navigate(['app', 'inventory']);
+  }
+
+  get_category_from_id(id: number) {
+    return this.categories().find(x => x.id === id) ?? null;
   }
 }

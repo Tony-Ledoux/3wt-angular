@@ -1,0 +1,30 @@
+<div class="relative inline-block text-left">
+  
+  <!-- Trigger Knop -->
+  <button 
+    type="button"
+    class="group relative p-2 rounded-full transition-all duration-200 
+           bg-transparent hover:bg-app-border dark:hover:bg-white/10
+           text-app-text-muted hover:text-brand-secondary active:scale-95
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2"
+    (click)="toggleMenu()">
+    <i class="fa fa-ellipsis-v group-hover:text-brand-secondary transition-colors"></i>
+  </button>
+
+  <!-- Het Menu (Pop-up) -->
+  @if(menuOpen()) {
+    <div class="absolute right-0 mt-2 w-64 min-w-50 z-50 origin-top-right 
+                bg-app-card
+                border border-app-border dark:border-app-border-dark 
+                shadow-lg dark:shadow-2xl dark:shadow-black/40 rounded-xl py-1.5 px-2
+                transition-all duration-200 ease-out">
+      
+      <!-- Wrapper om interne items consistent te structureren -->
+      <div class="space-y-0.5 space-x-0.5 flex flex-col">
+        <ng-content />
+      </div>
+
+    </div>
+  }
+
+</div>
