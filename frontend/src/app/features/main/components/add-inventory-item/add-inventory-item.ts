@@ -74,10 +74,6 @@ export class AddInventoryItem {
     const totaal = rules.reduce((accumulator, rule) => accumulator + rule.multiplier, 0);
     return totaal;
   })
-  storageAdvice = computed<null | string>(() => {
-    if (this.multiplier() === 0 || this.multiplier() > 0) return null;
-    return `We adviseren om ${this.product().productName} niet op te slaan in een ${this.selectedDevice()?.deviceType}`;
-  });
   expiryDate = computed<string>(() => {
     const multiplier = this.multiplier();
     const shelfLife = this.product().shelfLifeClosedMinutes;
@@ -89,14 +85,21 @@ export class AddInventoryItem {
     const expiryDate = new Date();
     expiryDate.setDate(expiryDate.getDate());
     expiryDate.setHours(0, 0, 0, 0);// Reset time portion for accuracy
-
+    
     // Add the calculated days to the date
     expiryDate.setDate(expiryDate.getDate() + Math.round(shelfLifeDays));
-
+    
     // Update the form field with a standard YYYY-MM-DD string
     const dateString = expiryDate.toISOString().split('T')[0];
     return dateString;
   })
+  storageAdvice = computed<null | string>(() => {
+    if(this.selectedDevice()===null) return null;
+    if (this.expiryDate() !== '' && this.expiryDate() < new Date().toISOString() ){
+      return `We adviseren om ${this.product().productName} niet op te slaan in een ${this.selectedDevice()?.deviceType}`;
+    }
+    return null;
+  });
 
 
 

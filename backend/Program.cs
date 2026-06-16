@@ -101,6 +101,7 @@ using(var scope = app.Services.CreateScope())
         await Seeder.SeedDevicesAsync(context);
         await Seeder.SeedProductCategoriesAsync(context);
         await Seeder.SeedProductsAsync(context);
+        await Seeder.SeedStorageRulesAsync(context);
     } catch (Exception ex)
     {
         Console.Write(ex.Message);
