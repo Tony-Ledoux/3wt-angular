@@ -43,6 +43,7 @@ public interface IInventoryService
     Task<InventoryItemDto?> CreateInventoryItem(InventoryCreateItemDto input);
 
     Task<RequestResponse<InventoryItemDto?>> UpdateInventory(InventoryUpdateDto item);
+    Task<bool> DeleteInventoryItem(int id);
 
 }
 
@@ -504,5 +505,14 @@ public class InventoryService(
 
             return new RequestResponse<InventoryItemDto?>().Ok(r);
         }
+    }
+
+    public async Task<bool> DeleteInventoryItem(int id)
+    {
+        var inventory_item = await _inventoryRepo.GetByIdAsync(id);
+        if(inventory_item == null) return false;
+        _inventoryRepo.Delete(inventory_item);
+        return await _inventoryRepo.SaveChangesAsync();
+
     }
 }

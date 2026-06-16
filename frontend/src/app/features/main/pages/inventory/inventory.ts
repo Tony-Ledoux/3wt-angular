@@ -10,6 +10,8 @@ import { AccordionItem } from '@app/shared/components/Accordion/accordion-item/a
 import { ButtonComponent } from '@app/shared/components/button/button';
 import { ModalService } from '@app/core/services/modal/modal-service';
 import { EditForm } from '../../components/inventory/edit-form/edit-form';
+import { ApiService } from '@app/core/services/api/api-service';
+import { NotifyService } from '@app/core/services/notify/notify-service';
 
 export interface StoragelocationGroup {
   storagelocation: {
@@ -45,47 +47,60 @@ export class Inventory {
     { key: 'fresh', title: 'Vers', status: 'success' }
   ];
 
-  inventortSrv = inject(InventoryService);
+  inventorySrv = inject(InventoryService);
   modalSrv = inject(ModalService);
-  mainCollection = computed<StoragelocationGroup[]>(() => {
-    const inventory = this.inventortSrv.inventory();
-    const locations = new Map<number, StoragelocationGroup>();
-    for (const item of inventory) {
-      const storagelocationId = item.storagelocation.id;
-      if (!locations.has(storagelocationId)) {
-        locations.set(storagelocationId, {
-          storagelocation: item.storagelocation,
-          expired: [],
-          almost_expired: [],
-          fresh: [],
-        })
-      }
+  private apiSrv = inject(ApiService);
+  private toastSrv = inject(NotifyService);
+mainCollection = computed<StoragelocationGroup[]>(() => {
+  const inventory = this.inventorySrv.inventory();
+  const devices = this.inventorySrv.household_devices();
+  const locations = new Map<number, StoragelocationGroup>();
 
-      const locationGroup = locations.get(storagelocationId);
-      if (!locationGroup) {
-        continue;
-      }
+  // Voor-initialiseer alle opslaglocaties
+  for (const dev of devices) {
+    locations.set(dev.id, {
+      storagelocation: dev,
+      expired: [],
+      almost_expired: [],
+      fresh: [],
+    });
+  }
 
-      const daysUntilExpiry = this.getDaysUntilExpiry(item.expiryDate ?? null);
-
-      if (daysUntilExpiry === null) {
-        locationGroup.fresh.push(item);
-      } else if (daysUntilExpiry < 0) {
-        locationGroup.expired.push(item);
-      } else if (daysUntilExpiry <= this.ABOUT_TO_EXPIRE_DAYS) {
-        locationGroup.almost_expired.push(item);
-      } else {
-        locationGroup.fresh.push(item);
-      }
+  // Vul met inventory items
+  for (const item of inventory) {
+    const storagelocationId = item.storagelocation.id;
+    if (!locations.has(storagelocationId)) {
+      locations.set(storagelocationId, {
+        storagelocation: item.storagelocation,
+        expired: [],
+        almost_expired: [],
+        fresh: [],
+      });
     }
 
-    return Array.from(locations.values()).map((location) => ({
-      ...location,
-      expired: this.sortByExpiryDate(location.expired),
-      aboutToExpire: this.sortByExpiryDate(location.almost_expired),
-      fresh: this.sortByExpiryDate(location.fresh),
-    }));
-  })
+    const locationGroup = locations.get(storagelocationId);
+    if (!locationGroup) continue;
+
+    const daysUntilExpiry = this.getDaysUntilExpiry(item.expiryDate ?? null);
+
+    if (daysUntilExpiry === null) {
+      locationGroup.fresh.push(item);
+    } else if (daysUntilExpiry < 0) {
+      locationGroup.expired.push(item);
+    } else if (daysUntilExpiry <= this.ABOUT_TO_EXPIRE_DAYS) {
+      locationGroup.almost_expired.push(item);
+    } else {
+      locationGroup.fresh.push(item);
+    }
+  }
+
+  return Array.from(locations.values()).map((location) => ({
+    ...location,
+    expired: this.sortByExpiryDate(location.expired),
+    almost_expired: this.sortByExpiryDate(location.almost_expired),
+    fresh: this.sortByExpiryDate(location.fresh),
+  }));
+})
 
   private getDaysUntilExpiry(expiryDate: string | null): number | null {
     if (expiryDate === null) {
@@ -129,11 +144,41 @@ export class Inventory {
     return new Date(now.getFullYear(), now.getMonth(), now.getDate());
   }
   handleUseClick(action: string, item: InventoryItem) {
-    if (action === 'deleteAll') {
-      this.modalSrv.open("Item verwijderen", `Ben je zeker dat je ${item.product.productName} wil verwijderen?`).setType('danger').show();
+    if(action === "use"){
+      this.modalSrv.open("Item gebruiken", EditForm)
+      .setData({ item, household: this.inventorySrv.hh_id })
+      .setEventCallback((name,data)=>{
+        if(name === "submitted"){
+          if(data === null){
+            this.inventorySrv.removeInventoryItem(item);
+          }else{
+            this.inventorySrv.updateInventoryItem(data);
+          }
+          this.modalSrv.close();
+        }
+      })
+      .setShowActionButton(false)
+      .show();
     }
-    if (action === 'use') {
-      this.modalSrv.open("Item gebruiken", EditForm).setData({ item, household: this.inventortSrv.hh_id }).show();
+    if(action === "deleteAll"){
+      this.modalSrv.open(`${item.product.productName} verwijderen?`, `Ben je zeker dat je ${item.product.productName} wil verwijderen?`)
+      .setType("danger")
+      .setIcon("fa fa-trash")
+      .setConfirmCallback(()=>{
+        this.apiSrv.delete(`/inventory/${item.id}/household/${this.inventorySrv.hh_id}`).subscribe({
+          next:()=>{
+            this.toastSrv.success(`${item.product.productName} is verwijderd`);
+            this.inventorySrv.removeInventoryItem(item);
+          },
+          error:(err)=>{
+            console.error(err);
+            this.toastSrv.error(`kon ${item.product.productName} niet verwijderen!`)
+          }
+        })
+      })
+      .setConfirmText("ja, weggooien")
+      .show()
     }
+    
   }
 }

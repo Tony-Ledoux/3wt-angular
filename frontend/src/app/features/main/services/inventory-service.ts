@@ -150,5 +150,11 @@ export class InventoryService {
     removeProduct(prod: ProductDto) {
         this.products.update(p => p.filter(x => x.id !== prod.id));
     }
+    removeInventoryItem(item: InventoryItem) {
+        this.inventory.update(p => p.filter(x => x.id !== item.id));
+    }
+    updateInventoryItem(item: InventoryItem) {
+        this.inventory.update(p => p.map(existing => existing.id === item.id ? item : existing))
+    }
 
 }

@@ -1,6 +1,11 @@
-<p>{{inventory_item()?.product?.productName ?? 'onbekend'}}</p>
-<form [formGroup]="alter" (ngSubmit)="onSubmit()">
-    <app-labeled-input name="q" label="Aantal" type="positive-decimal" formControlName="quantity" />
+<p class="text-2xl text-brand-primary font-bold">{{inventory_item()?.product?.productName ?? 'onbekend'}}</p>
+<form [formGroup]="alter" (ngSubmit)="onSubmit()" class="flex flex-col gap-2">
+    <div class="flex gap-3 items-center">
+        <app-labeled-input class="flex-1" name="q" label="Aantal" type="positive-decimal" formControlName="quantity" />
+        <span class="inline-flex self-center items-center px-3 py-1 text-xl">
+            {{inventory_item()?.unit ?? ''}}
+        </span>
+    </div>
     <app-button type="submit">Verzenden</app-button>
 </form>
-{{data()|json}}
+

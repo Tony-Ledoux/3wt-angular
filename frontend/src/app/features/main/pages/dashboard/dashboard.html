@@ -1,1 +1,46 @@
-<p>dashboard works!</p>
+<app-page-header title="Dashboard" />
+
+
+<app-section-card title="oplaglocaties">
+    <div class="flex justify-center">
+        <app-pill-component [value]="numDevices()" label="locaties" variant="blue" />
+    </div>
+</app-section-card>
+<app-section-card title="Inventaris">
+    <div class="flex flex-wrap gap-2 justify-between">
+        <app-pill-component [value]="numItems()" label="items" variant="slate" />
+        <app-pill-component [value]="expired().length" label="verlopen" variant="red" />
+
+        <app-pill-component [value]="almostExpired().length" label="bijna" variant="red" />
+    </div>
+</app-section-card>
+
+
+
+<app-section-card [title]="'Aankomende verlopen items'">
+    @if(almostExpired().length + expired().length > 0) {
+    <div class="flex flex-wrap gap-2">
+        @for(item of expired().concat(almostExpired()); track item.id) {
+        <app-section-card>
+            <div class="item-left">
+                <strong>{{ item.product.productName }}</strong>
+                <div class="text-app-text-muted">{{ item.quantity }} {{ item.unit }} — {{ item.storagelocation.name }}
+                </div>
+            </div>
+            <div class="item-right">
+                @if(item.expiryDate) {
+                <span class="expiry-date">{{ item.expiryDate | date:'dd/MM/yyyy' }}</span>
+                } @else {
+                <span class="expiry-date muted">Geen datum</span>
+                }
+            </div>
+            <app-button [fullWidth]="true" [variant]="expired().includes(item) ? 'danger' : 'primary'" (click)="goToInventory()">
+                {{ expired().includes(item) ? 'Verwijderen' : 'Bekijk' }}
+            </app-button>
+        </app-section-card>
+        }
+    </div>
+    } @else {
+    <p>Geen items die binnenkort of al verlopen zijn.</p>
+    }
+</app-section-card>

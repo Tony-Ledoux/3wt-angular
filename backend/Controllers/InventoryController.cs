@@ -44,6 +44,15 @@ namespace backend.Controllers
             return Ok(result.Data);
         }
 
+        [HttpDelete("{inventoryId:int}/household/{householdId:int}")]
+        public async Task<IActionResult> DeleteFromInventory(int householdId, int inventoryId)
+        {
+            if (!_user.HouseholdUsers.Any(hh => hh.HouseholdId == householdId)) return Forbid();
+            var result = await _srv.DeleteInventoryItem(inventoryId);
+            if(!result) return BadRequest();
+            return NoContent();
+        }
+
 
     }
 }
