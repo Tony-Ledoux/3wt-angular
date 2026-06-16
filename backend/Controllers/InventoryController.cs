@@ -1,5 +1,6 @@
 using backend.Contexts;
 using backend.Models.Create;
+using backend.Models.Update;
 using backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -31,6 +32,13 @@ namespace backend.Controllers
              var result = await _srv.CreateInventoryItem(input);
              if(result == null) return BadRequest();
             return Ok(result);
+        }
+
+        [HttpPut("household/{householdId:int}")]
+        public async Task<IActionResult> UpdateInventory(int householdId, InventoryUpdateDto input)
+        {
+            if (!_user.HouseholdUsers.Any(hh => hh.HouseholdId == householdId)) return Forbid();
+            var result = await _srv.UpdateInventoryItem(InventoryUpdateDto input);
         }
 
         

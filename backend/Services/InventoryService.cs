@@ -42,6 +42,8 @@ public interface IInventoryService
     Task<IEnumerable<InventoryItemDto>> GetInventoryItemsForHousehold(int householdId);
     Task<InventoryItemDto?> CreateInventoryItem(InventoryCreateItemDto input);
 
+    Task<RequestResponse<InventoryItemDto?>> UpdateInventory(InventoryUpdateDto item);
+
 }
 
 public class InventoryService(
@@ -461,5 +463,24 @@ public class InventoryService(
         };
         return r;
 
+    }
+
+    public async Task<RequestResponse<InventoryItemDto?>> UpdateInventory(InventoryUpdateDto item)
+    {
+        var inventory_item = await _inventoryRepo.GetByIdAsync(item.Id);
+        if(inventory_item == null) return new RequestResponse<InventoryItemDto?>().SetIsNotFound().Failure("niet gevonden");
+        var newQuantity = inventory_item.Quantity - item.Quantity;
+        if(newQuantity <= 0)
+        {
+            // delete the item
+            _inventoryRepo.Delete(inventory_item);
+            var result = await _inventoryRepo.SaveChangesAsync();
+            if (result) return new RequestResponse<InventoryItemDto?>().Ok(null);
+            return new RequestResponse<InventoryItemDto?>().Failure("verwijderen niet gelukt");
+        }
+        else
+        {
+            //adjust the quantity
+        }
     }
 }
