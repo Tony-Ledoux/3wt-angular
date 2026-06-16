@@ -467,10 +467,10 @@ public class InventoryService(
 
     public async Task<RequestResponse<InventoryItemDto?>> UpdateInventory(InventoryUpdateDto item)
     {
-        var inventory_item = await _inventoryRepo.GetByIdAsync(item.Id);
-        if(inventory_item == null) return new RequestResponse<InventoryItemDto?>().SetIsNotFound().Failure("niet gevonden");
+        var inventory_item = await _inventoryRepo.GetSet().Include(i => i.StorageLocation).Include(i => i.Product).FirstOrDefaultAsync(x => x.Id == item.Id);
+        if (inventory_item == null) return new RequestResponse<InventoryItemDto?>().SetIsNotFound().Failure("niet gevonden");
         var newQuantity = inventory_item.Quantity - item.Quantity;
-        if(newQuantity <= 0)
+        if (newQuantity <= 0)
         {
             // delete the item
             _inventoryRepo.Delete(inventory_item);
@@ -480,7 +480,29 @@ public class InventoryService(
         }
         else
         {
-            //adjust the quantity
+            inventory_item.Quantity = newQuantity;
+            var result = await _inventoryRepo.SaveChangesAsync();
+            if (!result) return new RequestResponse<InventoryItemDto?>().Failure("kon niet aanpassen");
+            InventoryItemDto r = new()
+            {
+                Id = inventory_item.Id,
+                Product = new()
+                {
+                    Id = inventory_item.Product.Id,
+                    ProductName = inventory_item.Product.ProductName
+                },
+                Storagelocation = new()
+                {
+                    Id = inventory_item.StorageLocation.Id,
+                    Name = inventory_item.StorageLocation.Name
+                },
+                Quantity = inventory_item.Quantity,
+                Unit = inventory_item.Unit,
+                ExpiryDate = inventory_item.ExpiryDate
+
+            };
+
+            return new RequestResponse<InventoryItemDto?>().Ok(r);
         }
     }
 }

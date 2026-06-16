@@ -1,0 +1,6 @@
+<p>{{inventory_item()?.product?.productName ?? 'onbekend'}}</p>
+<form [formGroup]="alter" (ngSubmit)="onSubmit()">
+    <app-labeled-input name="q" label="Aantal" type="positive-decimal" formControlName="quantity" />
+    <app-button type="submit">Verzenden</app-button>
+</form>
+{{data()|json}}

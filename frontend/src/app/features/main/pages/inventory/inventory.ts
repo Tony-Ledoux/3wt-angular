@@ -9,6 +9,7 @@ import { PillComponent } from '@app/shared/components/pill-component/pill-compon
 import { AccordionItem } from '@app/shared/components/Accordion/accordion-item/accordion-item';
 import { ButtonComponent } from '@app/shared/components/button/button';
 import { ModalService } from '@app/core/services/modal/modal-service';
+import { EditForm } from '../../components/inventory/edit-form/edit-form';
 
 export interface StoragelocationGroup {
   storagelocation: {
@@ -39,10 +40,10 @@ export class Inventory {
   MS_PER_DAY = 24 * 60 * 60 * 1000;
 
   readonly expirySections: ExpirySection[] = [
-  { key: 'expired', title: 'Vervallen', status: 'danger' },
-  { key: 'almost_expired', title: 'Bijna Vervallen', status: 'warning' },
-  { key: 'fresh', title: 'Vers', status: 'success' }
-];
+    { key: 'expired', title: 'Vervallen', status: 'danger' },
+    { key: 'almost_expired', title: 'Bijna Vervallen', status: 'warning' },
+    { key: 'fresh', title: 'Vers', status: 'success' }
+  ];
 
   inventortSrv = inject(InventoryService);
   modalSrv = inject(ModalService);
@@ -65,7 +66,7 @@ export class Inventory {
         continue;
       }
 
-      const daysUntilExpiry = this.getDaysUntilExpiry(item.expiryDate??null);
+      const daysUntilExpiry = this.getDaysUntilExpiry(item.expiryDate ?? null);
 
       if (daysUntilExpiry === null) {
         locationGroup.fresh.push(item);
@@ -127,12 +128,12 @@ export class Inventory {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), now.getDate());
   }
-  handleUseClick(action:string, item: InventoryItem){
-    if(action === 'deleteAll'){
-      this.modalSrv.open("Item verwijderen",`Ben je zeker dat je ${item.product.productName} wil verwijderen?`).setType('danger').show();
+  handleUseClick(action: string, item: InventoryItem) {
+    if (action === 'deleteAll') {
+      this.modalSrv.open("Item verwijderen", `Ben je zeker dat je ${item.product.productName} wil verwijderen?`).setType('danger').show();
     }
-    if(action === 'use'){
-      this.modalSrv.open("Item gebruiken",`je gaat ${item.product.productName} consumeren?`).show();
+    if (action === 'use') {
+      this.modalSrv.open("Item gebruiken", EditForm).setData({ item, household: this.inventortSrv.hh_id }).show();
     }
   }
 }
