@@ -1,4 +1,55 @@
 <app-page-header title="inventaris" subtitle="Beheer de inventaris" />
-<pre>
-    {{inventortSrv.inventory()|json}}
-</pre>
+
+@for(sl of mainCollection(); track sl.storagelocation.id) {
+  @let inventoryCount = sl.expired.length + sl.almost_expired.length + sl.fresh.length;
+
+  <app-section-card [title]="sl.storagelocation.name">
+    <app-pill-component
+      card-header-action
+      [value]="inventoryCount"
+      label=""
+      type="pill"
+      variant="slate"
+    />
+
+    @if(inventoryCount > 0) {
+      <div class="flex flex-col gap-2">
+        @for(section of expirySections; track section.key) {
+          @let items = sl[section.key];
+          @if(items.length > 0) {
+            <app-accordion-item
+              [status]="section.status"
+              [hasBadge]="true"
+              [badge]="items.length"
+              [title]="section.title"
+            >
+              <div class="flex flex-col gap-2">
+                @for(exp of items; track exp.id) {
+                  <div class="grid grid-cols-5 gap-2 items-center">
+                    <span>{{ exp.product.productName }}</span>
+                    <span>{{ exp.quantity }}</span>
+                    <span>{{ exp.unit }}</span>
+                    <span>
+                      @if(exp.expiryDate) {
+                        {{ exp.expiryDate | date:'dd/MM/yyyy' }}
+                      } @else {
+                        -
+                      }
+                    </span>
+                    <app-button [variant]="section.status === 'danger' ? 'danger' : 'primary'" (click)="handleUseClick(section.status === 'danger' ? 'deleteAll' : 'use',exp)">
+                      {{ section.status === 'danger' ? 'Verwijderen' : 'Gebruiken' }}
+                    </app-button>
+                  </div>
+                }
+              </div>
+            </app-accordion-item>
+          }
+        }
+      </div>
+    } @else {
+      <p>Geen producten in inventaris.</p>
+    }
+  </app-section-card>
+} @empty(){
+    <p>Geen opslaglocatie/inventaris beschikbaar.</p>
+}
