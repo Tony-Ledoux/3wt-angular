@@ -1,5 +1,9 @@
 # 🍳 MyKitchen - Pantry Management System
 
+### github repo
+
+https://github.com/Tony-Ledoux/3wt-angular
+
 MyKitchen is een comprehensive applicatie voor het beheren van voorraden, boodschappenlijsten en recepten binnen een huishouden. Het systeem is ontworpen om verspilling tegen te gaan en het kookproces te stroomlijnen door middel van een slimme koppeling tussen voorraad, opslagregels en recepten.
 
 ## 📖 App Overzicht & Functionaliteit
