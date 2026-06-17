@@ -98,3 +98,12 @@ De reguliere gebruiker richt zich op het persoonlijke beheer van de keuken en he
 - **Persoonlijk Beheer (CRUD):** Kan eigen producten, recepten en voorraaditems toevoegen, bewerken en verwijderen. Producten en recepten staan in status 'concept' tot ze door de Admin worden gepubliceerd.
 - **Huishoudelijk Beheer:** Kan nieuwe huishoudens aanmaken of zich aanmelden bij bestaande huishoudens via een invite code.
 - **Voorraad & Lijsten:** Beheert de eigen voorraad en boodschappenlijsten binnen de gekoppelde huishoudens.
+
+## Users
+| gebruiker | wachtwoord | rol |
+|:--- |:--- |:---|
+|john.doe@example.com|p@ss1234| gebruiker|
+|jane.doe@example.com|p@ss1234| gebruiker|
+|admin@example.com| p@ss1234 |admin|
+
+u kan ook zelf gebruikers aanmaken.
